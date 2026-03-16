@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab X Co | AI Systems & Automation Studio</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="logo">LAB X CO</div>
+      <div class="nav-links">
+        <a href="#about">Lab</a>
+        <a href="#systems">Systems</a>
+        <a href="#services">Services</a>
+        <a href="#contact" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 6px; margin-left: 2rem;">Start Project</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="grid-bg"></div>
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <h1 class="hero-title" style="margin-bottom: 0; color: var(--accent-yellow); font-style: italic; letter-spacing: -0.05em;">SCALABLE</h1>
+          <h1 class="hero-title" style="margin-bottom: 0;">SYSTEMS</h1>
+          <h1 class="hero-title"><span style="color: var(--accent-color);">AUTOMATED.</span></h1>
+          <p class="subtext" style="margin-top: 2rem;">
+            Lab X Co designs AI automation, digital infrastructure, and intelligent workflows that help companies operate more efficiently.
+          </p>
+          <div style="margin-top: 3rem;">
+            <a href="#systems" class="btn btn-primary">Explore Systems</a>
+            <a href="#contact" class="btn btn-secondary">Start a Project</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <canvas id="hero-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: Trust / Social Proof -->
+    <section class="social-proof bg-light" style="padding: 4rem 2rem;">
+      <div class="container" style="display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap;">
+        <div style="margin: 1rem;">
+          <h3 style="font-size: 2.5rem; color: var(--accent-color);">100+</h3>
+          <p style="color: var(--text-secondary);">Systems Built</p>
+        </div>
+        <div style="margin: 1rem;">
+          <h3 style="font-size: 2.5rem; color: var(--accent-color);">Millions</h3>
+          <p style="color: var(--text-secondary);">Data Points Processed</p>
+        </div>
+        <div style="margin: 1rem;">
+          <h3 style="font-size: 2.5rem; color: var(--accent-color);">50+</h3>
+          <p style="color: var(--text-secondary);">Businesses Automated</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: What We Build -->
+    <section id="what-we-build" style="padding: 8rem 2rem;">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 5rem;">
+          <h2 class="section-title" style="margin-bottom: 1rem;">DIGITAL INFRASTRUCTURE FOR MODERN BUSINESSES</h2>
+          <p class="subtext" style="margin: 0 auto;">Lab X Co builds both internal systems that run businesses and interactive experiences that capture customer data.</p>
+        </div>
+        <div class="pillars-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;">
+          <div class="pillar-card" style="padding: 3rem; background: var(--bg-secondary); border-radius: 24px;">
+            <h3 style="font-size: 2rem; margin-bottom: 1.5rem;">BUSINESS SYSTEMS</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Internal tools that automate operations and organize data.</p>
+            <ul style="list-style: none;">
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Automation Systems</li>
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Custom Dashboards</li>
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> AI Workflows</li>
+              <li style="display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Internal Platforms</li>
+            </ul>
+          </div>
+          <div class="pillar-card" style="padding: 3rem; background: var(--bg-secondary); border-radius: 24px;">
+            <h3 style="font-size: 2rem; margin-bottom: 1.5rem;">INTERACTIVE GROWTH</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Customer-facing experiences designed to engage users and capture valuable lead data.</p>
+            <ul style="list-style: none;">
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Landing Pages</li>
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Campaign Microsites</li>
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Interactive Quizzes</li>
+              <li style="margin-bottom: 1rem; display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Mini Games</li>
+              <li style="display: flex; align-items: center;"><span style="color: var(--accent-color); margin-right: 1rem; font-size: 1.5rem;">•</span> Data Collection Tools</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: How It Connects -->
+    <section id="flow" class="bg-light" style="padding: 8rem 2rem;">
+      <div class="container text-center" style="text-align: center;">
+        <h2 class="section-title">HOW IT CONNECTS</h2>
+        <div class="flow-diagram" style="display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; overflow-x: auto; padding-bottom: 2rem;">
+          <div class="flow-step">
+            <div class="flow-icon" style="width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; color: var(--accent-color); box-shadow: 0 15px 35px rgba(0,0,0,0.08);">1</div>
+            <p style="font-weight: 600;">Traffic</p>
+          </div>
+          <div class="flow-arrow" style="color: var(--text-secondary); font-size: 1.5rem;">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; color: var(--accent-color); box-shadow: 0 15px 35px rgba(0,0,0,0.08);">2</div>
+            <p style="font-weight: 600;">Interactive<br>Campaign</p>
+          </div>
+          <div class="flow-arrow" style="color: var(--text-secondary); font-size: 1.5rem;">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; color: var(--accent-color); box-shadow: 0 15px 35px rgba(0,0,0,0.08);">3</div>
+            <p style="font-weight: 600;">Data<br>Captured</p>
+          </div>
+          <div class="flow-arrow" style="color: var(--text-secondary); font-size: 1.5rem;">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; color: var(--accent-color); box-shadow: 0 15px 35px rgba(0,0,0,0.08);">4</div>
+            <p style="font-weight: 600;">Automation<br>System</p>
+          </div>
+          <div class="flow-arrow" style="color: var(--text-secondary); font-size: 1.5rem;">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; color: var(--accent-color); box-shadow: 0 15px 35px rgba(0,0,0,0.08);">5</div>
+            <p style="font-weight: 600;">Dashboard<br>& Insights</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Featured Systems / Projects -->
+    <section id="systems" class="bg-light" style="padding: 8rem 2rem;">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4rem;">
+          <h2 class="section-title" style="font-size: clamp(3rem, 8vw, 5rem); line-height: 1; letter-spacing: -0.05em; text-align: left; margin: 0; color: var(--bg-primary);">FEATURED<br>PROJECTS</h2>
+          <div style="max-width: 400px; text-align: right;">
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">At Lab X Co, we believe that development goes beyond just creating a functional system.</p>
+            <a href="#" class="btn" style="display: inline-flex; align-items: center; gap: 1rem; background: var(--bg-primary); color: #fff; border-radius: 100px; padding: 0.75rem 1.5rem 0.75rem 2rem; font-weight: 500;">
+              View All Projects
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%;">↗</span>
+            </a>
+          </div>
+        </div>
+        
+        <div class="project-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 3rem; margin-top: 4rem;">
+          
+          <!-- Project 1 -->
+          <div class="project-card">
+            <div class="project-img">
+              <img src="/Users/ericcheah/.gemini/antigravity/brain/877d84f1-98df-4e10-93df-8939cfe9f47f/project_dashboard_mockup_1773597190138.png" alt="Task management Dashboard Design">
+            </div>
+            <div class="project-info">
+              <div class="project-title">
+                <h4 style="color: var(--bg-primary);">Task management<br>Dashboard Design</h4>
+              </div>
+              <div class="project-arrow" style="color: var(--bg-primary);">→</div>
+            </div>
+            <div class="project-tags">
+              <span class="project-tag">Website Design</span>
+              <span class="project-tag">Website Development</span>
+              <span class="project-tag">Branding Design</span>
+            </div>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="project-card">
+            <div class="project-img">
+              <img src="/Users/ericcheah/.gemini/antigravity/brain/877d84f1-98df-4e10-93df-8939cfe9f47f/project_mobile_mockup_1773597206223.png" alt="Finance Mobile App Design">
+            </div>
+            <div class="project-info">
+              <div class="project-title">
+                <h4 style="color: var(--bg-primary);">Finance Mobile<br>App Design</h4>
+              </div>
+              <div class="project-arrow" style="color: var(--bg-primary);">→</div>
+            </div>
+            <div class="project-tags">
+              <span class="project-tag">Website Design</span>
+              <span class="project-tag">Website Development</span>
+              <span class="project-tag">Branding Design</span>
+            </div>
+          </div>
+
+          <!-- Project 3 -->
+          <div class="project-card">
+            <div class="project-img">
+              <img src="/Users/ericcheah/.gemini/antigravity/brain/877d84f1-98df-4e10-93df-8939cfe9f47f/project_branding_mockup_1773597226034.png" alt="Branding & Logo Design">
+            </div>
+            <div class="project-info">
+              <div class="project-title">
+                <h4 style="color: var(--bg-primary);">Branding & Logo<br>Design</h4>
+              </div>
+              <div class="project-arrow" style="color: var(--bg-primary);">→</div>
+            </div>
+            <div class="project-tags">
+              <span class="project-tag">Logo Design</span>
+              <span class="project-tag">Website Development</span>
+              <span class="project-tag">Branding Design</span>
+            </div>
+          </div>
+
+          <!-- Project 4 -->
+          <div class="project-card">
+            <div class="project-img">
+              <img src="/Users/ericcheah/.gemini/antigravity/brain/877d84f1-98df-4e10-93df-8939cfe9f47f/project_saas_mockup_1773597245954.png" alt="SaaS Platform Website Design">
+            </div>
+            <div class="project-info">
+              <div class="project-title">
+                <h4 style="color: var(--bg-primary);">SaaS Platform<br>Website Design</h4>
+              </div>
+              <div class="project-arrow" style="color: var(--bg-primary);">→</div>
+            </div>
+            <div class="project-tags">
+              <span class="project-tag">Website Design</span>
+              <span class="project-tag">Website Development</span>
+              <span class="project-tag">Branding Design</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Interactive Campaign Demo -->
+    <section id="demo" class="bg-secondary" style="padding: 8rem 2rem;">
+      <div class="container text-center" style="text-align: center;">
+        <h2 class="section-title" style="margin-bottom: 1rem;">INTERACTIVE CAMPAIGN DEMO</h2>
+        <p class="subtext" style="margin: 0 auto 4rem;">Experience how brands can engage users and collect leads through interactive campaigns. Score 10 points to unlock a reward.</p>
+        
+        <div class="game-container" style="position: relative; max-width: 800px; margin: 0 auto; background: linear-gradient(180deg, #111 0%, #222 100%); border-radius: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.2); overflow: hidden; height: 500px;">
+          <!-- Game Canvas -->
+          <canvas id="gameCanvas" style="display: block; width: 100%; height: 100%;"></canvas>
+          
+          <!-- Score Overlay -->
+          <div style="position: absolute; top: 20px; right: 20px; color: #fff; font-family: 'Space Grotesk'; font-size: 1.5rem; z-index: 10;">
+            SCORE: <span id="gameScore">0</span>/10
+          </div>
+          
+          <!-- Start Button Overlay -->
+          <div id="gameStartOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); z-index: 20;">
+            <h3 id="overlayTitle" style="color: #fff; font-size: 2rem; margin-bottom: 1rem;">SPACE SHOOTER</h3>
+            <p id="overlayDesc" style="color: rgba(255,255,255,0.7); margin-bottom: 2rem;">Use Arrows or Swipe to Move</p>
+            <button id="startGameBtn" class="btn btn-primary">Start Game</button>
+          </div>
+
+          <!-- Lead Capture Popup -->
+          <div id="leadCapturePopup" style="position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); z-index: 30;">
+            <div style="background: #fff; padding: 3rem; border-radius: 16px; width: 90%; max-width: 400px; text-align: center;">
+              <h3 id="popupTitle" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">Nice shooting 🚀<br>You unlocked a Free Consultation.</h3>
+              <p id="popupDesc" style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.9rem;">This is an example of how interactive campaigns can capture leads while engaging visitors.</p>
+              
+              <div id="leadForm">
+                <input type="email" id="leadEmail" placeholder="Enter your email" style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; font-family: var(--font-body); font-size: 1rem;" required>
+                <button id="submitLeadBtn" class="btn btn-primary" style="width: 100%;">Claim Free Consultation</button>
+              </div>
+              
+              <div id="leadSuccess" style="display: none;">
+                <h4 style="color: #10B981; font-size: 1.25rem;">Thanks! We'll contact you soon.</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <p style="color: var(--text-secondary); margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+          This interactive demo shows how brands can use mini games, quizzes, and interactive experiences to capture customer data during campaigns.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 6: Our Process -->
+    <section id="process" class="bg-light" style="padding: 8rem 2rem;">
+      <div class="container">
+        <h2 class="section-title">OUR PROCESS</h2>
+        <div class="process-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 4rem;">
+          <div class="process-card">
+            <span style="font-size: 3rem; font-weight: 700; color: var(--accent-color); display: block; margin-bottom: 1.5rem;">01</span>
+            <h4 style="font-size: 1.5rem; margin-bottom: 1rem;">DISCOVER</h4>
+            <p style="color: var(--text-secondary);">We analyze your operations and identify automation and engagement opportunities.</p>
+          </div>
+          <div class="process-card">
+            <span style="font-size: 3rem; font-weight: 700; color: var(--accent-color); display: block; margin-bottom: 1.5rem;">02</span>
+            <h4 style="font-size: 1.5rem; margin-bottom: 1rem;">ARCHITECT</h4>
+            <p style="color: var(--text-secondary);">Designing the blueprint for your scalable infrastructure or interactive campaign.</p>
+          </div>
+          <div class="process-card">
+            <span style="font-size: 3rem; font-weight: 700; color: var(--accent-color); display: block; margin-bottom: 1.5rem;">03</span>
+            <h4 style="font-size: 1.5rem; margin-bottom: 1rem;">BUILD</h4>
+            <p style="color: var(--text-secondary);">Engineering custom automation systems or interactive front-end experiences.</p>
+          </div>
+          <div class="process-card">
+            <span style="font-size: 3rem; font-weight: 700; color: var(--accent-color); display: block; margin-bottom: 1.5rem;">04</span>
+            <h4 style="font-size: 1.5rem; margin-bottom: 1rem;">LAUNCH & SCALE</h4>
+            <p style="color: var(--text-secondary);">Deploying the solution and optimizing for high-performance data capture and growth.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Testimonials -->
+    <section id="testimonials" class="testimonials bg-secondary" style="padding: 8rem 2rem;">
+      <div class="container">
+        <div class="testimonial-slider" style="margin-top: 2rem;">
+          <div class="testimonial-card" style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <p style="font-size: 2rem; font-family: var(--font-heading); line-height: 1.4; margin-bottom: 2rem;">"Lab X Co rebuilt our operations. Between the internal data dashboards and the interactive lead generation tools, our efficiency has scaled 10x."</p>
+            <h5 style="font-size: 1.25rem;">Director of Growth, FinTech Scale-up</h5>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: FAQ -->
+    <section id="faq" class="faq" style="padding: 8rem 2rem;">
+      <div class="container">
+        <h2 class="section-title">FREQUENTLY ASKED QUESTIONS</h2>
+        <div class="faq-accordion" style="max-width: 800px; margin: 4rem auto 0;">
+          <div class="faq-item" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2rem 0;">
+            <h4 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; cursor: pointer;">
+              What type of systems does Lab X Co build?
+              <span>+</span>
+            </h4>
+            <p style="color: var(--text-secondary);">We specialize in AI automation, custom data platforms, internal business infrastructure, and interactive front-end experiences.</p>
+          </div>
+          <div class="faq-item" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2rem 0;">
+            <h4 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; cursor: pointer;">
+              Can interactive campaigns collect customer data?
+              <span>+</span>
+            </h4>
+            <p style="color: var(--text-secondary);">Yes. We design interactive quizzes, mini-games, and dynamic landing pages specifically engineered to engage users and compliantly capture lead data into your CRM.</p>
+          </div>
+          <div class="faq-item" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2rem 0;">
+            <h4 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; cursor: pointer;">
+              How long does it take to develop a system?
+              <span>+</span>
+            </h4>
+            <p style="color: var(--text-secondary);">Typical project cycles range from 4 to 12 weeks depending on system complexity.</p>
+          </div>
+          <div class="faq-item" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2rem 0;">
+            <h4 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; cursor: pointer;">
+              Do you customize solutions for each business?
+              <span>+</span>
+            </h4>
+            <p style="color: var(--text-secondary);">Every business is unique. We architect systems and campaigns specifically matched to your operational DNA and marketing goals.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 9: Final CTA -->
+    <section class="final-cta bg-accent" style="text-align: center; padding: 10rem 2rem;">
+      <div class="container">
+        <h2 style="font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: 1.5rem; color: #fff;">READY TO BUILD YOUR SYSTEM?</h2>
+        <p style="font-size: 1.5rem; color: rgba(255,255,255,0.7); margin-bottom: 3.5rem; max-width: 800px; margin-left: auto; margin-right: auto;">From automation platforms to interactive campaigns, Lab X Co builds the digital infrastructure that powers modern businesses.</p>
+        <a href="#contact" class="btn btn-secondary" style="margin: 0; padding: 1.5rem 3.5rem; background: #fff; color: var(--accent-color); border: none;">Start a Project</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-accent" style="padding: 6rem 2rem 2rem 2rem;">
+    <div class="container relative">
+      <div style="font-size: clamp(4rem, 15vw, 12rem); font-family: var(--font-heading); font-weight: 700; color: rgba(255,255,255,0.1); line-height: 0.8; margin-bottom: 4rem; user-select: none;">
+        LAB X CO
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; position: relative; z-index: 2;">
+        <div>
+          <div class="logo" style="margin-bottom: 1.5rem; color: #fff;">LAB X CO</div>
+          <p style="color: rgba(255,255,255,0.8); max-width: 300px;">AI systems and automation studio building scalable digital infrastructure.</p>
+        </div>
+        <div>
+          <h5 style="margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff;">Services</h5>
+          <ul style="list-style: none;">
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">Automation</a></li>
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">Dashboards</a></li>
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">AI Workflow</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 style="margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff;">Company</h5>
+          <ul style="list-style: none;">
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">About</a></li>
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">Process</a></li>
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 style="margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff;">Social</h5>
+          <ul style="list-style: none;">
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">Twitter</a></li>
+            <li style="margin-bottom: 0.75rem;"><a href="#" style="text-decoration: none; color: rgba(255,255,255,0.8);">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top: 6rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.875rem; position: relative; z-index: 2;">
+        &copy; 2026 Lab X Co. Systems for Scale.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

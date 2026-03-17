@@ -441,13 +441,6 @@
     }
   }
 
-  // ── Collision ──
-  function circleRect(cx, cy, cr, rx, ry, rw, rh) {
-    const nearX = Math.max(rx - rw, Math.min(cx, rx + rw));
-    const nearY = Math.max(ry - rh, Math.min(cy, ry + rh));
-    return (cx - nearX) ** 2 + (cy - nearY) ** 2 < cr ** 2;
-  }
-
   // ── Main loop ──
   let lastTime = 0;
   function loop(ts) {
@@ -514,10 +507,12 @@
       }
     }
 
-    // ── Enemy × Ship collision ──
+    // ── Enemy × Ship collision (circle-circle, tight radii) ──
     for (let ei = enemies.length - 1; ei >= 0; ei--) {
       const e = enemies[ei];
-      if (circleRect(e.x, e.y, e.r, ship.x, ship.y, ship.w, ship.h)) {
+      const dx = e.x - ship.x;
+      const dy = e.y - ship.y;
+      if (dx * dx + dy * dy < (12 + 12) ** 2) {
         spawnExplosion(e.x, e.y, '#FF0000');
         spawnExplosion(ship.x, ship.y, '#FF3B00');
         enemies.splice(ei, 1);

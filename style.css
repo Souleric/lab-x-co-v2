@@ -775,9 +775,10 @@ ul { list-style: none; }
 
 @media (max-width: 768px) {
   .section-dark, .section-light, .section-whatsapp { padding: 5rem 1.5rem; }
-  .hero                { padding-top: 80px; padding-bottom: 3rem; align-items: flex-start; }
+  .hero                { padding-top: 80px; padding-bottom: 3rem; align-items: center; }
   .hero-grid          { grid-template-columns: 1fr; text-align: center; gap: 0; }
-  .hero-visual        { height: 260px; order: -1; margin-bottom: -1rem; }
+  .hero-visual        { position: absolute; inset: 0; height: 100%; width: 100%; order: 0; margin: 0; opacity: 0.55; overflow: hidden; pointer-events: none; }
+  .hero-text          { position: relative; z-index: 2; }
   .hero-ctas          { justify-content: center; margin-bottom: 2rem; }
   .subtext            { margin-left: auto; margin-right: auto; }
   .pillars-grid       { grid-template-columns: 1fr; }

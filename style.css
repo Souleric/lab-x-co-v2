@@ -190,6 +190,7 @@ ul { list-style: none; }
 ════════════════════════════════ */
 .hero {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   position: relative;
@@ -254,6 +255,7 @@ ul { list-style: none; }
   position: relative;
   opacity: 0;
   animation: fadeIn 1.2s 0.5s forwards;
+  overflow: hidden;
 }
 #hero-canvas { width: 100%; height: 100%; display: block; }
 
@@ -773,9 +775,10 @@ ul { list-style: none; }
 
 @media (max-width: 768px) {
   .section-dark, .section-light, .section-whatsapp { padding: 5rem 1.5rem; }
-  .hero-grid          { grid-template-columns: 1fr; text-align: center; }
-  .hero-visual        { height: 380px; order: -1; }
-  .hero-ctas          { justify-content: center; }
+  .hero                { padding-top: 80px; padding-bottom: 3rem; align-items: flex-start; }
+  .hero-grid          { grid-template-columns: 1fr; text-align: center; gap: 0; }
+  .hero-visual        { height: 260px; order: -1; margin-bottom: -1rem; }
+  .hero-ctas          { justify-content: center; margin-bottom: 2rem; }
   .subtext            { margin-left: auto; margin-right: auto; }
   .pillars-grid       { grid-template-columns: 1fr; }
   .framework-steps    { grid-template-columns: 1fr 1fr; }
@@ -859,6 +862,7 @@ ul { list-style: none; }
   background: rgba(5,5,5,0.88);
   backdrop-filter: blur(4px);
   z-index: 20;
+  touch-action: auto;
 }
 .game-overlay-box {
   text-align: center;

@@ -113,7 +113,7 @@
   // Generic fade-up for system items
   const systemItems = document.querySelectorAll('.system-item');
   const io2 = new IntersectionObserver((entries) => {
-    entries.forEach((entry, idx) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         entry.target.style.opacity = '1';
         entry.target.style.transform = 'translateY(0)';
@@ -580,10 +580,11 @@
 
   // ── Start / Stop ──
   function startGame() {
-    initState();
+    if (running) { running = false; cancelAnimationFrame(animId); }
     startOverlay.style.display    = 'none';
     gameOverOverlay.style.display = 'none';
     leadOverlay.style.display     = 'none';
+    initState();
     running = true;
     lastTime = performance.now();
     animId = requestAnimationFrame(loop);

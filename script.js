@@ -271,7 +271,7 @@
     particles = [];
     shootTimer = 0;
     enemyTimer = 0;
-    ship = { x: W / 2, y: H - 60, w: 30, h: 36, speed: 5 };
+    ship = { x: W / 2, y: H - 60, w: 14, h: 18, speed: 5 };
 
     // Starfield
     stars = Array.from({ length: 80 }, () => ({
@@ -492,14 +492,8 @@
       // Bounce on side walls
       if (e.x < e.r || e.x > W - e.r) e.vx *= -1;
 
-      // Off screen bottom → lose life
-      if (e.y > H + e.r) {
-        lives--;
-        updateHUD();
-        spawnExplosion(e.x, H - 20, '#FF4400');
-        if (lives <= 0) { endGame(false); return false; }
-        return false;
-      }
+      // Off screen bottom → just remove, no life penalty
+      if (e.y > H + e.r) return false;
       return true;
     });
 
@@ -515,7 +509,6 @@
           bullets.splice(bi, 1);
           score++;
           updateHUD();
-          if (score >= 10) { endGame(true); return; }
           break;
         }
       }
@@ -530,7 +523,7 @@
         enemies.splice(ei, 1);
         lives--;
         updateHUD();
-        if (lives <= 0) { endGame(false); return; }
+        if (lives <= 0) { endGame(); return; }
       }
     }
 
@@ -567,10 +560,10 @@
     animId = requestAnimationFrame(loop);
   }
 
-  function endGame(won) {
+  function endGame() {
     running = false;
     cancelAnimationFrame(animId);
-    if (won) {
+    if (score >= 10) {
       winScoreEl.textContent     = score;
       leadFormArea.style.display = 'block';
       leadSuccess.style.display  = 'none';
@@ -578,8 +571,8 @@
       leadError.style.display    = 'none';
       leadOverlay.style.display  = 'flex';
     } else {
-      finalScoreEl.textContent       = score;
-      gameOverOverlay.style.display  = 'flex';
+      finalScoreEl.textContent      = score;
+      gameOverOverlay.style.display = 'flex';
     }
   }
 

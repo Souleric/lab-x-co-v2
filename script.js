@@ -226,7 +226,7 @@
 
   // ── DOM refs ──
   const scoreEl          = document.getElementById('gameScore');
-  const livesEl          = document.getElementById('gameLives');
+  const timerEl          = document.getElementById('gameTimer');
   const startOverlay     = document.getElementById('gameStartOverlay');
   const gameOverOverlay  = document.getElementById('gameOverOverlay');
   const leadOverlay      = document.getElementById('leadCaptureOverlay');
@@ -243,7 +243,7 @@
   // ── State ──
   let W, H, dpr;
   let ship, bullets, enemies, particles, stars;
-  let score, lives, running, animId;
+  let score, timeLeft, running, animId;
   let shootTimer, enemyTimer;
   let keys = {};
   let touchX = null;
@@ -265,7 +265,7 @@
   function initState() {
     resize();
     score    = 0;
-    lives    = 3;
+    timeLeft = 60;
     bullets  = [];
     enemies  = [];
     particles = [];
@@ -286,7 +286,9 @@
 
   function updateHUD() {
     scoreEl.textContent = score;
-    livesEl.textContent = '♥ '.repeat(lives).trim();
+    const secs = Math.ceil(timeLeft);
+    timerEl.textContent = '00:' + String(secs).padStart(2, '0');
+    timerEl.classList.toggle('urgent', secs <= 10);
   }
 
   // ── Drawing helpers ──
@@ -452,6 +454,11 @@
     ctx.fillStyle = '#050505';
     ctx.fillRect(0, 0, W, H);
 
+    // Countdown
+    timeLeft -= dt / 1000;
+    if (timeLeft <= 0) { timeLeft = 0; updateHUD(); endGame(); return; }
+    updateHUD();
+
     // Stars
     drawStars();
 
@@ -501,13 +508,12 @@
           enemies.splice(ei, 1);
           bullets.splice(bi, 1);
           score++;
-          updateHUD();
           break;
         }
       }
     }
 
-    // ── Enemy × Ship collision (circle-circle, tight radii) ──
+    // ── Enemy × Ship collision — one life, instant game over ──
     for (let ei = enemies.length - 1; ei >= 0; ei--) {
       const e = enemies[ei];
       const dx = e.x - ship.x;
@@ -515,10 +521,8 @@
       if (dx * dx + dy * dy < (12 + 12) ** 2) {
         spawnExplosion(e.x, e.y, '#FF0000');
         spawnExplosion(ship.x, ship.y, '#FF3B00');
-        enemies.splice(ei, 1);
-        lives--;
-        updateHUD();
-        if (lives <= 0) { endGame(); return; }
+        endGame();
+        return;
       }
     }
 

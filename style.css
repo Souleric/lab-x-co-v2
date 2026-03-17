@@ -829,11 +829,15 @@ ul { list-style: none; }
   font-size: 1.1rem;
   margin-left: 0.4rem;
 }
-.game-hud-lives {
-  font-size: 0.9rem;
-  color: #FF3B00;
-  letter-spacing: 0.15em;
+.game-hud-timer {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.5);
+  transition: color 0.3s;
 }
+.game-hud-timer.urgent { color: #FF3B00; }
 /* Overlays */
 .game-overlay {
   position: absolute;

@@ -285,10 +285,37 @@
   }
 
   function updateHUD() {
-    scoreEl.textContent = score;
-    const secs = Math.ceil(timeLeft);
-    timerEl.textContent = '00:' + String(secs).padStart(2, '0');
-    timerEl.classList.toggle('urgent', secs <= 10);
+    if (scoreEl) scoreEl.textContent = score;
+    if (timerEl) {
+      const secs = Math.ceil(timeLeft);
+      timerEl.textContent = '00:' + String(secs).padStart(2, '0');
+      timerEl.classList.toggle('urgent', secs <= 10);
+    }
+  }
+
+  function drawHUD() {
+    const secs = Math.ceil(Math.max(timeLeft, 0));
+    const urgent = secs <= 10;
+
+    ctx.save();
+    ctx.font = '700 13px "Space Grotesk", sans-serif';
+    ctx.textBaseline = 'top';
+
+    // Score
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillText('SCORE', 16, 14);
+    ctx.fillStyle = '#FF3B00';
+    ctx.font = '700 18px "Space Grotesk", sans-serif';
+    ctx.fillText(score, 16 + 54, 11);
+
+    // Timer
+    const label = '00:' + String(secs).padStart(2, '0');
+    ctx.font = '700 18px "Space Grotesk", sans-serif';
+    ctx.fillStyle = urgent ? '#FF3B00' : 'rgba(255,255,255,0.35)';
+    const tw = ctx.measureText(label).width;
+    ctx.fillText(label, W - tw - 16, 11);
+
+    ctx.restore();
   }
 
   // ── Drawing helpers ──
@@ -544,6 +571,9 @@
 
     // ── Draw ship on top ──
     drawShip(ship.x, ship.y);
+
+    // ── Draw HUD on canvas (score + timer) ──
+    drawHUD();
 
     animId = requestAnimationFrame(loop);
   }

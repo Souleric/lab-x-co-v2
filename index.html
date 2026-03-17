@@ -133,6 +133,73 @@
       </div>
     </section>
 
+    <!-- ═══════════════════ GAME ═══════════════════ -->
+    <section id="game-section" class="section-dark" style="padding: 5rem 2rem;">
+      <div class="container">
+        <div class="section-header" style="margin-bottom: 3rem;">
+          <div class="section-eyebrow">Interactive Demo</div>
+          <h2 class="section-title">Shoot to Unlock<br>a Free Consultation</h2>
+          <p class="subtext" style="margin: 0 auto;">Hit 10 points and we'll help you build a system for your business — for free.</p>
+        </div>
+
+        <div class="game-wrapper">
+          <!-- Canvas -->
+          <canvas id="gameCanvas"></canvas>
+
+          <!-- HUD -->
+          <div class="game-hud">
+            <div class="game-hud-score">SCORE <span id="gameScore">0</span></div>
+            <div class="game-hud-lives" id="gameLives">♥ ♥ ♥</div>
+          </div>
+
+          <!-- Start overlay -->
+          <div class="game-overlay" id="gameStartOverlay">
+            <div class="game-overlay-box">
+              <div class="game-pixel-ship">🚀</div>
+              <h3>SPACE SHOOTER</h3>
+              <p>Dodge & destroy.<br>Hit <strong>10 points</strong> to unlock a free consultation.</p>
+              <div class="game-controls-hint">
+                <span>⬅ ➡ Arrow keys</span>
+                <span>or touch on mobile</span>
+              </div>
+              <button id="startGameBtn" class="btn btn-primary" style="margin-top: 1.5rem;">Launch Mission</button>
+            </div>
+          </div>
+
+          <!-- Game Over overlay -->
+          <div class="game-overlay" id="gameOverOverlay" style="display:none;">
+            <div class="game-overlay-box">
+              <div style="font-size: 2.5rem; margin-bottom: 1rem;">💥</div>
+              <h3>GAME OVER</h3>
+              <p>Score: <strong id="finalScore">0</strong></p>
+              <button id="retryBtn" class="btn btn-primary" style="margin-top: 1.5rem;">Try Again</button>
+            </div>
+          </div>
+
+          <!-- Lead capture popup (≥10 pts) -->
+          <div class="game-overlay" id="leadCaptureOverlay" style="display:none;">
+            <div class="game-overlay-box game-lead-box">
+              <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🏆</div>
+              <h3>You crushed it!</h3>
+              <p style="margin-bottom: 1.5rem;">Score: <strong id="winScore">0</strong> — You've unlocked a <strong>Free System Consultation</strong>.</p>
+              <div id="leadFormArea">
+                <input type="email" id="leadEmail" placeholder="Enter your email" class="game-email-input" />
+                <button id="claimBtn" class="btn btn-primary" style="width:100%; margin-top: 0.75rem;">Claim Free Consultation</button>
+                <p id="leadError" style="color:#FF3B00; font-size:0.8rem; margin-top:0.5rem; display:none;">Please enter a valid email.</p>
+              </div>
+              <div id="leadSuccess" style="display:none; text-align:center;">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">✅</div>
+                <p style="color:#25D366; font-weight:600;">Got it! We'll reach out soon.</p>
+                <button id="playAgainBtn" class="btn btn-secondary" style="margin-top:1rem; margin-left:0;">Play Again</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="game-hint-text">🎮 Desktop: ← → arrow keys &nbsp;|&nbsp; Mobile: drag left / right</p>
+      </div>
+    </section>
+
     <!-- ═══════════════════ PORTFOLIO ═══════════════════ -->
     <section id="portfolio" class="section-light">
       <div class="container">

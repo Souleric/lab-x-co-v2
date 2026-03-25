@@ -192,6 +192,7 @@
       .roadmap-grid { grid-template-columns: 1fr; }
       .meta-highlight-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
       .meta-highlight-grid > div:last-child { order: -1; }
+      .feature-card[style*="span 2"] { grid-column: span 1 !important; grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -281,6 +282,21 @@
       </div>
     </section>
 
+    <!-- ═══════════════════ SCREENSHOT STRIP ═══════════════════ -->
+    <section class="section-dark" style="padding-top: 0; padding-bottom: 0; overflow: hidden;">
+      <div style="display: flex; gap: 1.5rem; padding: 0 2rem 4rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+        <div style="flex: 0 0 75vw; max-width: 900px; scroll-snap-align: start; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 60px rgba(0,0,0,0.4);">
+          <img src="assets/Dashboard-ezgif.com-video-to-gif-converter.gif" alt="LeadOS Dashboard" style="width:100%; display:block;">
+        </div>
+        <div style="flex: 0 0 75vw; max-width: 900px; scroll-snap-align: start; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 60px rgba(0,0,0,0.4);">
+          <img src="assets/Contactlist-ezgif.com-video-to-gif-converter.gif" alt="LeadOS Contacts" style="width:100%; display:block;">
+        </div>
+        <div style="flex: 0 0 75vw; max-width: 900px; scroll-snap-align: start; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 60px rgba(0,0,0,0.4);">
+          <img src="assets/Pipeline-ezgif.com-video-to-gif-converter.gif" alt="LeadOS Pipeline" style="width:100%; display:block;">
+        </div>
+      </div>
+    </section>
+
     <!-- ═══════════════════ FEATURES ═══════════════════ -->
     <section class="section-dark" style="padding-top: 0;">
       <div class="container">
@@ -314,10 +330,15 @@
             <p>Create custom tier labels — Basic, VIP, or fully custom — with colour-coded badges. Built for businesses with loyalty programs or tiered service offerings.</p>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h4>Sales Team Performance</h4>
-            <p>Leaderboard shows leads, active pipeline, closed won, and close rate per salesperson. Managers get real visibility without chasing reports.</p>
+          <div class="feature-card" style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+            <div>
+              <div class="feature-icon">📊</div>
+              <h4>Sales Team Performance</h4>
+              <p>Leaderboard shows leads, active pipeline, closed won, and close rate per salesperson. Managers get real visibility without chasing reports.</p>
+            </div>
+            <div style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <img src="assets/Team Leaderboard.png" alt="LeadOS Team Leaderboard" style="width:100%; display:block;">
+            </div>
           </div>
 
           <div class="feature-card">
@@ -389,7 +410,7 @@
             <a href="https://leados-seven.vercel.app/demo" target="_blank" class="btn btn-primary">See It in Action</a>
           </div>
           <div style="border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.5);">
-            <img src="campaigns-screenshot.png" alt="LeadOS Campaigns — Meta Ads integration" style="width:100%; display:block;">
+            <img src="assets/Meta Ads.png" alt="LeadOS Campaigns — Meta Ads integration" style="width:100%; display:block;">
           </div>
         </div>
       </div>

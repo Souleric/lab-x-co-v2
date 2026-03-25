@@ -60,22 +60,22 @@
     <section class="stats-bar">
       <div class="container stats-grid">
         <div class="stat-item">
-          <h3 class="stat-number">50+</h3>
+          <h3 class="stat-number" data-target="30" data-suffix="+">0+</h3>
           <p class="stat-label">Businesses Scaled</p>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <h3 class="stat-number">100+</h3>
+          <h3 class="stat-number" data-target="80" data-suffix="+">0+</h3>
           <p class="stat-label">Systems Built</p>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <h3 class="stat-number">3×</h3>
+          <h3 class="stat-number" data-target="3" data-suffix="×">0×</h3>
           <p class="stat-label">Avg. Lead Increase</p>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <h3 class="stat-number">90%</h3>
+          <h3 class="stat-number" data-target="90" data-suffix="%">0%</h3>
           <p class="stat-label">Ops Automated</p>
         </div>
       </div>
@@ -540,5 +540,32 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="script.js"></script>
+  <script>
+    (function () {
+      const statNums = document.querySelectorAll('.stat-number[data-target]');
+      const done = new Set();
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !done.has(entry.target)) {
+            done.add(entry.target);
+            const el = entry.target;
+            const target = +el.dataset.target;
+            const suffix = el.dataset.suffix || '';
+            const duration = 1400;
+            const start = performance.now();
+            function tick(now) {
+              const elapsed = now - start;
+              const progress = Math.min(elapsed / duration, 1);
+              const ease = 1 - Math.pow(1 - progress, 3);
+              el.textContent = Math.round(ease * target) + suffix;
+              if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+          }
+        });
+      }, { threshold: 0.5 });
+      statNums.forEach(el => observer.observe(el));
+    })();
+  </script>
 </body>
 </html>

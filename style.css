@@ -798,6 +798,7 @@ ul { list-style: none; }
   .nav-links          { display: none; }
   .hamburger          { display: flex; }
   .footer-grid        { grid-template-columns: 1fr; }
+  .beta-partnership-grid { grid-template-columns: 1fr !important; gap: 3rem !important; }
 }
 
 @media (max-width: 480px) {

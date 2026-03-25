@@ -190,6 +190,8 @@
       .problem-grid { grid-template-columns: 1fr; }
       .features-grid { grid-template-columns: 1fr; }
       .roadmap-grid { grid-template-columns: 1fr; }
+      .meta-highlight-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
+      .meta-highlight-grid > div:last-child { order: -1; }
     }
   </style>
 </head>
@@ -348,6 +350,47 @@
             <p>Each client gets their own workspace. Can be white-labeled and offered to other businesses — built from day one for multi-tenant use.</p>
           </div>
 
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════ META ADS HIGHLIGHT ═══════════════════ -->
+    <section class="section-whatsapp" style="background: #0d0d0d; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <div class="container">
+        <div class="meta-highlight-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;">
+          <div>
+            <div class="section-eyebrow" style="color: #1877F2; margin-bottom: 1.5rem;">Meta Ads Integration</div>
+            <h2 class="section-title" style="margin-bottom: 1.5rem;">Your Meta Ads.<br>Inside Your CRM.</h2>
+            <p style="color: rgba(255,255,255,0.55); font-size: 1.05rem; line-height: 1.75; margin-bottom: 2rem;">
+              Stop switching between Meta Business Manager and your CRM. LeadOS connects directly to your Facebook and Instagram ad campaigns — so you can see which ads are generating leads, how much you're spending, and your cost per lead, without leaving the platform.
+            </p>
+            <ul style="list-style:none; padding:0; margin:0 0 2.5rem; display:flex; flex-direction:column; gap:0.85rem;">
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; color:rgba(255,255,255,0.75); font-size:0.95rem;">
+                <span style="color:#1877F2; font-size:1rem; margin-top:2px;">✓</span>
+                Live campaign stats — spend, impressions, CPL, total leads
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; color:rgba(255,255,255,0.75); font-size:0.95rem;">
+                <span style="color:#1877F2; font-size:1rem; margin-top:2px;">✓</span>
+                Facebook &amp; Instagram campaigns in one view
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; color:rgba(255,255,255,0.75); font-size:0.95rem;">
+                <span style="color:#1877F2; font-size:1rem; margin-top:2px;">✓</span>
+                See which campaign each lead came from
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; color:rgba(255,255,255,0.75); font-size:0.95rem;">
+                <span style="color:#1877F2; font-size:1rem; margin-top:2px;">✓</span>
+                Export your lead list as CSV anytime
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; color:rgba(255,255,255,0.75); font-size:0.95rem;">
+                <span style="color:#1877F2; font-size:1rem; margin-top:2px;">✓</span>
+                No more logging into Meta dashboard just to check numbers
+              </li>
+            </ul>
+            <a href="https://leados-seven.vercel.app/demo" target="_blank" class="btn btn-primary">See It in Action</a>
+          </div>
+          <div style="border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.5);">
+            <img src="campaigns-screenshot.png" alt="LeadOS Campaigns — Meta Ads integration" style="width:100%; display:block;">
+          </div>
         </div>
       </div>
     </section>

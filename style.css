@@ -149,9 +149,12 @@ ul { list-style: none; }
   color: #fff;
 }
 .logo-img {
-  height: 18px;
+  height: 9px;
   width: auto;
   display: block;
+}
+@media (max-width: 768px) {
+  .logo-img { height: 36px; }
 }
 .footer-brand .logo-img {
   height: 40px;

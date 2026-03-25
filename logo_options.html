@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabX Co - Logo Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0A0A0A;
+      color: #FFFFFF;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem 2rem;
+    }
+    h1 {
+      margin-bottom: 3rem;
+      letter-spacing: -0.03em;
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+      width: 100%;
+      max-width: 800px;
+    }
+    .logo-option {
+      background: #111111;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .logo-option:hover {
+      border-color: rgba(255, 59, 0, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .option-title {
+      font-size: 1.2rem;
+      color: #A0A0A0;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+    .logo-lockup {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .logo-text {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #FFFFFF;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>LabX Co - Logo Options</h1>
+
+  <div class="logo-container">
+
+    <!-- Option 1: The Node -->
+    <div class="logo-option">
+      <div class="option-title">Option 1: The Node Hub</div>
+      <div class="logo-lockup">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="60" height="60" rx="12" fill="url(#grad1)"/>
+          <path d="M18 18L42 42M42 18L18 42" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="30" cy="30" r="8" fill="#0A0A0A"/>
+          <circle cx="30" cy="30" r="4" fill="#FFFFFF"/>
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF5722"/>
+              <stop offset="1" stop-color="#FF2A00"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="logo-text">LABX CO</div>
+      </div>
+    </div>
+
+    <!-- Option 2: The Automator -->
+    <div class="logo-option">
+      <div class="option-title">Option 2: The Automator</div>
+      <div class="logo-lockup">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 15L30 30L45 15" stroke="url(#grad2)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 45L30 30L45 45" stroke="url(#grad2)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M30 30L45 30" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="grad2" x1="15" y1="15" x2="45" y2="45" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF5722"/>
+              <stop offset="1" stop-color="#FF2A00"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="logo-text" style="display: flex; flex-direction: column; line-height: 0.9;">
+          <span>LABX</span>
+          <span style="color: #FF3B00; font-size: 1.5rem;">CO.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 3: The System Blocks -->
+    <div class="logo-option">
+      <div class="option-title">Option 3: The System Blocks</div>
+      <div class="logo-lockup">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="12" y="12" width="16" height="16" rx="4" fill="#FF3B00"/>
+          <rect x="32" y="32" width="16" height="16" rx="4" fill="#FF3B00"/>
+          <rect x="32" y="12" width="16" height="16" rx="4" fill="rgba(255, 59, 0, 0.3)"/>
+          <rect x="12" y="32" width="16" height="16" rx="4" fill="rgba(255, 59, 0, 0.3)"/>
+        </svg>
+        <div class="logo-text" style="letter-spacing: 0;">LAB<span style="color: #FF3B00;">X</span> CO</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

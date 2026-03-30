@@ -261,7 +261,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1.25rem;
-      align-items: start;
+      align-items: stretch;
     }
     .pricing-card {
       background: rgba(255,255,255,0.04);
@@ -269,6 +269,11 @@
       border-radius: 20px;
       padding: 2rem;
       position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card .pricing-features {
+      flex: 1;
     }
     .pricing-card-featured {
       background: rgba(255,59,0,0.07);

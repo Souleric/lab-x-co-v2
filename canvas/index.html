@@ -1,0 +1,4487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI GEN CANVAS — Higgsfield-style Workspace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    /* LIGHT THEME — bright canvas, dark text, Higgsfield orange reserved for accents */
+    --bg: #ffffff;
+    --bg-soft: #fafafa;
+    --surface: #ffffff;
+    --surface-2: #f5f5f7;
+    --surface-3: #ebebf0;
+    --border: #e4e4e9;
+    --border-bright: #cdcdd3;
+    --text: #1d1d1f;
+    --text-dim: #5d5d68;
+    --text-mute: #9494a0;
+
+    /* Higgsfield warm orange/red brand (kept for accents only) */
+    --brand: #ff4d2e;
+    --brand-2: #ff2a68;
+    --brand-glow: rgba(255,77,46,0.22);
+    --brand-soft: rgba(255,77,46,0.06);
+
+    --ok: #16a34a;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --info: #2563eb;
+
+    /* Light-theme shadows (subtle on white) */
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+    --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+    --shadow-lg: 0 12px 32px rgba(15,23,42,0.10);
+    --shadow-float: 0 16px 40px rgba(15,23,42,0.12);
+
+    --card-radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ───────────────────────── TOPBAR ───────────────────────── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 48px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 14px;
+    z-index: 1000;
+    gap: 12px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 13px; letter-spacing: -0.3px;
+  }
+  .logo-mark {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+    box-shadow: 0 0 16px var(--brand-glow);
+  }
+  .project-name {
+    color: var(--text-dim); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border-radius: 6px;
+    cursor: text;
+    border: 1px solid transparent;
+  }
+  .project-name:hover { background: var(--surface-2); color: var(--text); }
+  .project-name:focus { outline: none; border-color: var(--border-bright); background: var(--surface-2); }
+
+  .topbar-spacer { flex: 1; }
+
+  .topbar-btn {
+    height: 30px; padding: 0 12px;
+    border-radius: 7px; border: 1px solid transparent;
+    background: transparent; color: var(--text-dim);
+    font-family: inherit; font-size: 12px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.12s;
+  }
+  .topbar-btn:hover { background: var(--surface-2); color: var(--text); }
+  .topbar-btn.primary {
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: white; font-weight: 600;
+    box-shadow: 0 2px 8px var(--brand-glow);
+  }
+  .topbar-btn.primary:hover { filter: brightness(1.1); }
+
+  /* ───────────────────────── TOOLBAR (LEFT FLOATING) ───────────────────────── */
+  .toolbar {
+    position: fixed; left: 12px; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    display: flex; flex-direction: column; gap: 4px;
+    z-index: 500;
+    box-shadow: var(--shadow-lg);
+  }
+  .tool-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.12s;
+    position: relative;
+  }
+  .tool-btn:hover { background: var(--surface-2); color: var(--text); }
+  .tool-btn.active {
+    background: var(--surface-3); color: var(--brand);
+    box-shadow: inset 0 0 0 1px var(--border-bright);
+  }
+  .tool-btn svg { width: 18px; height: 18px; }
+  .tool-shortcut {
+    position: absolute; bottom: -2px; right: -2px;
+    font-size: 8px; color: var(--text-mute);
+    background: var(--surface-3);
+    border-radius: 3px;
+    padding: 1px 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .tool-divider { height: 1px; background: var(--border); margin: 4px 2px; }
+
+  /* ───────────────────────── CANVAS ───────────────────────── */
+  .canvas-wrap {
+    position: fixed; inset: 48px 0 0 0;
+    overflow: hidden;
+    background: var(--bg);
+    cursor: default;
+  }
+  .canvas-wrap.tool-pan { cursor: grab; }
+  .canvas-wrap.tool-pan.panning { cursor: grabbing; }
+  .canvas-wrap.tool-connect { cursor: crosshair; }
+  .canvas-wrap.tool-frame { cursor: crosshair; }
+  .canvas-wrap.tool-new-card { cursor: copy; }
+  .canvas-wrap.tool-text { cursor: text; }
+
+  .canvas-bg {
+    position: absolute; inset: 0;
+    background: var(--bg);
+    pointer-events: none;
+  }
+
+  .canvas-grid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, #cbcbd2 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+    transform-origin: 0 0;
+    opacity: 0.55;
+  }
+
+  #canvas {
+    position: absolute; inset: 0;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+
+  #connections-svg {
+    position: absolute; left: 0; top: 0;
+    width: 1px; height: 1px;
+    overflow: visible;
+    pointer-events: none;
+    transform-origin: 0 0;
+  }
+
+  /* ───────────────────────── CARDS ───────────────────────── */
+  .card {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    cursor: grab;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+    box-shadow: var(--shadow-md);
+    pointer-events: auto;
+  }
+  .card.dragging { cursor: grabbing; }
+  .card:hover {
+    border-color: var(--border-bright);
+    box-shadow: var(--shadow-lg);
+  }
+  .card.selected {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px var(--brand), 0 12px 32px rgba(255,77,46,0.18);
+    z-index: 50;
+  }
+  .card.generating::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,77,46,0.15), transparent);
+    animation: shimmer 1.6s infinite;
+    pointer-events: none;
+  }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  .card-thumb {
+    position: relative;
+    width: 100%;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .card-thumb img, .card-thumb video {
+    width: 100%; height: 100%; display: block;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .card-thumb .placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-mute); font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .card-meta {
+    padding: 8px 10px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+  }
+  .card-meta-model {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .card-meta-prompt {
+    color: var(--text-dim);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; flex: 1;
+  }
+  .card-progress {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 2px; background: var(--surface-3);
+  }
+  .card-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand), var(--brand-2));
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* Card type badge */
+  .card-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 4px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .card-badge.video  { background: rgba(255,77,46,0.85); }
+  .card-badge.image  { background: rgba(59,130,246,0.85); }
+  .card-badge.audio  { background: rgba(34,197,94,0.85); }
+  .card-badge.text   { background: rgba(168,85,247,0.85); }
+  .card-badge.upload { background: rgba(124,58,237,0.92); }
+
+  /* Draft cards: empty placeholders awaiting a prompt */
+  .card.draft {
+    border: 2px dashed var(--border-bright);
+    box-shadow: none;
+    background: var(--surface);
+  }
+  .card.draft:hover {
+    border-color: var(--brand);
+    box-shadow: var(--shadow-md);
+  }
+  .card.draft.selected {
+    border-style: solid;
+  }
+  .card.draft .card-thumb {
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .draft-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px;
+    color: var(--text-mute);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    text-align: center;
+    padding: 12px;
+    user-select: none;
+  }
+  .draft-placeholder svg { width: 26px; height: 26px; opacity: 0.55; }
+  .draft-placeholder .hint { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-mute); opacity: 0.7; }
+
+  /* Breadcrumb on the card showing where its inputs come from */
+  .card-breadcrumb {
+    padding: 0 10px 8px;
+    font-size: 10px;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .card-breadcrumb .crumb-arrow { margin-right: 4px; opacity: 0.7; }
+  .card-breadcrumb .crumb-name {
+    color: var(--brand);
+    font-weight: 700;
+    margin-right: 4px;
+  }
+
+  /* Frame card (group container) */
+  .card.frame {
+    background: rgba(255,77,46,0.02);
+    border: 1.5px dashed var(--border-bright);
+    box-shadow: none;
+    cursor: grab;
+  }
+  .card.frame .frame-label {
+    position: absolute; top: -22px; left: 0;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-dim);
+    background: var(--surface);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* Card actions on hover */
+  .card-actions {
+    position: absolute; top: 8px; right: 8px;
+    display: flex; gap: 4px;
+    opacity: 0; transition: opacity 0.15s;
+    z-index: 3;
+  }
+  .card:hover .card-actions, .card.selected .card-actions { opacity: 1; }
+  .card-action {
+    width: 24px; height: 24px;
+    border-radius: 5px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #ffffff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .card-action:hover { background: var(--brand); border-color: var(--brand); }
+  .card-action svg { width: 12px; height: 12px; }
+
+  /* Resize handles (only when selected) */
+  .resize-handle {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--brand);
+    border: 2px solid white;
+    border-radius: 50%;
+    display: none;
+    z-index: 60;
+    cursor: nwse-resize;
+  }
+  .card.selected .resize-handle { display: block; }
+  .resize-handle.nw { left: -5px; top: -5px; cursor: nwse-resize; }
+  .resize-handle.ne { right: -5px; top: -5px; cursor: nesw-resize; }
+  .resize-handle.sw { left: -5px; bottom: -5px; cursor: nesw-resize; }
+  .resize-handle.se { right: -5px; bottom: -5px; cursor: nwse-resize; }
+
+  /* Connection ports (visible in connect mode) */
+  .card .port {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--brand);
+    top: 50%; transform: translateY(-50%);
+    cursor: crosshair;
+    z-index: 70;
+    display: none;
+    pointer-events: auto;
+  }
+  body.tool-connect .card .port { display: block; }
+  .card .port:hover { background: var(--brand); box-shadow: 0 0 12px var(--brand-glow); }
+  .card .port.port-in { left: -8px; }
+  .card .port.port-out { right: -8px; }
+
+  /* ───────────────────────── CONNECTIONS (SVG) ───────────────────────── */
+  .conn-path {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 2;
+    opacity: 0.7;
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+  .conn-path:hover { opacity: 1; stroke-width: 3; }
+  .conn-path.preview { stroke-dasharray: 6 4; opacity: 0.5; }
+  .conn-path.flowing {
+    stroke-dasharray: 6 4;
+    animation: flow 1s linear infinite;
+  }
+  @keyframes flow { to { stroke-dashoffset: -20; } }
+
+  /* Single junction dot rendered where ≥2 connections converge on a target. */
+  .conn-merge {
+    fill: var(--brand);
+    stroke: #ffffff;
+    stroke-width: 2;
+  }
+
+  /* ───────────────────────── PROMPT BAR (BOTTOM FLOATING) ───────────────────────── */
+  .prompt-dock {
+    position: fixed;
+    bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 600;
+    width: min(720px, calc(100vw - 40px));
+  }
+  .prompt-bar {
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-bright);
+    border-radius: 16px;
+    box-shadow: var(--shadow-float), 0 0 0 1px rgba(255,77,46,0.08);
+    padding: 10px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .prompt-bar.has-selection {
+    border-color: var(--brand);
+    box-shadow: var(--shadow-float), 0 0 0 1px var(--brand), 0 0 24px var(--brand-glow);
+  }
+  /* When the chat is editing an existing card, the prompt bar gets a brand-tinted ring */
+  .prompt-bar.editing {
+    border-color: var(--brand);
+    box-shadow: var(--shadow-float), 0 0 0 1.5px var(--brand);
+  }
+  /* Read-only mode (an upload card is selected — there's nothing to "send") */
+  .prompt-bar.read-only {
+    border-color: #7c3aed;
+    box-shadow: var(--shadow-float), 0 0 0 1.5px #7c3aed;
+  }
+  .prompt-bar.read-only .prompt-context .ctx-mode { color: #7c3aed; }
+  .prompt-bar.read-only .prompt-input {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .prompt-bar.read-only .prompt-generate {
+    background: var(--surface-3);
+    color: var(--text-mute);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .prompt-bar.read-only .prompt-generate:hover { filter: none; transform: none; }
+  .prompt-bar.read-only .prompt-upload-btn {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .prompt-bar.read-only .prompt-attachments,
+  .prompt-bar.read-only .prompt-toolbar { display: none; }
+
+  /* Canvas drag-over indicator when dragging a file (purple = "will become upload") */
+  .canvas-wrap.drag-over-canvas::after {
+    content: 'Drop to add as canvas reference';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(124, 58, 237, 0.95);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+    z-index: 9000;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+  }
+  .canvas-wrap.drag-over-canvas {
+    outline: 2px dashed rgba(124, 58, 237, 0.5);
+    outline-offset: -8px;
+  }
+
+  /* Context header (above the prompt input row) showing what we're editing */
+  .prompt-context {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-dim);
+    overflow: hidden;
+  }
+  .prompt-bar.editing .prompt-context { display: flex; }
+  .prompt-context .ctx-mode {
+    color: var(--brand);
+    display: inline-flex; align-items: center; gap: 5px;
+    flex-shrink: 0;
+  }
+  .prompt-context .ctx-mode svg { width: 13px; height: 13px; }
+  .prompt-context .ctx-target {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .prompt-context .ctx-incoming {
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 10.5px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex: 1; min-width: 0;
+  }
+  .prompt-context .ctx-incoming .crumb-name { color: var(--brand); font-weight: 700; }
+  .prompt-context .ctx-close {
+    margin-left: auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .prompt-context .ctx-close:hover { background: var(--surface-3); color: var(--text); }
+  .prompt-bar { position: relative; }
+  .prompt-bar.drag-over {
+    border-color: var(--brand);
+    background: rgba(255,77,46,0.04);
+    box-shadow: var(--shadow-float), 0 0 0 2px var(--brand), 0 0 40px var(--brand-glow);
+  }
+  .prompt-bar.drag-over::after {
+    content: 'Drop JPEG or PNG to upload';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: var(--brand);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 8px 24px var(--brand-glow);
+  }
+  /* Block children from intercepting drag events while dragging */
+  .prompt-bar.drag-over > * { pointer-events: none; }
+
+  /* Attachments row (above prompt input) — pending uploads for this prompt */
+  .prompt-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 4px 0;
+  }
+  .prompt-attachments:empty { display: none; }
+  .attachment-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px 8px 3px 3px;
+    font-size: 11px;
+    font-weight: 500;
+    max-width: 220px;
+    color: var(--text);
+  }
+  .attachment-chip-thumb {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--surface-3);
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .attachment-chip-name {
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-dim);
+  }
+  .attachment-chip-x {
+    cursor: pointer;
+    color: var(--text-mute);
+    padding: 0 2px;
+    font-size: 12px;
+    line-height: 1;
+  }
+  .attachment-chip-x:hover { color: var(--err); }
+
+  /* Tiny indicator on a card that was generated with attached inputs.
+     Bottom-left (the @name handle is bottom-right, so they don't collide). */
+  .card-attachments-badge {
+    position: absolute;
+    bottom: 44px; left: 8px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Upload button inside the prompt input row */
+  .prompt-upload-btn {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.12s;
+  }
+  .prompt-upload-btn:hover {
+    background: var(--surface-3);
+    color: var(--text);
+    border-color: var(--border-bright);
+  }
+  .prompt-upload-btn svg { width: 18px; height: 18px; }
+
+  .prompt-input-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .prompt-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    line-height: 1.5;
+    min-height: 22px;
+    max-height: 120px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    cursor: text;
+    position: relative;
+  }
+  .prompt-input:focus { outline: none; }
+  .prompt-input:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-mute);
+    pointer-events: none;
+  }
+
+  /* ─── PROMPT TAG CHIPS (@mentions inside prompt) ─── */
+  .prompt-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(180deg, rgba(255,77,46,0.12), rgba(255,77,46,0.06));
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    padding: 1px 7px 1px 3px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    vertical-align: baseline;
+    margin: 0 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    line-height: 1.4;
+    transition: all 0.12s;
+  }
+  .prompt-tag:hover {
+    background: var(--brand);
+    color: white;
+  }
+  .prompt-tag.missing {
+    border-color: var(--text-mute);
+    color: var(--text-mute);
+    text-decoration: line-through;
+    background: var(--surface-3);
+  }
+  .prompt-tag .tag-thumb {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--surface-3);
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .prompt-tag-x {
+    margin-left: 1px;
+    opacity: 0;
+    font-size: 11px;
+    transition: opacity 0.12s;
+  }
+  .prompt-tag:hover .prompt-tag-x { opacity: 1; }
+
+  /* ─── TAG DROPDOWN ─── */
+  .tag-dropdown {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    z-index: 700;
+    display: none;
+    box-shadow: var(--shadow-float);
+  }
+  .tag-dropdown.active { display: block; }
+  .tag-dropdown-header {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    padding: 6px 8px 4px;
+  }
+  .tag-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .tag-option:hover, .tag-option.active {
+    background: var(--surface-3);
+  }
+  .tag-option.active {
+    box-shadow: inset 0 0 0 1px var(--brand);
+  }
+  .tag-option-thumb {
+    width: 36px; height: 36px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-mute);
+    font-size: 11px;
+  }
+  .tag-option-info { min-width: 0; flex: 1; }
+  .tag-option-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tag-option-name .name-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--brand);
+    font-weight: 700;
+  }
+  .tag-option-meta {
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 1px;
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tag-option-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .tag-empty {
+    padding: 12px 10px;
+    font-size: 11px;
+    color: var(--text-mute);
+    text-align: center;
+  }
+
+  /* Card highlight when referenced by an active tag chip */
+  .card.tagged {
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 2px var(--brand), 0 0 32px var(--brand-glow);
+    animation: tag-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes tag-pulse {
+    0%, 100% { box-shadow: 0 0 0 2px var(--brand), 0 0 28px var(--brand-glow); }
+    50%      { box-shadow: 0 0 0 2px var(--brand), 0 0 12px rgba(255,77,46,0.25); }
+  }
+
+  /* Multi-input badge on cards that receive ≥2 connections */
+  .card-inputs-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    z-index: 4;
+    pointer-events: none;
+    box-shadow: 0 2px 6px var(--brand-glow);
+  }
+  /* When card has both action buttons (visible on hover/selected) AND a multi-input badge,
+     shift the badge down so they don't overlap. */
+  .card:hover .card-inputs-badge,
+  .card.selected .card-inputs-badge {
+    top: 40px;
+  }
+
+  /* "+N selected as references" chip in prompt toolbar */
+  .selection-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(180deg, rgba(255,77,46,0.12), rgba(255,77,46,0.06));
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.12s;
+  }
+  .selection-pill:hover {
+    background: var(--brand);
+    color: white;
+  }
+  .selection-pill svg { width: 11px; height: 11px; }
+
+  /* Card handle badge (small @name label) */
+  .card-handle {
+    position: absolute;
+    bottom: 8px; right: 8px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .card:hover .card-handle, .card.selected .card-handle, .card.tagged .card-handle {
+    opacity: 1;
+  }
+
+  .prompt-generate {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px var(--brand-glow);
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .prompt-generate:hover { filter: brightness(1.15); transform: scale(1.04); }
+  .prompt-generate:disabled { opacity: 0.4; cursor: not-allowed; }
+  .prompt-generate svg { width: 18px; height: 18px; }
+
+  .prompt-toolbar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 4px;
+    flex-wrap: wrap;
+  }
+
+  .mode-toggle {
+    display: inline-flex; align-items: center;
+    background: var(--surface-3);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+  .mode-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: all 0.12s;
+  }
+  .mode-toggle button.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(15,23,42,0.10);
+  }
+  .mode-toggle button svg { width: 12px; height: 12px; }
+
+  .pill-select {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 7px center;
+    padding-right: 24px;
+  }
+  .pill-select:hover { border-color: var(--border-bright); color: var(--text); }
+
+  .ar-group {
+    display: inline-flex;
+    background: var(--surface-3);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 1px;
+  }
+  .ar-group button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 38px;
+  }
+  .ar-group button.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(15,23,42,0.10);
+  }
+
+  .prompt-context-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--brand-soft);
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .prompt-context-chip .chip-x {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .prompt-context-chip .chip-x:hover { opacity: 1; }
+
+  /* ───────────────────────── INSPECTOR (RIGHT) ───────────────────────── */
+  .inspector {
+    position: fixed;
+    right: 12px; top: 60px; bottom: 110px;
+    width: 280px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    z-index: 400;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .inspector.active { display: flex; }
+  .inspector-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .inspector-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  .inspector-close {
+    background: transparent; border: none; color: var(--text-dim);
+    cursor: pointer; padding: 4px;
+  }
+  .inspector-body {
+    flex: 1; overflow-y: auto;
+    padding: 12px 14px;
+  }
+  .inspector-section { margin-bottom: 16px; }
+  .inspector-section:last-child { margin-bottom: 0; }
+  .inspector-label {
+    font-size: 10px; font-weight: 600;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .inspector-input {
+    width: 100%;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    outline: none;
+    resize: vertical;
+  }
+  .inspector-input:focus { border-color: var(--brand); }
+  .inspector-row { display: flex; gap: 6px; }
+  .inspector-row > * { flex: 1; }
+  .inspector-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .inspector-meta strong { color: var(--text); font-weight: 600; }
+  .inspector-actions {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .inspector-btn {
+    width: 100%;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit; font-size: 12px; font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.12s;
+  }
+  .inspector-btn:hover { background: var(--surface-2); border-color: var(--border-bright); }
+  .inspector-btn.danger { color: var(--err); }
+  .inspector-btn.danger:hover { background: rgba(239,68,68,0.1); border-color: var(--err); }
+  .inspector-btn svg { width: 14px; height: 14px; }
+
+  /* ───────────────────────── MINIMAP ───────────────────────── */
+  .minimap {
+    position: fixed; right: 12px; bottom: 24px;
+    width: 180px; height: 110px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 400;
+    box-shadow: var(--shadow-md);
+  }
+  .inspector.active ~ .minimap { display: none; }
+  .minimap-canvas { position: absolute; inset: 0; }
+  .minimap-viewport {
+    position: absolute;
+    border: 1.5px solid var(--brand);
+    background: rgba(255,77,46,0.1);
+    pointer-events: none;
+  }
+  .minimap-label {
+    position: absolute; bottom: 4px; left: 6px;
+    font-size: 8px; color: var(--text-mute);
+    letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ───────────────────────── ZOOM CONTROLS ───────────────────────── */
+  .zoom-controls {
+    position: fixed; left: 12px; bottom: 24px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    display: flex; align-items: center;
+    gap: 2px;
+    z-index: 400;
+    box-shadow: var(--shadow-md);
+  }
+  .zoom-btn {
+    width: 30px; height: 30px;
+    background: transparent;
+    border: none; color: var(--text-dim);
+    cursor: pointer; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .zoom-btn:hover { background: var(--surface-2); color: var(--text); }
+  .zoom-btn svg { width: 14px; height: 14px; }
+  .zoom-level {
+    min-width: 50px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    cursor: pointer;
+  }
+  .zoom-level:hover { color: var(--text); }
+
+  /* ───────────────────────── MARQUEE SELECTION ───────────────────────── */
+  .marquee {
+    position: absolute;
+    border: 1px solid var(--brand);
+    background: rgba(255,77,46,0.05);
+    pointer-events: none;
+    z-index: 80;
+    display: none;
+  }
+
+  /* ───────────────────────── CONTEXT MENU ───────────────────────── */
+  .ctx-menu {
+    position: fixed;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 180px;
+    box-shadow: var(--shadow-float);
+    z-index: 2000;
+    display: none;
+  }
+  .ctx-item {
+    padding: 7px 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.1s;
+  }
+  .ctx-item:hover { background: var(--surface-3); color: var(--text); }
+  .ctx-item.danger:hover { background: rgba(239,68,68,0.12); color: var(--err); }
+  .ctx-item svg { width: 14px; height: 14px; opacity: 0.7; }
+  .ctx-divider { height: 1px; background: var(--border); margin: 4px 4px; }
+  .ctx-shortcut {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-mute);
+  }
+
+  /* ───────────────────────── TOAST ───────────────────────── */
+  .toast-stack {
+    position: fixed; top: 60px; right: 12px;
+    z-index: 3000; display: flex; flex-direction: column; gap: 8px;
+    pointer-events: none;
+  }
+  .toast {
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    box-shadow: var(--shadow-md);
+    display: flex; align-items: center; gap: 8px;
+    animation: toast-in 0.25s ease;
+    pointer-events: auto;
+  }
+  .toast.ok { border-left: 3px solid var(--ok); }
+  .toast.err { border-left: 3px solid var(--err); }
+  .toast.info { border-left: 3px solid var(--info); }
+  @keyframes toast-in {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ───────────────────────── TOOLTIPS ───────────────────────── */
+  .tooltip {
+    position: fixed;
+    top: 0; left: 0;
+    background: rgba(15,23,42,0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.12s;
+    white-space: nowrap;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.30);
+    max-width: 280px;
+    transform: translate(0,0);
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip kbd {
+    background: rgba(255,255,255,0.18);
+    color: #ffffff;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  /* ───────────────────────── MODAL (Models settings) ───────────────────────── */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.40);
+    backdrop-filter: blur(6px);
+    z-index: 5000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: min(620px, 100%);
+    max-height: calc(100vh - 48px);
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-float);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .modal-title { font-weight: 700; font-size: 14px; }
+  .modal-close {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: transparent; border: none;
+    color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--surface-2); color: var(--text); }
+  .modal-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+  .modal-footer {
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    background: var(--surface-2);
+    flex-shrink: 0;
+  }
+  .modal-warn {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.35);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 11.5px;
+    color: #92400e;
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+  .modal-warn strong { color: #78350f; }
+
+  .model-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .model-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .model-row-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 700;
+    background: var(--surface);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 3px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .model-row-info { flex: 1; min-width: 0; }
+  .model-row-name {
+    font-weight: 600; font-size: 13px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .model-row-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .model-row-meta .nokey { color: var(--err); }
+  .model-row-actions { display: flex; gap: 2px; flex-shrink: 0; }
+  .model-row-btn {
+    width: 28px; height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; color: var(--text-dim);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .model-row-btn:hover { background: var(--surface-3); color: var(--text); }
+  .model-row-btn.danger:hover { background: rgba(239,68,68,0.10); color: var(--err); }
+  .model-empty {
+    text-align: center;
+    padding: 28px 16px;
+    color: var(--text-mute);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 2px 8px var(--brand-glow);
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border-bright);
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { background: var(--surface-2); }
+  .btn-secondary.danger { color: var(--err); border-color: rgba(239,68,68,0.4); }
+  .btn-secondary.danger:hover { background: rgba(239,68,68,0.08); }
+
+  .model-form { display: flex; flex-direction: column; gap: 12px; }
+  .form-row { display: flex; flex-direction: column; gap: 5px; }
+  .form-row label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .form-row .form-hint {
+    font-size: 10.5px;
+    color: var(--text-mute);
+    margin-top: 2px;
+  }
+  .form-input, .form-select {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 7px;
+    padding: 8px 11px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--brand); }
+  .form-input[type="password"] {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Capability checkbox grid */
+  .caps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .cap-checkbox {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px; font-weight: 500;
+    color: var(--text);
+    user-select: none;
+    transition: all 0.12s;
+  }
+  .cap-checkbox:hover { background: var(--surface-3); border-color: var(--border-bright); }
+  .cap-checkbox input { accent-color: var(--brand); margin: 0; cursor: pointer; }
+  .cap-checkbox.checked {
+    background: rgba(255,77,46,0.06);
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+
+  /* Capability chips shown in the list view */
+  .cap-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    margin: 0 2px 0 0;
+    background: var(--surface-3);
+    color: var(--text-dim);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  .cap-chip.audio { background: rgba(34,197,94,0.10); color: #15803d; }
+  .cap-chip.video { background: rgba(255,77,46,0.10); color: #c2410c; }
+  .cap-chip.image { background: rgba(59,130,246,0.10); color: #1d4ed8; }
+
+  /* ───────────────────────── SHORTCUTS PANEL ───────────────────────── */
+  .shortcuts-panel {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 4000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .shortcuts-panel.active { display: flex; }
+  .shortcuts-card {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 14px;
+    padding: 24px 28px;
+    min-width: 380px;
+    max-width: 460px;
+  }
+  .shortcuts-title {
+    font-weight: 700; font-size: 16px;
+    margin-bottom: 16px;
+  }
+  .shortcut-row {
+    display: flex; justify-content: space-between;
+    padding: 7px 0;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .shortcut-row:last-child { border-bottom: none; }
+  .shortcut-keys {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+  }
+  .shortcut-keys kbd {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    margin-left: 2px;
+  }
+
+  /* ───────────────────────── SCROLLBAR ───────────────────────── */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-mute); }
+
+  /* ───────────────────────── EMPTY STATE ───────────────────────── */
+  .empty-hint {
+    position: absolute; left: 50%; top: 45%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    color: var(--text-mute);
+  }
+  .empty-hint-title {
+    font-size: 14px; font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .empty-hint-sub {
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+  .empty-hint kbd {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 10px;
+  }
+
+  /* utility */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">A</div>
+    AI GEN CANVAS
+  </div>
+  <input class="project-name" id="project-name" value="Untitled Project" />
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" onclick="importJson()" title="Import project JSON">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Import
+  </button>
+  <button class="topbar-btn" onclick="exportJson()" title="Export project as JSON">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Export
+  </button>
+  <button class="topbar-btn" onclick="openModelsModal()" title="Model connections">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Models
+  </button>
+  <button class="topbar-btn" onclick="toggleShortcuts()" title="Keyboard shortcuts">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+  </button>
+</div>
+
+<!-- TOOLBAR (LEFT) -->
+<div class="toolbar">
+  <button class="tool-btn active" id="tool-select" data-tool="select" onclick="setTool('select')" title="Select (V)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+    <span class="tool-shortcut">V</span>
+  </button>
+  <button class="tool-btn" id="tool-pan" data-tool="pan" onclick="setTool('pan')" title="Pan (H or Space)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 13V6a1.5 1.5 0 0 1 3 0v5.5"/>
+      <path d="M11 5.5a1.5 1.5 0 0 1 3 0v6"/>
+      <path d="M14 6a1.5 1.5 0 0 1 3 0v6"/>
+      <path d="M17 7.5a1.5 1.5 0 0 1 3 0v6.5a6.5 6.5 0 0 1-6.5 6.5h-2.4c-1.8 0-3.5-.8-4.6-2.2L4 14.5C3 13.2 4 12 5.5 12.5L8 13.5"/>
+    </svg>
+    <span class="tool-shortcut">H</span>
+  </button>
+  <div class="tool-divider"></div>
+  <button class="tool-btn" id="tool-connect" data-tool="connect" onclick="setTool('connect')" title="Connect (C)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.5 8.5l7 7"/></svg>
+    <span class="tool-shortcut">C</span>
+  </button>
+  <button class="tool-btn" id="tool-frame" data-tool="frame" onclick="setTool('frame')" title="Frame (F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+    <span class="tool-shortcut">F</span>
+  </button>
+  <div class="tool-divider"></div>
+  <button class="tool-btn" id="tool-new-card" data-tool="new-card" onclick="setTool('new-card')" title="New empty card (N)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <line x1="12" y1="8" x2="12" y2="16"/>
+      <line x1="8" y1="12" x2="16" y2="12"/>
+    </svg>
+    <span class="tool-shortcut">N</span>
+  </button>
+</div>
+
+<!-- CANVAS -->
+<div class="canvas-wrap" id="canvas-wrap">
+  <div class="canvas-bg"></div>
+  <div class="canvas-grid" id="canvas-grid"></div>
+  <svg id="connections-svg"></svg>
+  <div id="canvas"></div>
+  <div class="marquee" id="marquee"></div>
+  <div class="empty-hint" id="empty-hint">
+    <div class="empty-hint-title">Type a prompt below to generate</div>
+    <div class="empty-hint-sub">Upload images, then tag them with <kbd>@</kbd> to compose (model + shirt + pants) · <kbd>Space</kbd> to pan · <kbd>⌘</kbd>+scroll to zoom</div>
+  </div>
+</div>
+
+<!-- INSPECTOR (RIGHT) -->
+<div class="inspector" id="inspector">
+  <div class="inspector-header">
+    <div class="inspector-title" id="inspector-title">Properties</div>
+    <button class="inspector-close" onclick="closeInspector()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="inspector-body" id="inspector-body"></div>
+</div>
+
+<!-- MINIMAP -->
+<div class="minimap" id="minimap">
+  <div class="minimap-canvas" id="minimap-canvas"></div>
+  <div class="minimap-viewport" id="minimap-viewport"></div>
+  <div class="minimap-label" id="minimap-label">0 NODES</div>
+</div>
+
+<!-- ZOOM CONTROLS -->
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="zoomBy(-0.15)" title="Zoom out">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <div class="zoom-level" id="zoom-level" onclick="resetView()">100%</div>
+  <button class="zoom-btn" onclick="zoomBy(0.15)" title="Zoom in">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <button class="zoom-btn" onclick="zoomFit()" title="Zoom to fit">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+  </button>
+</div>
+
+<!-- PROMPT DOCK -->
+<div class="prompt-dock">
+  <div class="prompt-bar" id="prompt-bar">
+    <!-- TAG DROPDOWN (appears above prompt when typing @) -->
+    <div class="tag-dropdown" id="tag-dropdown">
+      <div class="tag-dropdown-header">Reference a card</div>
+      <div id="tag-dropdown-list"></div>
+    </div>
+    <!-- CONTEXT HEADER (shown when editing an existing card) -->
+    <div class="prompt-context" id="prompt-context"></div>
+    <!-- ATTACHMENTS (pending uploads attached to this prompt) -->
+    <div class="prompt-attachments" id="prompt-attachments"></div>
+    <div class="prompt-input-row">
+      <button class="prompt-upload-btn" onclick="promptUploadClick()" title="Upload image (JPEG/PNG)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="9" cy="9" r="2"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+      </button>
+      <input type="file" id="prompt-file-upload"
+             accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+             multiple style="display:none"
+             onchange="handlePromptFileUpload(event)">
+      <div class="prompt-input" id="prompt-input"
+        contenteditable="true"
+        data-placeholder="Describe an image, video, or scene…  type @ to reference an uploaded image"
+        onkeydown="onPromptKeydown(event)"
+        oninput="onPromptInput(event)"
+        onpaste="onPromptPaste(event)"
+        onfocus="onPromptFocus()"
+        onblur="onPromptBlur()"></div>
+      <button class="prompt-generate" id="prompt-generate-btn" onclick="generateFromPrompt()" title="Send (⏎)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+    <div class="prompt-toolbar">
+      <div id="selection-pill-slot"></div>
+      <div class="mode-toggle">
+        <button id="mode-image" class="active" onclick="setMode('image')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+          Image
+        </button>
+        <button id="mode-video" onclick="setMode('video')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          Video
+        </button>
+        <button id="mode-audio" onclick="setMode('audio')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          Audio
+        </button>
+      </div>
+      <select class="pill-select" id="model-select"></select>
+      <div class="ar-group" id="ar-group">
+        <button data-ar="1:1">1:1</button>
+        <button class="active" data-ar="16:9">16:9</button>
+        <button data-ar="9:16">9:16</button>
+        <button data-ar="4:3">4:3</button>
+        <button data-ar="3:4">3:4</button>
+      </div>
+      <select class="pill-select hidden" id="duration-select">
+        <option value="5">5s</option>
+        <option value="10">10s</option>
+        <option value="15">15s</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx-menu" id="ctx-menu"></div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<!-- MODELS MODAL -->
+<div class="modal-backdrop" id="models-modal" onclick="if (event.target === this) closeModelsModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Model Connections</div>
+      <button class="modal-close" onclick="closeModelsModal()" title="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="models-modal-body"></div>
+    <div class="modal-footer" id="models-modal-footer"></div>
+  </div>
+</div>
+
+<!-- SHORTCUTS PANEL -->
+<div class="shortcuts-panel" id="shortcuts-panel" onclick="toggleShortcuts()">
+  <div class="shortcuts-card" onclick="event.stopPropagation()">
+    <div class="shortcuts-title">Keyboard Shortcuts</div>
+    <div class="shortcut-row"><span>Select tool</span><span class="shortcut-keys"><kbd>V</kbd></span></div>
+    <div class="shortcut-row"><span>Pan tool</span><span class="shortcut-keys"><kbd>H</kbd></span></div>
+    <div class="shortcut-row"><span>Connect tool</span><span class="shortcut-keys"><kbd>C</kbd></span></div>
+    <div class="shortcut-row"><span>Frame tool</span><span class="shortcut-keys"><kbd>F</kbd></span></div>
+    <div class="shortcut-row"><span>New empty card</span><span class="shortcut-keys"><kbd>N</kbd></span></div>
+    <div class="shortcut-row"><span>Pan canvas (hold)</span><span class="shortcut-keys"><kbd>Space</kbd></span></div>
+    <div class="shortcut-row"><span>Zoom</span><span class="shortcut-keys"><kbd>⌘</kbd>+<kbd>Scroll</kbd></span></div>
+    <div class="shortcut-row"><span>Zoom to fit</span><span class="shortcut-keys"><kbd>⇧</kbd>+<kbd>1</kbd></span></div>
+    <div class="shortcut-row"><span>Reset view</span><span class="shortcut-keys"><kbd>⌘</kbd>+<kbd>0</kbd></span></div>
+    <div class="shortcut-row"><span>Duplicate</span><span class="shortcut-keys"><kbd>⌘</kbd>+<kbd>D</kbd></span></div>
+    <div class="shortcut-row"><span>Delete</span><span class="shortcut-keys"><kbd>Del</kbd> / <kbd>⌫</kbd></span></div>
+    <div class="shortcut-row"><span>Select all</span><span class="shortcut-keys"><kbd>⌘</kbd>+<kbd>A</kbd></span></div>
+    <div class="shortcut-row"><span>Focus prompt</span><span class="shortcut-keys"><kbd>/</kbd></span></div>
+    <div class="shortcut-row"><span>Reference an upload</span><span class="shortcut-keys"><kbd>@</kbd> in prompt</span></div>
+    <div class="shortcut-row"><span>Tag picker nav</span><span class="shortcut-keys"><kbd>↑</kbd> <kbd>↓</kbd> <kbd>⏎</kbd></span></div>
+    <div class="shortcut-row"><span>Generate</span><span class="shortcut-keys"><kbd>Enter</kbd></span></div>
+    <div class="shortcut-row"><span>Cancel / Deselect</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+   AI GEN CANVAS — Higgsfield-style freeform AI workspace
+   Mock generation. Single-file. Vanilla JS.
+   ───────────────────────────────────────────────────────────────────────── */
+
+// ───────────────────────── STATE ─────────────────────────
+const state = {
+  cards: [],            // { id, name, type, x, y, w, h, prompt, model, src, status, ar }
+  connections: [],      // { id, from, to }
+  selection: new Set(), // selected card ids
+  tool: 'select',       // 'select' | 'pan' | 'connect' | 'frame'
+  mode: 'image',        // 'image' | 'video' | 'audio'
+  viewport: { x: 0, y: 0, zoom: 1 },
+  spaceDown: false,
+  uid: 1,
+  ar: '16:9',
+  duration: 5,
+  model: '',            // currently-selected model id (from state.models)
+  models: [],           // user-configured connections, loaded from localStorage on init
+  pendingUploads: [],   // image attachments queued for the next prompt: [{ id, name, src, isVideo }]
+  editingCardId: null,  // when set, the chat box is editing this card (vs. creating a new one)
+};
+
+// Tag dropdown ephemeral state
+let tagPicker = null; // { range: {node,start,end}, query, options: [card], active: 0 }
+// Models modal ephemeral state
+let modelEditingId = null; // null = list view, 'new' = creating, <id> = editing existing
+
+// ───────────────────────── MODEL CONNECTIONS ─────────────────────────
+// No hardcoded model catalog — the user configures their own via the Models modal.
+// Each entry: { id, name, type, provider, endpoint, modelId, apiKey }.
+// Persisted to localStorage (client-side only). For production, route through a backend proxy.
+
+const MODELS_STORAGE_KEY = 'aigc-models';
+
+// What a model can do. Each capability declares an `output` so the prompt-bar's
+// mode toggle (image / video / audio) can filter models by what they produce.
+// `acceptsImage` flags whether tagged uploads can be passed to it.
+const CAPABILITIES = [
+  { id: 'text-to-image',  label: 'Text → Image',        output: 'image', acceptsImage: false },
+  { id: 'image-to-image', label: 'Image → Image (edit / composite)', output: 'image', acceptsImage: true  },
+  { id: 'text-to-video',  label: 'Text → Video',        output: 'video', acceptsImage: false },
+  { id: 'image-to-video', label: 'Image → Video (animate)',           output: 'video', acceptsImage: true  },
+  { id: 'text-to-audio',  label: 'Text → Audio',        output: 'audio', acceptsImage: false },
+];
+const CAP_BY_ID = Object.fromEntries(CAPABILITIES.map(c => [c.id, c]));
+
+// Provider presets — keyed by capability so each flow gets the right endpoint.
+const PROVIDERS = {
+  openai: {
+    label: 'OpenAI',
+    presets: {
+      'text-to-image':  { endpoint: 'https://api.openai.com/v1/images/generations', modelId: 'gpt-image-1' },
+      'image-to-image': { endpoint: 'https://api.openai.com/v1/images/edits',       modelId: 'gpt-image-1' },
+      'text-to-video':  { endpoint: 'https://api.openai.com/v1/videos/generations', modelId: 'sora-2' },
+      'image-to-video': { endpoint: 'https://api.openai.com/v1/videos/generations', modelId: 'sora-2' },
+      'text-to-audio':  { endpoint: 'https://api.openai.com/v1/audio/speech',       modelId: 'tts-1' },
+    },
+  },
+  fal: {
+    label: 'fal.ai',
+    presets: {
+      'text-to-image':  { endpoint: 'https://fal.run/fal-ai/flux-pro/v1.1',                              modelId: 'fal-ai/flux-pro/v1.1' },
+      'image-to-image': { endpoint: 'https://fal.run/fal-ai/flux-pro/kontext',                           modelId: 'fal-ai/flux-pro/kontext' },
+      'text-to-video':  { endpoint: 'https://fal.run/fal-ai/kling-video/v1.6/pro/text-to-video',         modelId: 'fal-ai/kling-video/v1.6/pro' },
+      'image-to-video': { endpoint: 'https://fal.run/fal-ai/kling-video/v1.6/pro/image-to-video',        modelId: 'fal-ai/kling-video/v1.6/pro' },
+      'text-to-audio':  { endpoint: 'https://fal.run/fal-ai/elevenlabs-tts',                             modelId: 'fal-ai/elevenlabs-tts' },
+    },
+  },
+  replicate: {
+    label: 'Replicate',
+    presets: {
+      'text-to-image':  { endpoint: 'https://api.replicate.com/v1/predictions', modelId: 'black-forest-labs/flux-1.1-pro' },
+      'image-to-image': { endpoint: 'https://api.replicate.com/v1/predictions', modelId: 'black-forest-labs/flux-1.1-pro' },
+      'text-to-video':  { endpoint: 'https://api.replicate.com/v1/predictions', modelId: 'kwaivgi/kling-v1.6-pro' },
+      'image-to-video': { endpoint: 'https://api.replicate.com/v1/predictions', modelId: 'kwaivgi/kling-v1.6-pro' },
+    },
+  },
+  anthropic: {
+    label: 'Anthropic (Claude)',
+    presets: {
+      'text-to-image':  { endpoint: 'https://api.anthropic.com/v1/messages', modelId: 'claude-sonnet-4-6' },
+    },
+  },
+  custom: {
+    label: 'Custom endpoint',
+    presets: {},
+  },
+};
+
+function loadModelsFromStorage() {
+  try {
+    const raw = localStorage.getItem(MODELS_STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    // Migrate legacy `type: 'image'|'video'|'audio'` → capabilities = ['text-to-X']
+    for (const m of arr) {
+      if (!Array.isArray(m.capabilities) || m.capabilities.length === 0) {
+        if (m.type === 'image') m.capabilities = ['text-to-image'];
+        else if (m.type === 'video') m.capabilities = ['text-to-video'];
+        else if (m.type === 'audio') m.capabilities = ['text-to-audio'];
+        else m.capabilities = [];
+      }
+      delete m.type; // remove obsolete field
+    }
+    return arr;
+  } catch { return []; }
+}
+
+// Aggregate the set of output types a model supports.
+function modelOutputs(m) {
+  return new Set((m.capabilities || []).map(id => CAP_BY_ID[id]?.output).filter(Boolean));
+}
+// Whether a model can take tagged image references as input.
+function modelAcceptsImageRefs(m) {
+  return (m.capabilities || []).some(id => CAP_BY_ID[id]?.acceptsImage);
+}
+function saveModelsToStorage() {
+  try { localStorage.setItem(MODELS_STORAGE_KEY, JSON.stringify(state.models)); }
+  catch (e) { console.warn('save models failed', e); }
+}
+
+const AR_DIMS = {
+  '1:1':  { w: 320, h: 320 },
+  '16:9': { w: 400, h: 225 },
+  '9:16': { w: 240, h: 426 },
+  '4:3':  { w: 360, h: 270 },
+  '3:4':  { w: 270, h: 360 },
+};
+
+// ───────────────────────── DOM REFS ─────────────────────────
+const $canvas       = document.getElementById('canvas');
+const $canvasWrap   = document.getElementById('canvas-wrap');
+const $canvasGrid   = document.getElementById('canvas-grid');
+const $svg          = document.getElementById('connections-svg');
+const $promptInput  = document.getElementById('prompt-input');
+const $promptBar    = document.getElementById('prompt-bar');
+const $genBtn       = document.getElementById('prompt-generate-btn');
+const $modelSelect  = document.getElementById('model-select');
+const $arGroup      = document.getElementById('ar-group');
+const $durationSelect = document.getElementById('duration-select');
+const $emptyHint    = document.getElementById('empty-hint');
+const $marquee      = document.getElementById('marquee');
+const $tagDropdown  = document.getElementById('tag-dropdown');
+const $tagDropdownList = document.getElementById('tag-dropdown-list');
+const $minimap      = document.getElementById('minimap-canvas');
+const $minimapVp    = document.getElementById('minimap-viewport');
+const $minimapLabel = document.getElementById('minimap-label');
+const $zoomLevel    = document.getElementById('zoom-level');
+const $ctxMenu      = document.getElementById('ctx-menu');
+const $inspector    = document.getElementById('inspector');
+const $inspectorBody= document.getElementById('inspector-body');
+const $inspectorTitle= document.getElementById('inspector-title');
+const $toastStack   = document.getElementById('toast-stack');
+
+// ───────────────────────── UTIL ─────────────────────────
+const uid = () => 'n' + (state.uid++);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const isMac = navigator.platform.toLowerCase().includes('mac');
+
+function screenToCanvas(sx, sy) {
+  const r = $canvasWrap.getBoundingClientRect();
+  return {
+    x: (sx - r.left - state.viewport.x) / state.viewport.zoom,
+    y: (sy - r.top - state.viewport.y) / state.viewport.zoom,
+  };
+}
+
+function viewportCenterCanvas() {
+  const r = $canvasWrap.getBoundingClientRect();
+  return screenToCanvas(r.left + r.width/2, r.top + r.height/2);
+}
+
+function toast(msg, kind = 'info', ms = 2400) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + kind;
+  t.textContent = msg;
+  $toastStack.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(20px)';
+    t.style.transition = 'all 0.2s';
+    setTimeout(() => t.remove(), 220);
+  }, ms);
+}
+
+// ───────────────────────── TOOL ─────────────────────────
+function setTool(tool) {
+  state.tool = tool;
+  document.querySelectorAll('.tool-btn[data-tool]').forEach(b => {
+    b.classList.toggle('active', b.dataset.tool === tool);
+  });
+  $canvasWrap.classList.remove('tool-pan', 'tool-connect', 'tool-frame', 'tool-new-card', 'tool-text');
+  document.body.classList.remove('tool-connect');
+  if (tool === 'pan')      $canvasWrap.classList.add('tool-pan');
+  if (tool === 'connect')  { $canvasWrap.classList.add('tool-connect'); document.body.classList.add('tool-connect'); }
+  if (tool === 'frame')    $canvasWrap.classList.add('tool-frame');
+  if (tool === 'new-card') $canvasWrap.classList.add('tool-new-card');
+}
+
+// ───────────────────────── VIEWPORT ─────────────────────────
+function applyViewport() {
+  const { x, y, zoom } = state.viewport;
+  $canvas.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+  $svg.style.transform    = `translate(${x}px, ${y}px) scale(${zoom})`;
+  const gridSize = 24 * zoom;
+  $canvasGrid.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+  $canvasGrid.style.backgroundPosition = `${x}px ${y}px`;
+  $zoomLevel.textContent = Math.round(zoom * 100) + '%';
+  updateMinimap();
+}
+
+function zoomBy(delta, cx, cy) {
+  const r = $canvasWrap.getBoundingClientRect();
+  cx = cx ?? (r.left + r.width/2);
+  cy = cy ?? (r.top + r.height/2);
+  const oldZoom = state.viewport.zoom;
+  const newZoom = clamp(oldZoom * (1 + delta), 0.15, 4);
+  // Keep the point under cursor stable
+  const dx = cx - r.left - state.viewport.x;
+  const dy = cy - r.top - state.viewport.y;
+  state.viewport.x -= dx * (newZoom/oldZoom - 1);
+  state.viewport.y -= dy * (newZoom/oldZoom - 1);
+  state.viewport.zoom = newZoom;
+  applyViewport();
+}
+
+function resetView() {
+  state.viewport = { x: 0, y: 0, zoom: 1 };
+  applyViewport();
+}
+
+function zoomFit() {
+  if (state.cards.length === 0) { resetView(); return; }
+  const xs = state.cards.map(c => c.x);
+  const ys = state.cards.map(c => c.y);
+  const xe = state.cards.map(c => c.x + c.w);
+  const ye = state.cards.map(c => c.y + c.h);
+  const minX = Math.min(...xs) - 60;
+  const minY = Math.min(...ys) - 60;
+  const maxX = Math.max(...xe) + 60;
+  const maxY = Math.max(...ye) + 60;
+  const w = maxX - minX, h = maxY - minY;
+  const r = $canvasWrap.getBoundingClientRect();
+  const z = clamp(Math.min((r.width - 80)/w, (r.height - 160)/h), 0.15, 2);
+  state.viewport.zoom = z;
+  state.viewport.x = (r.width - w*z)/2 - minX*z;
+  state.viewport.y = (r.height - h*z)/2 - minY*z - 30;
+  applyViewport();
+}
+
+// ───────────────────────── PAN ─────────────────────────
+let isPanning = false;
+let panStart = { mx: 0, my: 0, vx: 0, vy: 0 };
+
+$canvasWrap.addEventListener('mousedown', (e) => {
+  // Middle button OR space-pan OR pan tool
+  const wantPan = e.button === 1 || state.spaceDown || (state.tool === 'pan' && e.button === 0);
+  if (wantPan) {
+    isPanning = true;
+    panStart.mx = e.clientX;
+    panStart.my = e.clientY;
+    panStart.vx = state.viewport.x;
+    panStart.vy = state.viewport.y;
+    $canvasWrap.classList.add('panning');
+    e.preventDefault();
+    return;
+  }
+  // Click on empty canvas -> start marquee, deselect, or drop a new card
+  if (e.target === $canvasWrap || e.target === $canvasGrid || e.target.id === 'canvas') {
+    if (state.tool === 'new-card' && e.button === 0) {
+      const p = screenToCanvas(e.clientX, e.clientY);
+      createDraftCardAt(p.x, p.y);
+      setTool('select');
+      e.preventDefault();
+      return;
+    }
+    if (state.tool === 'frame' && e.button === 0) {
+      startFrameDraw(e);
+      return;
+    }
+    if (e.button === 0) {
+      if (!e.shiftKey) clearSelection();
+      startMarquee(e);
+    }
+  }
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (isPanning) {
+    state.viewport.x = panStart.vx + (e.clientX - panStart.mx);
+    state.viewport.y = panStart.vy + (e.clientY - panStart.my);
+    applyViewport();
+  }
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (isPanning) {
+    isPanning = false;
+    $canvasWrap.classList.remove('panning');
+  }
+});
+
+// ───────────────────────── ZOOM (WHEEL) ─────────────────────────
+$canvasWrap.addEventListener('wheel', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    zoomBy(-e.deltaY * 0.0015, e.clientX, e.clientY);
+  } else {
+    // pan with wheel (trackpad)
+    state.viewport.x -= e.deltaX;
+    state.viewport.y -= e.deltaY;
+    applyViewport();
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// ───────────────────────── CARDS ─────────────────────────
+function namePrefixFor(type) {
+  return type === 'video' ? 'vid'
+       : type === 'audio' ? 'aud'
+       : type === 'frame' ? 'frm'
+       : 'img';
+}
+function nextCardName(type) {
+  const prefix = namePrefixFor(type);
+  const used = new Set(state.cards.map(c => c.name).filter(Boolean));
+  let n = 1;
+  while (used.has(`${prefix}-${n}`)) n++;
+  return `${prefix}-${n}`;
+}
+function getCardName(card) {
+  return card && card.name ? card.name : '';
+}
+function findCardByName(name) {
+  return state.cards.find(c => c.name === name);
+}
+
+function createCard(opts) {
+  const id = opts.id || uid();
+  // Backward-compat: previously type:'upload' encoded both media-type and source.
+  // Split those into type:'image' + source:'upload' so we can filter on source alone.
+  let type = opts.type || 'image';
+  let source = opts.source || 'generated';
+  if (type === 'upload') { type = 'image'; source = 'upload'; }
+
+  const ar = opts.ar || state.ar;
+  const dim = AR_DIMS[ar] || AR_DIMS['16:9'];
+  const card = {
+    id,
+    // Every card gets a stable @name so it can be referenced via the chat box.
+    name: opts.name || (type === 'frame' ? '' : nextCardName(type)),
+    type,                              // 'image' | 'video' | 'audio' | 'frame'
+    source,                            // 'upload' | 'generated'
+    x: opts.x ?? viewportCenterCanvas().x - dim.w/2,
+    y: opts.y ?? viewportCenterCanvas().y - dim.h/2,
+    w: opts.w ?? dim.w,
+    h: opts.h ?? dim.h,
+    prompt: opts.prompt || '',
+    model: opts.model || '',
+    src: opts.src || '',
+    status: opts.status || 'idle',     // 'draft' | 'idle' | 'generating' | 'done' | 'error'
+    ar,
+    duration: opts.duration || state.duration,
+    label: opts.label || '',
+    // inputs: ephemeral uploads that were attached to this generation. Stored as
+    // {name, src, isVideo} so a future re-generation can re-send them to the API,
+    // but the card itself displays only the model's output (card.src), never the inputs.
+    inputs: Array.isArray(opts.inputs) ? opts.inputs : [],
+  };
+  state.cards.push(card);
+  renderCard(card);
+  updateEmptyHint();
+  updateMinimap();
+  return card;
+}
+
+function renderCard(card) {
+  let el = document.getElementById(card.id);
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'card';
+    el.id = card.id;
+    el.dataset.id = card.id;
+    if (card.type === 'frame') el.classList.add('frame');
+    $canvas.appendChild(el);
+    attachCardHandlers(el);
+  }
+  el.style.left   = card.x + 'px';
+  el.style.top    = card.y + 'px';
+  el.style.width  = card.w + 'px';
+  el.style.height = card.h + 'px';
+  el.classList.toggle('generating', card.status === 'generating');
+  el.classList.toggle('draft', card.status === 'draft');
+  el.classList.toggle('selected', state.selection.has(card.id));
+
+  if (card.type === 'frame') {
+    el.innerHTML = `<div class="frame-label">${escapeHtml(card.label || 'Frame')}</div>`;
+    return;
+  }
+
+  // Build inner content
+  const thumbH = card.h - (card.type === 'audio' ? 0 : 36); // leave 36px for meta
+  let mediaHtml = '';
+  if (card.status === 'draft') {
+    const incCount = state.connections.filter(c => c.to === card.id).length;
+    mediaHtml = `<div class="draft-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"/>
+        <line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/>
+      </svg>
+      <div>Click to set up</div>
+      ${incCount ? `<div class="hint">${incCount} input${incCount>1?'s':''} connected</div>` : ''}
+    </div>`;
+  } else if (card.status === 'generating') {
+    mediaHtml = `<div class="placeholder">⏳  GENERATING…</div>`;
+  } else if (card.status === 'idle') {
+    mediaHtml = `<div class="placeholder">EMPTY</div>`;
+  } else if (card.type === 'image') {
+    mediaHtml = card.src
+      ? `<img src="${escapeAttr(card.src)}" alt="">`
+      : `<div class="placeholder">NO IMAGE</div>`;
+  } else if (card.type === 'video') {
+    mediaHtml = card.src
+      ? `<video src="${escapeAttr(card.src)}" autoplay muted loop playsinline></video>`
+      : mockVideoPlaceholder(card);
+  } else if (card.type === 'audio') {
+    mediaHtml = mockAudioPlaceholder(card);
+  }
+
+  const isUpload = card.source === 'upload';
+  const badgeKind = isUpload ? 'upload' : (card.type === 'frame' ? 'frame' : card.type);
+  const badge = `<div class="card-badge ${badgeKind}">${badgeIcon(card.type)} ${badgeText(card)}</div>`;
+
+  // Hover actions differ by source:
+  //  - uploads can be referenced via @-tag (the chevron "Use as reference" button)
+  //  - generated cards get a "Regenerate" shortcut instead
+  const primaryAction = isUpload
+    ? `<div class="card-action" title="Use as reference (@${escapeAttr(card.name)})" onclick="event.stopPropagation(); useAsContext('${card.id}');">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+       </div>`
+    : `<div class="card-action" title="Regenerate" onclick="event.stopPropagation(); regenerateCard('${card.id}');">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 1 1 5.64 5.64L23 10"/></svg>
+       </div>`;
+
+  const actions = `
+    <div class="card-actions">
+      ${card.type === 'frame' ? '' : primaryAction}
+      <div class="card-action" title="Duplicate" onclick="event.stopPropagation(); duplicateCard('${card.id}');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <div class="card-action" title="Delete" onclick="event.stopPropagation(); deleteCard('${card.id}');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </div>
+    </div>`;
+
+  const progress = card.status === 'generating'
+    ? `<div class="card-progress"><div class="card-progress-bar" id="${card.id}-prog"></div></div>`
+    : '';
+
+  const meta = (card.type === 'audio' || isUpload)
+    ? `<div class="card-meta">
+         <div class="card-meta-model">${escapeHtml(card.model || (isUpload ? 'upload' : 'audio'))}</div>
+         <div class="card-meta-prompt">${escapeHtml(card.prompt || (isUpload ? 'Uploaded asset' : 'Audio'))}</div>
+       </div>`
+    : `<div class="card-meta">
+         <div class="card-meta-model">${escapeHtml(card.model || '—')}</div>
+         <div class="card-meta-prompt">${escapeHtml(card.prompt || '—')}</div>
+       </div>`;
+
+  // Every card with a name shows its @-handle (small bottom-right label) so
+  // users know exactly what to type in the chat box to reference it.
+  const handle = card.name
+    ? `<div class="card-handle">@${escapeHtml(card.name)}</div>`
+    : '';
+  // Breadcrumb showing which cards feed into this one (incoming connections).
+  const incomingNames = state.connections
+    .filter(c => c.to === card.id)
+    .map(c => state.cards.find(x => x.id === c.from)?.name)
+    .filter(Boolean);
+  const breadcrumb = incomingNames.length && card.type !== 'frame'
+    ? `<div class="card-breadcrumb"><span class="crumb-arrow">←</span>${
+        incomingNames.map(n => `<span class="crumb-name">@${escapeHtml(n)}</span>`).join('')
+      }</div>`
+    : '';
+
+  // Multi-input badge: count incoming connections — shows when card combines ≥2 refs
+  const inputCount = state.connections.filter(c => c.to === card.id).length;
+  el.dataset.inputs = inputCount;
+  const inputsBadge = inputCount >= 2
+    ? `<div class="card-inputs-badge">✶ ${inputCount} refs</div>`
+    : '';
+  // Attachments badge: number of ephemeral uploads attached to this generation
+  const attCount = (card.inputs || []).length;
+  const attBadge = attCount > 0
+    ? `<div class="card-attachments-badge" title="${attCount} attached input${attCount>1?'s':''}">📎 ${attCount}</div>`
+    : '';
+
+  el.innerHTML = `
+    ${badge}
+    ${inputsBadge}
+    ${attBadge}
+    ${actions}
+    <div class="card-thumb" style="height:${thumbH}px">${mediaHtml}</div>
+    ${meta}
+    ${breadcrumb}
+    ${handle}
+    ${progress}
+    <div class="port port-in" data-side="in"></div>
+    <div class="port port-out" data-side="out"></div>
+    <div class="resize-handle nw"></div>
+    <div class="resize-handle ne"></div>
+    <div class="resize-handle sw"></div>
+    <div class="resize-handle se"></div>
+  `;
+}
+
+function badgeIcon(type) {
+  if (type === 'video') return '▶';
+  if (type === 'audio') return '♫';
+  if (type === 'frame') return '▢';
+  return '◇';
+}
+function badgeText(card) {
+  if (card.source === 'upload') return 'UPLOAD';
+  if (card.type === 'video') return 'VIDEO';
+  if (card.type === 'audio') return 'AUDIO';
+  if (card.type === 'frame') return 'FRAME';
+  return 'IMAGE';
+}
+
+function mockImageDataUrl(seed, w, h) {
+  // Deterministic gradient SVG, base64-encoded
+  const hash = String(seed).split('').reduce((a,c)=>a + c.charCodeAt(0), 0);
+  const palettes = [
+    ['#ff4d2e', '#ff2a68', '#7c3aed'],
+    ['#3b82f6', '#06b6d4', '#10b981'],
+    ['#f59e0b', '#ef4444', '#a855f7'],
+    ['#ec4899', '#8b5cf6', '#3b82f6'],
+    ['#10b981', '#3b82f6', '#1e1e2e'],
+    ['#fbbf24', '#fb7185', '#f43f5e'],
+  ];
+  const p = palettes[hash % palettes.length];
+  const a1 = (hash * 13) % 360;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 225' preserveAspectRatio='xMidYMid slice'>
+    <defs>
+      <radialGradient id='g' cx='${30 + (hash%40)}%' cy='${30 + (hash%30)}%' r='80%'>
+        <stop offset='0%' stop-color='${p[0]}'/>
+        <stop offset='50%' stop-color='${p[1]}'/>
+        <stop offset='100%' stop-color='${p[2]}'/>
+      </radialGradient>
+      <filter id='n'><feTurbulence baseFrequency='1.2' seed='${hash}'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0'/></filter>
+    </defs>
+    <rect width='400' height='225' fill='url(#g)'/>
+    <rect width='400' height='225' fill='black' opacity='0.12' transform='rotate(${a1} 200 112)'/>
+    <rect width='400' height='225' filter='url(#n)'/>
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function mockVideoPlaceholder(card) {
+  // Animated gradient (since real video can't be generated). Looks "video-ish".
+  return `<div class="placeholder" style="
+    width:100%;height:100%;
+    background: linear-gradient(135deg, #ff4d2e, #ff2a68, #7c3aed, #06b6d4);
+    background-size: 400% 400%;
+    animation: gradient-flow 8s ease infinite;
+    display:flex;align-items:center;justify-content:center;color:white;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;
+  ">▶ VIDEO PREVIEW</div>
+  <style>@keyframes gradient-flow { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }</style>`;
+}
+function mockAudioPlaceholder(card) {
+  // SVG waveform
+  const bars = Array.from({length: 32}, (_, i) => {
+    const h = 8 + Math.sin(i*0.7) * 12 + (i%3)*4;
+    return `<rect x='${i*8}' y='${20 - h/2}' width='4' height='${h}' fill='#22c55e' rx='1' opacity='${0.4 + (i%5)*0.12}'/>`;
+  }).join('');
+  return `<div class="placeholder" style="background:var(--surface-2);width:100%;height:100%;">
+    <svg viewBox='0 0 260 40' style='width:90%;'>${bars}</svg>
+  </div>`;
+}
+
+function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s) { return escapeHtml(s); }
+
+// ───────────────────────── CARD INTERACTIONS ─────────────────────────
+let activeDrag = null;     // { cards: [{id, sx, sy, x0, y0}], dragged }
+let activeResize = null;   // { id, corner, x0, y0, w0, h0, mx, my }
+let connectingFrom = null; // { id, side, x, y }
+let connPreviewEl = null;
+
+function attachCardHandlers(el) {
+  el.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (state.spaceDown || state.tool === 'pan') return;
+    if (e.target.closest('.card-action')) return;
+    if (e.target.closest('.resize-handle')) {
+      const corner = e.target.classList[1];
+      startResize(el.dataset.id, corner, e);
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+    if (e.target.closest('.port')) {
+      const side = e.target.closest('.port').dataset.side;
+      if (state.tool === 'connect' || side === 'out') {
+        startConnect(el.dataset.id, side, e);
+      }
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+    if (state.tool === 'connect') return;
+    e.stopPropagation();
+    const id = el.dataset.id;
+    if (e.shiftKey) toggleSelect(id);
+    else if (!state.selection.has(id)) { clearSelection(); selectCard(id); }
+    startDragCards(e);
+  });
+
+  el.addEventListener('dblclick', (e) => {
+    if (e.target.closest('.card-action') || e.target.closest('.port') || e.target.closest('.resize-handle')) return;
+    openInspector(el.dataset.id);
+  });
+
+  el.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = el.dataset.id;
+    if (!state.selection.has(id)) { clearSelection(); selectCard(id); }
+    showContextMenu(e.clientX, e.clientY, 'card');
+  });
+
+  // Port mouseup (delegated — survives innerHTML re-renders)
+  el.addEventListener('mouseup', (e) => {
+    const port = e.target.closest('.port');
+    if (port && connectingFrom && connectingFrom.id !== el.dataset.id) {
+      finishConnect(el.dataset.id, port.dataset.side);
+      e.stopPropagation();
+    }
+  });
+}
+
+function startDragCards(e) {
+  const ids = [...state.selection];
+  activeDrag = {
+    cards: ids.map(id => {
+      const c = state.cards.find(x => x.id === id);
+      return { id, x0: c.x, y0: c.y };
+    }),
+    mx: e.clientX, my: e.clientY,
+    moved: false,
+  };
+  document.querySelectorAll('.card.selected').forEach(el => el.classList.add('dragging'));
+}
+
+window.addEventListener('mousemove', (e) => {
+  if (activeDrag) {
+    const dxRaw = e.clientX - activeDrag.mx;
+    const dyRaw = e.clientY - activeDrag.my;
+    if (!activeDrag.moved && Math.abs(dxRaw) + Math.abs(dyRaw) > 2) activeDrag.moved = true;
+    const dx = dxRaw / state.viewport.zoom;
+    const dy = dyRaw / state.viewport.zoom;
+    for (const d of activeDrag.cards) {
+      const c = state.cards.find(x => x.id === d.id);
+      c.x = d.x0 + dx; c.y = d.y0 + dy;
+      const el = document.getElementById(d.id);
+      el.style.left = c.x + 'px';
+      el.style.top  = c.y + 'px';
+    }
+    updateConnections();
+    updateMinimap();
+  }
+
+  if (activeResize) {
+    const c = state.cards.find(x => x.id === activeResize.id);
+    if (!c) return;
+    const dx = (e.clientX - activeResize.mx) / state.viewport.zoom;
+    const dy = (e.clientY - activeResize.my) / state.viewport.zoom;
+    let { x0, y0, w0, h0, corner } = activeResize;
+    let nx = x0, ny = y0, nw = w0, nh = h0;
+    if (corner === 'se') { nw = w0 + dx; nh = h0 + dy; }
+    if (corner === 'sw') { nx = x0 + dx; nw = w0 - dx; nh = h0 + dy; }
+    if (corner === 'ne') { ny = y0 + dy; nw = w0 + dx; nh = h0 - dy; }
+    if (corner === 'nw') { nx = x0 + dx; ny = y0 + dy; nw = w0 - dx; nh = h0 - dy; }
+    if (nw < 80) nw = 80;
+    if (nh < 60) nh = 60;
+    c.x = nx; c.y = ny; c.w = nw; c.h = nh;
+    renderCard(c);
+    updateConnections();
+    updateMinimap();
+  }
+
+  if (connectingFrom) {
+    const p = screenToCanvas(e.clientX, e.clientY);
+    drawConnPreview(connectingFrom.x, connectingFrom.y, p.x, p.y);
+  }
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (activeDrag) {
+    document.querySelectorAll('.card').forEach(el => el.classList.remove('dragging'));
+    activeDrag = null;
+  }
+  if (activeResize) activeResize = null;
+  if (connectingFrom && !e.target.closest('.port')) {
+    cancelConnect();
+  }
+});
+
+function startResize(id, corner, e) {
+  const c = state.cards.find(x => x.id === id);
+  if (!c) return;
+  activeResize = { id, corner, x0: c.x, y0: c.y, w0: c.w, h0: c.h, mx: e.clientX, my: e.clientY };
+}
+
+// ───────────────────────── CONNECTIONS ─────────────────────────
+function startConnect(id, side, e) {
+  const c = state.cards.find(x => x.id === id);
+  if (!c) return;
+  const pos = side === 'out' ? { x: c.x + c.w, y: c.y + c.h/2 } : { x: c.x, y: c.y + c.h/2 };
+  connectingFrom = { id, side, x: pos.x, y: pos.y };
+}
+
+function finishConnect(toId, toSide) {
+  if (!connectingFrom) return;
+  const fromId = connectingFrom.id;
+  if (fromId === toId) { cancelConnect(); return; }
+  // Normalize: always store out -> in
+  let from = fromId, to = toId;
+  if (connectingFrom.side === 'in' && toSide === 'out') { from = toId; to = fromId; }
+  const exists = state.connections.find(c => c.from === from && c.to === to);
+  if (!exists) {
+    state.connections.push({ id: 'c' + Date.now(), from, to });
+    toast(`Connected → ${getCardLabel(to)}`, 'ok', 1500);
+  }
+  cancelConnect();
+  updateConnections();
+}
+
+function cancelConnect() {
+  connectingFrom = null;
+  if (connPreviewEl) { connPreviewEl.remove(); connPreviewEl = null; }
+}
+
+function drawConnPreview(x1, y1, x2, y2) {
+  if (!connPreviewEl) {
+    connPreviewEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    connPreviewEl.setAttribute('class', 'conn-path preview');
+    $svg.appendChild(connPreviewEl);
+  }
+  connPreviewEl.setAttribute('d', cubic(x1, y1, x2, y2));
+}
+
+function cubic(x1, y1, x2, y2) {
+  const dx = Math.max(40, Math.abs(x2 - x1) * 0.5);
+  return `M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`;
+}
+
+function updateConnections() {
+  // Clear paths and merge dots (keep the preview line if any)
+  [...$svg.querySelectorAll('.conn-path:not(.preview), .conn-merge')].forEach(p => p.remove());
+
+  // Group: for each target card, list of incoming source ids — sorted by source Y so
+  // the fanned-out lines don't cross each other.
+  const incomingByTarget = new Map();
+  for (const c of state.connections) {
+    if (!incomingByTarget.has(c.to)) incomingByTarget.set(c.to, []);
+    incomingByTarget.get(c.to).push(c.from);
+  }
+  for (const [to, srcs] of incomingByTarget) {
+    srcs.sort((id1, id2) => {
+      const c1 = state.cards.find(x => x.id === id1);
+      const c2 = state.cards.find(x => x.id === id2);
+      if (!c1 || !c2) return 0;
+      return (c1.y + c1.h/2) - (c2.y + c2.h/2);
+    });
+  }
+
+  // Refresh the multi-input badge on any card whose incoming count changed.
+  // (renderCard reads state.connections and inserts the badge if n >= 2.)
+  const allTargets = new Set(state.connections.map(c => c.to));
+  for (const id of allTargets) {
+    const card = state.cards.find(x => x.id === id);
+    if (card) renderCard(card);
+  }
+  // Also re-render any card that previously had inputs but now has none
+  document.querySelectorAll('.card[data-inputs]').forEach(el => {
+    const id = el.dataset.id;
+    if (!allTargets.has(id) && parseInt(el.dataset.inputs || '0', 10) > 0) {
+      const c = state.cards.find(x => x.id === id);
+      if (c) renderCard(c);
+    }
+  });
+
+  for (const c of state.connections) {
+    const a = state.cards.find(x => x.id === c.from);
+    const b = state.cards.find(x => x.id === c.to);
+    if (!a || !b) continue;
+
+    // All incoming arrows converge to a single entry point at the target's
+    // middle-left. With cubic bezier routing, the curves naturally fan in
+    // from different source Y positions and merge at that single junction.
+    const x1 = a.x + a.w, y1 = a.y + a.h/2;
+    const x2 = b.x,       y2 = b.y + b.h / 2;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'conn-path');
+    path.setAttribute('d', cubic(x1, y1, x2, y2));
+    path.dataset.cid = c.id;
+    path.addEventListener('dblclick', () => {
+      state.connections = state.connections.filter(x => x.id !== c.id);
+      updateConnections();
+      toast('Connection removed', 'info', 1200);
+    });
+    $svg.appendChild(path);
+  }
+
+  // When ≥2 connections converge, render a single merge dot at the target's
+  // entry point so the convergence reads as one explicit junction.
+  for (const [to, srcs] of incomingByTarget) {
+    if (srcs.length < 2) continue;
+    const b = state.cards.find(x => x.id === to);
+    if (!b) continue;
+    const cx = b.x, cy = b.y + b.h / 2;
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('class', 'conn-merge');
+    dot.setAttribute('cx', cx);
+    dot.setAttribute('cy', cy);
+    dot.setAttribute('r', 4.5);
+    $svg.appendChild(dot);
+  }
+}
+
+function getCardLabel(id) {
+  const c = state.cards.find(x => x.id === id);
+  return c ? (c.prompt ? c.prompt.slice(0, 28) : c.type) : id;
+}
+
+// ───────────────────────── SELECTION ─────────────────────────
+function selectCard(id) {
+  state.selection.add(id);
+  document.getElementById(id)?.classList.add('selected');
+  refreshInspector();
+  refreshSelectionPill();
+  syncEditingMode();
+}
+
+function toggleSelect(id) {
+  if (state.selection.has(id)) {
+    state.selection.delete(id);
+    document.getElementById(id)?.classList.remove('selected');
+  } else {
+    selectCard(id);
+    return;  // selectCard already called sync
+  }
+  refreshInspector();
+  refreshSelectionPill();
+  syncEditingMode();
+}
+
+function clearSelection() {
+  state.selection.clear();
+  document.querySelectorAll('.card.selected').forEach(el => el.classList.remove('selected'));
+  refreshInspector();
+  refreshSelectionPill();
+  syncEditingMode();
+}
+
+/* ─── Selection ↔ chat-context sync ─── */
+// When exactly ONE non-frame card is selected, the chat box switches into
+// "editing" mode for that card. Anything else → back to "create new" mode.
+function syncEditingMode() {
+  if (state.selection.size === 1) {
+    const id = [...state.selection][0];
+    const c = state.cards.find(x => x.id === id);
+    // Frame cards are layout-only, not editable via the chat
+    if (!c || c.type === 'frame') {
+      if (state.editingCardId) endEditingCard();
+      return;
+    }
+    if (id !== state.editingCardId) beginEditingCard(id);
+  } else {
+    if (state.editingCardId) endEditingCard();
+  }
+}
+
+function beginEditingCard(id) {
+  const card = state.cards.find(c => c.id === id);
+  if (!card) return;
+  state.editingCardId = id;
+
+  // Clear current chat state — we're loading the card's saved state instead
+  $promptInput.innerHTML = '';
+  state.pendingUploads = [];
+
+  const isUpload = card.source === 'upload';
+
+  if (isUpload) {
+    // READ-ONLY mode for upload cards. No prompt editing, no send, no attachments.
+    // The card is a fixed reference asset — manage name/delete via the Inspector.
+    $promptInput.setAttribute('contenteditable', 'false');
+    $promptBar.classList.add('editing', 'read-only');
+    $promptInput.dataset.placeholder = `Reference: @${card.name} · open Inspector to rename`;
+    renderPromptAttachments();
+    updateTaggedHighlights();
+    renderPromptContext();
+    return;
+  }
+
+  // 1) Insert @-chips for every incoming connection (at the start)
+  const incoming = state.connections.filter(c => c.to === id);
+  const incomingSources = incoming
+    .map(c => state.cards.find(x => x.id === c.from))
+    .filter(s => s && s.name);
+  for (const src of incomingSources) {
+    const chip = buildTagChip(src);
+    $promptInput.appendChild(chip);
+    $promptInput.appendChild(document.createTextNode(' '));
+  }
+
+  // 2) Append the card's prompt text — but strip the @name tokens that we
+  //    already represented as chips, otherwise they'd appear twice.
+  if (card.prompt) {
+    let text = card.prompt;
+    for (const src of incomingSources) {
+      const escName = src.name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+      text = text.replace(new RegExp(`@${escName}(?=\\b|\\s|$)`, 'g'), '');
+    }
+    text = text.replace(/\s{2,}/g, ' ').trim();
+    if (text) $promptInput.appendChild(document.createTextNode(' ' + text));
+  }
+
+  // 3) Re-hydrate the card's attached uploads as pending
+  state.pendingUploads = (card.inputs || []).map((inp, i) => ({
+    id: 'att-edit-' + i + '-' + Math.random().toString(36).slice(2, 5),
+    name: inp.name,
+    src: inp.src,
+    isVideo: !!inp.isVideo,
+  }));
+
+  // 4) Update UI
+  $promptInput.setAttribute('contenteditable', 'true');
+  $promptBar.classList.add('editing');
+  $promptBar.classList.remove('read-only');
+  renderPromptAttachments();
+  updateTaggedHighlights();
+  renderPromptContext();
+
+  // 5) Update placeholder text — the empty draft case especially
+  $promptInput.dataset.placeholder = card.status === 'draft'
+    ? `Fill in @${card.name}…  type @ to reference other cards`
+    : `Editing @${card.name}…  type @ to reference other cards`;
+}
+
+function endEditingCard() {
+  state.editingCardId = null;
+  $promptInput.innerHTML = '';
+  state.pendingUploads = [];
+  $promptBar.classList.remove('editing', 'read-only');
+  $promptInput.setAttribute('contenteditable', 'true');
+  $promptInput.dataset.placeholder = 'Describe an image, video, or scene…  type @ to reference an uploaded image';
+  renderPromptAttachments();
+  updateTaggedHighlights();
+  renderPromptContext();
+}
+
+function renderPromptContext() {
+  const el = document.getElementById('prompt-context');
+  if (!state.editingCardId) { el.innerHTML = ''; return; }
+  const card = state.cards.find(c => c.id === state.editingCardId);
+  if (!card) { endEditingCard(); return; }
+
+  // Upload cards have a distinct read-only header — they aren't regeneratable.
+  if (card.source === 'upload') {
+    el.innerHTML = `
+      <span class="ctx-mode">📌 Reference</span>
+      <span class="ctx-target">@${escapeHtml(card.name)}</span>
+      <span class="ctx-incoming" style="opacity:0.7">uploaded · use @${escapeHtml(card.name)} in another prompt to reference it</span>
+      <button class="ctx-close" onclick="endEditingCard()" title="Deselect (Esc)">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>`;
+    return;
+  }
+
+  const incoming = state.connections
+    .filter(c => c.to === card.id)
+    .map(c => state.cards.find(x => x.id === c.from))
+    .filter(s => s && s.name);
+
+  const incomingTxt = incoming.length
+    ? `<span class="ctx-incoming">← from ${incoming.map(s => `<span class="crumb-name">@${escapeHtml(s.name)}</span>`).join(', ')}</span>`
+    : `<span class="ctx-incoming" style="opacity:0.5">— no incoming connections</span>`;
+
+  const modeIcon = card.status === 'draft' ? '✚' : '✎';
+  const modeText = card.status === 'draft' ? 'Filling' : 'Editing';
+
+  el.innerHTML = `
+    <span class="ctx-mode">${modeIcon} ${modeText}</span>
+    <span class="ctx-target">@${escapeHtml(card.name)}</span>
+    ${incomingTxt}
+    <button class="ctx-close" onclick="endEditingCard()" title="Stop editing (Esc)">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+}
+
+/* ─── Draft cards ─── */
+function createDraftCardAt(x, y) {
+  // Default dimensions for a fresh draft
+  const w = 320, h = 240;
+  const card = createCard({
+    type: state.mode === 'audio' ? 'audio' : (state.mode === 'video' ? 'video' : 'image'),
+    x: x - w/2, y: y - h/2,
+    w, h,
+    status: 'draft',
+    model: '',
+    ar: state.ar,
+  });
+  renderCard(card);
+  // Auto-select so the chat box switches into editing mode immediately
+  clearSelection();
+  selectCard(card.id);
+  toast(`Created draft @${card.name} · type a prompt to fill it`, 'ok', 2000);
+  return card;
+}
+
+/* When ≥1 cards are selected, show a "+ N selected" pill that adds them all
+   as @ tags into the prompt in one click — the workflow for compositing
+   (model + shirt + pants → output). */
+function refreshSelectionPill() {
+  const slot = document.getElementById('selection-pill-slot');
+  if (!slot) return;
+  // Only show the pill in "create new" mode (>1 selected) — single-select drives chat editing.
+  if (state.editingCardId || state.selection.size < 2) { slot.innerHTML = ''; return; }
+  const taggable = [...state.selection]
+    .map(id => state.cards.find(c => c.id === id))
+    .filter(c => c && c.name && c.type !== 'frame');
+  if (taggable.length === 0) { slot.innerHTML = ''; return; }
+  // Already-tagged ids
+  const already = new Set([...$promptInput.querySelectorAll('.prompt-tag')]
+    .map(t => t.dataset.cardId));
+  const toAdd = taggable.filter(c => !already.has(c.id));
+  if (toAdd.length === 0) { slot.innerHTML = ''; return; }
+  const label = toAdd.length === 1
+    ? `+ Reference @${toAdd[0].name}`
+    : `+ Reference ${toAdd.length} selected`;
+  slot.innerHTML = `
+    <button class="selection-pill" onclick="addSelectionAsTags()" title="Insert tag chip${toAdd.length>1?'s':''} into prompt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      ${escapeHtml(label)}
+    </button>`;
+}
+
+function addSelectionAsTags() {
+  const already = new Set([...$promptInput.querySelectorAll('.prompt-tag')]
+    .map(t => t.dataset.cardId));
+  // Any named non-frame card can be tagged. Preserve canvas order (top-to-bottom, left-to-right).
+  const toAdd = [...state.selection]
+    .map(id => state.cards.find(c => c.id === id))
+    .filter(c => c && c.name && c.type !== 'frame' && !already.has(c.id))
+    .sort((a, b) => (a.y - b.y) || (a.x - b.x));
+  if (toAdd.length === 0) return;
+  for (const c of toAdd) useAsContext(c.id);
+  refreshSelectionPill();
+  toast(`Added ${toAdd.length} reference${toAdd.length>1?'s':''}`, 'ok', 1300);
+}
+
+function selectAll() {
+  state.cards.forEach(c => selectCard(c.id));
+}
+
+// ───────────────────────── MARQUEE ─────────────────────────
+let marqueeStart = null;
+function startMarquee(e) {
+  marqueeStart = { x: e.clientX, y: e.clientY };
+  $marquee.style.display = 'block';
+  $marquee.style.left = e.clientX + 'px';
+  $marquee.style.top = e.clientY + 'px';
+  $marquee.style.width = '0px';
+  $marquee.style.height = '0px';
+}
+window.addEventListener('mousemove', (e) => {
+  if (!marqueeStart) return;
+  const x = Math.min(e.clientX, marqueeStart.x);
+  const y = Math.min(e.clientY, marqueeStart.y);
+  const w = Math.abs(e.clientX - marqueeStart.x);
+  const h = Math.abs(e.clientY - marqueeStart.y);
+  $marquee.style.left = x + 'px';
+  $marquee.style.top = y + 'px';
+  $marquee.style.width = w + 'px';
+  $marquee.style.height = h + 'px';
+});
+window.addEventListener('mouseup', (e) => {
+  if (!marqueeStart) return;
+  const sx = Math.min(e.clientX, marqueeStart.x);
+  const sy = Math.min(e.clientY, marqueeStart.y);
+  const ex = Math.max(e.clientX, marqueeStart.x);
+  const ey = Math.max(e.clientY, marqueeStart.y);
+  const a = screenToCanvas(sx, sy);
+  const b = screenToCanvas(ex, ey);
+  if (Math.abs(ex-sx) > 4 && Math.abs(ey-sy) > 4) {
+    for (const c of state.cards) {
+      const cx2 = c.x + c.w, cy2 = c.y + c.h;
+      if (c.x < b.x && cx2 > a.x && c.y < b.y && cy2 > a.y) {
+        selectCard(c.id);
+      }
+    }
+  }
+  $marquee.style.display = 'none';
+  marqueeStart = null;
+});
+
+// ───────────────────────── FRAME (DRAW BOX) ─────────────────────────
+let frameDraw = null;
+function startFrameDraw(e) {
+  const start = screenToCanvas(e.clientX, e.clientY);
+  frameDraw = { x: start.x, y: start.y, el: null, mx: e.clientX, my: e.clientY };
+}
+window.addEventListener('mousemove', (e) => {
+  if (!frameDraw) return;
+  const cur = screenToCanvas(e.clientX, e.clientY);
+  const x = Math.min(cur.x, frameDraw.x);
+  const y = Math.min(cur.y, frameDraw.y);
+  const w = Math.abs(cur.x - frameDraw.x);
+  const h = Math.abs(cur.y - frameDraw.y);
+  if (!frameDraw.el) {
+    frameDraw.el = document.createElement('div');
+    frameDraw.el.className = 'card frame';
+    frameDraw.el.style.pointerEvents = 'none';
+    $canvas.appendChild(frameDraw.el);
+  }
+  frameDraw.el.style.left = x + 'px';
+  frameDraw.el.style.top = y + 'px';
+  frameDraw.el.style.width = w + 'px';
+  frameDraw.el.style.height = h + 'px';
+});
+window.addEventListener('mouseup', (e) => {
+  if (!frameDraw) return;
+  if (frameDraw.el) {
+    const r = frameDraw.el.getBoundingClientRect();
+    frameDraw.el.remove();
+    const start = screenToCanvas(frameDraw.mx, frameDraw.my);
+    const cur = screenToCanvas(e.clientX, e.clientY);
+    const w = Math.abs(cur.x - start.x), h = Math.abs(cur.y - start.y);
+    if (w > 40 && h > 40) {
+      createCard({
+        type: 'frame',
+        x: Math.min(cur.x, start.x),
+        y: Math.min(cur.y, start.y),
+        w, h,
+        label: 'Frame ' + (state.cards.filter(c=>c.type==='frame').length+1)
+      });
+    }
+  }
+  frameDraw = null;
+  setTool('select');
+});
+
+// ───────────────────────── PROMPT BAR ─────────────────────────
+function refreshModelSelect() {
+  // Show models that can produce the current mode's output type.
+  const list = state.models.filter(m => modelOutputs(m).has(state.mode));
+  if (list.length === 0) {
+    const anyModels = state.models.length > 0;
+    $modelSelect.innerHTML = anyModels
+      ? `<option value="">⚙ No ${state.mode} models — click Models to add</option>`
+      : `<option value="">⚙ No models — click Models to add</option>`;
+    state.model = '';
+    $modelSelect.disabled = true;
+  } else {
+    // Preserve current selection if still valid for the new mode
+    const keep = list.find(m => m.id === state.model);
+    $modelSelect.innerHTML = list.map(m => {
+      const refs = modelAcceptsImageRefs(m) ? ' · refs' : '';
+      return `<option value="${m.id}">${escapeHtml(m.name)}${refs}</option>`;
+    }).join('');
+    state.model = (keep || list[0]).id;
+    $modelSelect.value = state.model;
+    $modelSelect.disabled = false;
+  }
+  $durationSelect.classList.toggle('hidden', state.mode !== 'video');
+}
+
+function currentModel() {
+  return state.models.find(m => m.id === state.model) || null;
+}
+$modelSelect.addEventListener('change', () => { state.model = $modelSelect.value; });
+$durationSelect.addEventListener('change', () => { state.duration = parseInt($durationSelect.value, 10); });
+
+function setMode(m) {
+  state.mode = m;
+  ['image','video','audio'].forEach(k => {
+    document.getElementById('mode-' + k).classList.toggle('active', k === m);
+  });
+  refreshModelSelect();
+  $promptInput.focus();
+}
+
+$arGroup.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  state.ar = btn.dataset.ar;
+  $arGroup.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+});
+
+/* ─────────────── PROMPT INPUT + @TAG SYSTEM ─────────────── */
+
+function onPromptFocus() { /* hook for future use */ }
+function onPromptBlur() {
+  // Delay so click on dropdown can land
+  setTimeout(() => { if (!$tagDropdown.matches(':hover')) hideTagDropdown(); }, 120);
+}
+
+function onPromptKeydown(e) {
+  // While tag picker is open: arrow keys / enter / tab navigate
+  if (tagPicker) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      tagPicker.active = (tagPicker.active + 1) % tagPicker.options.length;
+      renderTagDropdown();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      tagPicker.active = (tagPicker.active - 1 + tagPicker.options.length) % tagPicker.options.length;
+      renderTagDropdown();
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      selectTagOption(tagPicker.active);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hideTagDropdown();
+      return;
+    }
+  }
+  // No dropdown
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    generateFromPrompt();
+    return;
+  }
+  if (e.key === 'Escape') {
+    $promptInput.blur();
+    return;
+  }
+  // Prevent contenteditable from inserting <div>/<br>: replace Shift+Enter with explicit newline
+  if (e.key === 'Enter' && e.shiftKey) {
+    e.preventDefault();
+    document.execCommand('insertLineBreak');
+    return;
+  }
+}
+
+function onPromptInput(e) {
+  // Detect @trigger and refresh tagged-card highlights
+  detectAtTrigger();
+  updateTaggedHighlights();
+  // Clean up: if input becomes blank, ensure innerHTML is truly empty so placeholder shows
+  if ($promptInput.innerHTML === '<br>') $promptInput.innerHTML = '';
+}
+
+function onPromptPaste(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
+}
+
+/* Find an @query right before the caret. */
+function detectAtTrigger() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) { hideTagDropdown(); return; }
+  const range = sel.getRangeAt(0);
+  if (!$promptInput.contains(range.startContainer)) { hideTagDropdown(); return; }
+  if (range.startContainer.nodeType !== Node.TEXT_NODE) { hideTagDropdown(); return; }
+
+  const node = range.startContainer;
+  const offset = range.startOffset;
+  const text = node.textContent;
+  // Walk back to find an unescaped '@' that is at start of word
+  let atIdx = -1;
+  for (let i = offset - 1; i >= 0; i--) {
+    const ch = text[i];
+    if (ch === '@') {
+      const prev = i === 0 ? '' : text[i - 1];
+      // require @ to be at start or after whitespace
+      if (!prev || /\s/.test(prev)) { atIdx = i; }
+      break;
+    }
+    if (/\s/.test(ch)) break;
+  }
+  if (atIdx === -1) { hideTagDropdown(); return; }
+  const query = text.substring(atIdx + 1, offset);
+  // Limit query to reasonable length and disallow spaces
+  if (query.length > 60 || /\s/.test(query)) { hideTagDropdown(); return; }
+
+  showTagDropdown(query, node, atIdx, offset);
+}
+
+function tagCandidates(query) {
+  const q = query.toLowerCase();
+  return state.cards
+    .filter(c => c.name && c.type !== 'frame')   // any named non-frame card
+    .filter(c => {
+      if (!q) return true;
+      const name = (c.name || '').toLowerCase();
+      const prompt = (c.prompt || '').toLowerCase();
+      return name.includes(q) || prompt.includes(q);
+    })
+    .sort((a, b) => {
+      // Prefer name-startsWith matches
+      const aN = (a.name||'').toLowerCase();
+      const bN = (b.name||'').toLowerCase();
+      const aS = aN.startsWith(q) ? 0 : (aN.includes(q) ? 1 : 2);
+      const bS = bN.startsWith(q) ? 0 : (bN.includes(q) ? 1 : 2);
+      if (aS !== bS) return aS - bS;
+      return state.cards.indexOf(a) - state.cards.indexOf(b);
+    })
+    .slice(0, 10);
+}
+
+function showTagDropdown(query, node, start, end) {
+  const options = tagCandidates(query);
+  tagPicker = { node, start, end, query, options, active: 0 };
+  renderTagDropdown();
+  $tagDropdown.classList.add('active');
+}
+
+function hideTagDropdown() {
+  tagPicker = null;
+  $tagDropdown.classList.remove('active');
+}
+
+function renderTagDropdown() {
+  if (!tagPicker) return;
+  if (!tagPicker.options.length) {
+    const anyTaggable = state.cards.some(c => c.name && c.type !== 'frame');
+    $tagDropdownList.innerHTML = anyTaggable
+      ? `<div class="tag-empty">No matching cards · keep typing or <kbd>Esc</kbd></div>`
+      : `<div class="tag-empty">No cards on the canvas yet</div>`;
+    return;
+  }
+  $tagDropdownList.innerHTML = tagPicker.options.map((c, i) => {
+    const thumbStyle = c.src
+      ? `style="background-image:url('${escapeAttr(c.src)}')"`
+      : '';
+    const thumbInner = c.src ? '' : (c.type === 'video' ? '▶' : c.type === 'audio' ? '♫' : '◇');
+    const meta = c.prompt
+      ? escapeHtml(c.prompt.slice(0, 60))
+      : `<span style="color:var(--text-mute)">${escapeHtml(c.model || '—')}</span>`;
+    return `<div class="tag-option ${i === tagPicker.active ? 'active' : ''}"
+                 data-idx="${i}"
+                 onmousedown="event.preventDefault(); selectTagOption(${i})">
+      <div class="tag-option-thumb" ${thumbStyle}>${thumbInner}</div>
+      <div class="tag-option-info">
+        <div class="tag-option-name">
+          <span class="name-handle">@${escapeHtml(c.name)}</span>
+        </div>
+        <div class="tag-option-meta">${meta}</div>
+      </div>
+      <div class="tag-option-type">${c.type.toUpperCase()}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectTagOption(idx) {
+  if (!tagPicker || !tagPicker.options[idx]) return;
+  const card = tagPicker.options[idx];
+  insertTagChipAt(card, tagPicker.node, tagPicker.start, tagPicker.end);
+  hideTagDropdown();
+  updateTaggedHighlights();
+  $promptInput.focus();
+}
+
+function insertTagChipAt(card, node, start, end) {
+  // node is a Text node; replace its [start, end) range with a chip + trailing space
+  const text = node.textContent;
+  const before = text.substring(0, start);
+  const after = text.substring(end);
+  const parent = node.parentNode;
+
+  const beforeNode = document.createTextNode(before);
+  const chip = buildTagChip(card);
+  const afterNode = document.createTextNode(' ' + after);
+
+  parent.insertBefore(beforeNode, node);
+  parent.insertBefore(chip, node);
+  parent.insertBefore(afterNode, node);
+  parent.removeChild(node);
+
+  // Place caret right after the chip (after the inserted &nbsp;)
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.setStart(afterNode, 1);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function buildTagChip(card) {
+  const span = document.createElement('span');
+  span.className = 'prompt-tag';
+  span.contentEditable = 'false';
+  span.dataset.cardId = card.id;
+  span.dataset.cardName = card.name;
+  const thumbStyle = card.src ? `background-image:url('${card.src}')` : '';
+  span.innerHTML = `
+    <span class="tag-thumb" style="${thumbStyle}"></span>
+    <span class="tag-label">@${escapeHtml(card.name)}</span>
+    <span class="prompt-tag-x">✕</span>`;
+  span.title = `${card.type} · click to remove`;
+  span.addEventListener('mousedown', (e) => {
+    // Prevent caret movement
+    e.preventDefault();
+  });
+  span.addEventListener('click', () => {
+    span.remove();
+    updateTaggedHighlights();
+    $promptInput.focus();
+  });
+  return span;
+}
+
+/* Insert tag at the end of the prompt. Any named card is taggable. */
+function useAsContext(id) {
+  const card = state.cards.find(x => x.id === id);
+  if (!card || !card.name) return;
+  $promptInput.focus();
+
+  // Move caret to end
+  const sel = window.getSelection();
+  let range = document.createRange();
+  range.selectNodeContents($promptInput);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  // If there's existing trailing text without a space, insert one (caret is at end)
+  const text = $promptInput.textContent;
+  if (text.length > 0 && !/\s$/.test(text)) {
+    document.execCommand('insertText', false, ' ');
+  }
+
+  // Re-anchor a fresh range at the end after any DOM mutation from execCommand
+  range = document.createRange();
+  range.selectNodeContents($promptInput);
+  range.collapse(false);
+
+  const chip = buildTagChip(card);
+  range.insertNode(chip);
+  // Trailing space + place caret right after the chip
+  const trail = document.createTextNode(' ');
+  chip.parentNode.insertBefore(trail, chip.nextSibling);
+  const after = document.createRange();
+  after.setStart(trail, 1);
+  after.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(after);
+
+  updateTaggedHighlights();
+}
+
+/* Read the prompt as { text, tagIds }.
+   In the text representation, each tag becomes "@<name>" so it reads naturally. */
+function extractPromptAndTags() {
+  const tagIds = [];
+  let text = '';
+  const walk = (nodes) => {
+    nodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        text += node.textContent;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.classList && node.classList.contains('prompt-tag')) {
+          const id = node.dataset.cardId;
+          const c = state.cards.find(x => x.id === id);
+          if (c) { tagIds.push(id); text += '@' + c.name; }
+          else { text += '@' + (node.dataset.cardName || '?'); }
+        } else if (node.tagName === 'BR') {
+          text += '\n';
+        } else {
+          walk([...node.childNodes]);
+        }
+      }
+    });
+  };
+  walk([...$promptInput.childNodes]);
+  return { text: text.trim(), tagIds };
+}
+
+/* Update visual highlights on cards that are currently referenced by a chip. */
+function updateTaggedHighlights() {
+  const tagged = new Set();
+  $promptInput.querySelectorAll('.prompt-tag').forEach(t => {
+    const id = t.dataset.cardId;
+    if (state.cards.some(c => c.id === id)) tagged.add(id);
+    else t.classList.add('missing');
+  });
+  document.querySelectorAll('.card').forEach(el => {
+    el.classList.toggle('tagged', tagged.has(el.dataset.id));
+  });
+  $promptBar.classList.toggle('has-selection', tagged.size > 0);
+  refreshSelectionPill();
+}
+
+/* When a card is deleted/renamed, refresh chip rendering. */
+function refreshChipsForCard(id) {
+  $promptInput.querySelectorAll(`.prompt-tag[data-card-id="${id}"]`).forEach(span => {
+    const c = state.cards.find(x => x.id === id);
+    if (!c) {
+      span.classList.add('missing');
+      return;
+    }
+    const label = span.querySelector('.tag-label');
+    const thumb = span.querySelector('.tag-thumb');
+    if (label) label.textContent = '@' + c.name;
+    if (thumb && c.src) thumb.style.backgroundImage = `url('${c.src}')`;
+    span.dataset.cardName = c.name;
+  });
+}
+
+async function generateFromPrompt() {
+  // Two modes: editing an existing card OR creating a new one
+  if (state.editingCardId) {
+    const card = state.cards.find(c => c.id === state.editingCardId);
+    if (card && card.source === 'upload') {
+      toast(`@${card.name} is an uploaded reference — it can't be re-generated. Use it as a @-reference in another prompt instead.`, 'err', 3000);
+      return;
+    }
+    return commitEditingCard();
+  }
+  return createNewCardFromPrompt();
+}
+
+async function createNewCardFromPrompt() {
+  const { text: prompt, tagIds } = extractPromptAndTags();
+  const attachments = state.pendingUploads.slice(); // snapshot before clearing
+
+  if (!prompt && attachments.length === 0) {
+    toast('Type a prompt or attach an image first', 'err', 1500);
+    $promptInput.focus();
+    return;
+  }
+  // If only attachments without text, still allow but warn
+  if (!prompt && attachments.length > 0) {
+    toast('Tip: add a prompt to describe what to do with the attachments', 'info', 1800);
+  }
+
+  // Card-resident sources from @ tags (draw connection arrows from these)
+  const seen = new Set();
+  const sources = [];
+  for (const id of tagIds) {
+    if (seen.has(id)) continue;
+    const c = state.cards.find(x => x.id === id);
+    if (c) { sources.push(c); seen.add(id); }
+  }
+
+  const ar = state.ar;
+  const dim = AR_DIMS[ar];
+  // Place the new card:
+  //  - if there are tagged canvas-card sources, position next to them (existing logic)
+  //  - otherwise (attachments only or text only) put it at viewport center
+  let x, y;
+  if (sources.length === 0) {
+    const c = viewportCenterCanvas();
+    x = c.x - dim.w/2;
+    y = c.y - dim.h/2;
+  } else if (sources.length === 1) {
+    const s = sources[0];
+    x = s.x + s.w + 80;
+    y = s.y;
+  } else {
+    const rightX = Math.max(...sources.map(s => s.x + s.w));
+    const minY = Math.min(...sources.map(s => s.y));
+    const maxY = Math.max(...sources.map(s => s.y + s.h));
+    const midY = (minY + maxY) / 2;
+    x = rightX + 100;
+    y = midY - (dim.h + 36)/2;
+    for (const s of sources) {
+      if (x < s.x + s.w + 60) x = s.x + s.w + 60;
+    }
+  }
+
+  const cardType = state.mode === 'audio' ? 'audio' : (state.mode === 'video' ? 'video' : 'image');
+  const mdl = currentModel();
+  const card = createCard({
+    type: cardType,
+    x, y,
+    w: dim.w, h: dim.h + 36,
+    prompt,
+    model: mdl ? mdl.name : '—',
+    ar,
+    status: 'generating',
+    duration: state.duration,
+    // Attached uploads are stored on the card as inputs for the API call.
+    // They are NOT shown as the card's media — the card displays the generation output.
+    inputs: attachments.map(a => ({ name: a.name, src: a.src, isVideo: a.isVideo })),
+  });
+
+  // Auto-connect from every @-tagged canvas card source (attachments don't get arrows)
+  for (const src of sources) {
+    state.connections.push({
+      id: 'c' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      from: src.id, to: card.id
+    });
+  }
+  updateConnections();
+
+  // Clear prompt input AND attachments — they've been consumed by this generation
+  $promptInput.innerHTML = '';
+  updateTaggedHighlights();
+  clearAttachments();
+
+  const refParts = [];
+  if (sources.length)     refParts.push(`${sources.length} ref${sources.length>1?'s':''}`);
+  if (attachments.length) refParts.push(`${attachments.length} attached`);
+  const refTxt = refParts.length ? ` · ${refParts.join(' + ')}` : '';
+  const modelTxt = mdl ? mdl.name : 'mock (no model connected — open Models to add one)';
+  toast(`Generating with ${modelTxt}${refTxt}…`, 'info', 1800);
+
+  await runMockGeneration(card);
+}
+
+/* ─── Commit the chat box back to the card being edited (fill draft or re-gen) ─── */
+async function commitEditingCard() {
+  const card = state.cards.find(c => c.id === state.editingCardId);
+  if (!card) { endEditingCard(); return; }
+
+  const { text: prompt, tagIds } = extractPromptAndTags();
+  const attachments = state.pendingUploads.slice();
+
+  if (!prompt && attachments.length === 0 && tagIds.length === 0) {
+    toast('Add a prompt, reference, or attachment', 'err', 1500);
+    return;
+  }
+
+  // Update card content
+  card.prompt = prompt;
+  card.inputs = attachments.map(a => ({ name: a.name, src: a.src, isVideo: a.isVideo }));
+  const mdl = currentModel();
+  card.model = mdl ? mdl.name : '—';
+
+  // Rewrite incoming connections — chat box is the source of truth for refs.
+  // Existing arrows from cards NOT in the new chip set are removed; new chips
+  // become new connections.
+  state.connections = state.connections.filter(c => c.to !== card.id);
+  const seen = new Set();
+  for (const id of tagIds) {
+    if (seen.has(id) || id === card.id) continue;
+    seen.add(id);
+    state.connections.push({
+      id: 'c' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      from: id, to: card.id,
+    });
+  }
+
+  // Run mock generation in place — the card keeps its id and position
+  card.status = 'generating';
+  card.src = '';
+  renderCard(card);
+  updateConnections();
+
+  const refParts = [];
+  if (tagIds.length) refParts.push(`${tagIds.length} ref${tagIds.length>1?'s':''}`);
+  if (attachments.length) refParts.push(`${attachments.length} attached`);
+  const refTxt = refParts.length ? ` · ${refParts.join(' + ')}` : '';
+  const modelTxt = mdl ? mdl.name : 'mock';
+  toast(`Re-generating @${card.name} with ${modelTxt}${refTxt}…`, 'info', 1800);
+
+  await runMockGeneration(card);
+  // Refresh the context header in case incoming names changed
+  renderPromptContext();
+}
+
+async function runMockGeneration(card) {
+  renderCard(card);
+  // Animate progress bar
+  const total = 1800 + Math.random() * 2400;
+  const start = Date.now();
+  const step = () => {
+    const bar = document.getElementById(card.id + '-prog');
+    if (!bar) return;
+    const p = clamp((Date.now() - start) / total, 0, 1);
+    bar.style.width = (p*100) + '%';
+    if (p < 1 && card.status === 'generating') requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+
+  await new Promise(r => setTimeout(r, total));
+
+  // "Generate" the output
+  if (card.type === 'image') {
+    card.src = mockImageDataUrl(card.id + card.prompt, card.w, card.h);
+  } else if (card.type === 'video') {
+    card.src = ''; // use animated gradient placeholder
+  }
+  card.status = 'done';
+  renderCard(card);
+  refreshInspector();
+  updateMinimap();
+}
+
+// ───────────────────────── CARD ACTIONS ─────────────────────────
+function deleteCard(id) {
+  const cardsToDelete = id ? [id] : [...state.selection];
+  if (cardsToDelete.length === 0) return;
+  for (const cid of cardsToDelete) {
+    state.cards = state.cards.filter(c => c.id !== cid);
+    state.connections = state.connections.filter(c => c.from !== cid && c.to !== cid);
+    document.getElementById(cid)?.remove();
+    state.selection.delete(cid);
+    refreshChipsForCard(cid);
+  }
+  updateConnections();
+  updateEmptyHint();
+  updateMinimap();
+  updateTaggedHighlights();
+  refreshInspector();
+}
+
+function duplicateCard(id) {
+  const ids = id ? [id] : [...state.selection];
+  const newIds = [];
+  for (const cid of ids) {
+    const c = state.cards.find(x => x.id === cid);
+    if (!c) continue;
+    const copy = createCard({
+      ...c,
+      id: undefined,
+      x: c.x + 30, y: c.y + 30,
+    });
+    newIds.push(copy.id);
+  }
+  clearSelection();
+  newIds.forEach(selectCard);
+}
+
+// ───────────────────────── INSPECTOR ─────────────────────────
+function openInspector(id) {
+  selectCard(id);
+  $inspector.classList.add('active');
+  refreshInspector();
+}
+function closeInspector() { $inspector.classList.remove('active'); }
+
+function refreshInspector() {
+  if (!$inspector.classList.contains('active')) return;
+  const sel = [...state.selection];
+  if (sel.length === 0) { closeInspector(); return; }
+  if (sel.length > 1) {
+    $inspectorTitle.textContent = `${sel.length} items selected`;
+    $inspectorBody.innerHTML = `
+      <div class="inspector-section">
+        <div class="inspector-meta">
+          <strong>${sel.length}</strong> cards selected.<br>
+          Hold <strong>Shift</strong> to add/remove.
+        </div>
+      </div>
+      <div class="inspector-section">
+        <div class="inspector-actions">
+          <button class="inspector-btn" onclick="duplicateCard()">Duplicate all</button>
+          <button class="inspector-btn danger" onclick="deleteCard()">Delete all</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const c = state.cards.find(x => x.id === sel[0]);
+  if (!c) return;
+  const isUpload = c.source === 'upload';
+  const title = (isUpload ? 'UPLOAD · ' : '') + c.type.toUpperCase() + (c.name ? ` · @${c.name}` : '');
+  $inspectorTitle.textContent = title;
+  $inspectorBody.innerHTML = `
+    ${c.name ? `
+    <div class="inspector-section">
+      <div class="inspector-label">Name (for @mentions)</div>
+      <input class="inspector-input" type="text"
+        value="${escapeAttr(c.name)}"
+        onchange="renameCard('${c.id}', this.value)"
+        placeholder="img-1">
+    </div>` : ''}
+    <div class="inspector-section">
+      <div class="inspector-label">Prompt</div>
+      <textarea class="inspector-input" rows="3"
+        onchange="updateCard('${c.id}', 'prompt', this.value)">${escapeHtml(c.prompt)}</textarea>
+    </div>
+    <div class="inspector-section">
+      <div class="inspector-label">Model</div>
+      <div class="inspector-input" style="opacity:0.85">${escapeHtml(c.model || '—')}</div>
+    </div>
+    <div class="inspector-section">
+      <div class="inspector-row">
+        <div>
+          <div class="inspector-label">Aspect</div>
+          <div class="inspector-input">${escapeHtml(c.ar)}</div>
+        </div>
+        <div>
+          <div class="inspector-label">Status</div>
+          <div class="inspector-input">${escapeHtml(c.status)}</div>
+        </div>
+      </div>
+    </div>
+    ${c.type==='video' ? `
+    <div class="inspector-section">
+      <div class="inspector-label">Duration</div>
+      <div class="inspector-input">${escapeHtml(c.duration)}s</div>
+    </div>` : ''}
+    <div class="inspector-section">
+      <div class="inspector-label">Position</div>
+      <div class="inspector-meta">
+        <strong>X</strong> ${Math.round(c.x)} · <strong>Y</strong> ${Math.round(c.y)}<br>
+        <strong>W</strong> ${Math.round(c.w)} · <strong>H</strong> ${Math.round(c.h)}
+      </div>
+    </div>
+    <div class="inspector-section">
+      <div class="inspector-actions">
+        ${c.name ? `
+        <button class="inspector-btn" onclick="useAsContext('${c.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          Use as @${escapeAttr(c.name)} reference
+        </button>` : ''}
+        <button class="inspector-btn" onclick="regenerateCard('${c.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 1 1 5.64 5.64L23 10"/></svg>
+          Regenerate
+        </button>
+        <button class="inspector-btn" onclick="downloadCard('${c.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </button>
+        <button class="inspector-btn danger" onclick="deleteCard('${c.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function updateCard(id, key, val) {
+  const c = state.cards.find(x => x.id === id);
+  if (!c) return;
+  c[key] = val;
+  renderCard(c);
+}
+
+function renameCard(id, raw) {
+  const c = state.cards.find(x => x.id === id);
+  if (!c) return;
+  // Sanitize: allow only [a-z0-9-_], lowercase
+  let n = (raw || '').toLowerCase().replace(/[^a-z0-9\-_]/g, '-').replace(/^-+|-+$/g, '');
+  if (!n) n = nextCardName(c.type);
+  // Ensure unique
+  if (state.cards.some(x => x.id !== id && x.name === n)) {
+    let i = 2;
+    while (state.cards.some(x => x.id !== id && x.name === `${n}-${i}`)) i++;
+    n = `${n}-${i}`;
+  }
+  c.name = n;
+  renderCard(c);
+  refreshChipsForCard(id);
+  refreshInspector();
+  toast(`Renamed to @${n}`, 'ok', 1200);
+}
+
+async function regenerateCard(id) {
+  const c = state.cards.find(x => x.id === id);
+  if (!c) return;
+  c.status = 'generating';
+  c.src = '';
+  renderCard(c);
+  await runMockGeneration(c);
+}
+
+function downloadCard(id) {
+  const c = state.cards.find(x => x.id === id);
+  if (!c || !c.src) { toast('Nothing to download yet', 'err', 1400); return; }
+  const a = document.createElement('a');
+  a.href = c.src;
+  a.download = (c.prompt || c.type || 'output').slice(0, 40).replace(/\s+/g, '_') + '.svg';
+  a.click();
+  toast('Downloaded ' + a.download, 'ok', 1400);
+}
+
+// ───────────────────────── UPLOAD ─────────────────────────
+// Accepted formats: JPEG + PNG for images. Video uploads (mp4/webm/mov) are
+// also accepted via the toolbar uploader, but the prompt-bar uploader is
+// image-only per UX intent.
+const ACCEPT_IMAGE_TYPES = ['image/jpeg', 'image/png'];
+const ACCEPT_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
+
+function isAcceptedImage(f) {
+  if (ACCEPT_IMAGE_TYPES.includes(f.type)) return true;
+  // Some systems leave .type blank — fall back to extension
+  return /\.(jpe?g|png)$/i.test(f.name);
+}
+function isAcceptedVideo(f) {
+  if (ACCEPT_VIDEO_TYPES.includes(f.type)) return true;
+  return /\.(mp4|webm|mov)$/i.test(f.name);
+}
+
+/**
+ * Ingest one or more File objects.
+ *   opts.imagesOnly      — reject videos (used by the prompt-bar uploader)
+ *   opts.attachToPrompt  — true: add to state.pendingUploads (ephemeral, consumed by next generate)
+ *                          false: create persistent upload cards on the canvas
+ *   opts.placeAt         — canvas-coord {x,y} for the first card (canvas-card mode only)
+ */
+function processUploadFiles(fileList, opts = {}) {
+  const { imagesOnly = false, attachToPrompt = false, placeAt = null } = opts;
+  const files = [...(fileList || [])];
+  if (!files.length) return;
+
+  const accepted = [];
+  const rejected = [];
+  for (const f of files) {
+    if (isAcceptedImage(f)) { accepted.push({ f, isVideo: false }); continue; }
+    if (!imagesOnly && isAcceptedVideo(f)) { accepted.push({ f, isVideo: true }); continue; }
+    rejected.push(f);
+  }
+  if (rejected.length) {
+    const kind = imagesOnly ? 'JPEG / PNG' : 'JPEG / PNG / MP4';
+    toast(`${rejected.length} file${rejected.length>1?'s':''} skipped — only ${kind} accepted`, 'err', 2400);
+  }
+  if (accepted.length === 0) return;
+
+  if (attachToPrompt) {
+    // PROMPT-BAR MODE: queue as attachments. No canvas cards. They feed into the next generate.
+    accepted.forEach(({ f, isVideo }) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        state.pendingUploads.push({
+          id: 'att-' + Date.now() + '-' + Math.random().toString(36).slice(2, 5),
+          name: f.name,
+          src: ev.target.result,
+          isVideo,
+        });
+        renderPromptAttachments();
+      };
+      reader.readAsDataURL(f);
+    });
+    toast(`Attached ${accepted.length} file${accepted.length>1?'s':''} to prompt`, 'ok', 1500);
+    return;
+  }
+
+  // TOOLBAR MODE: create persistent upload cards on the canvas.
+  const c0 = placeAt || viewportCenterCanvas();
+  accepted.forEach(({ f, isVideo }, i) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const card = createCard({
+        type: isVideo ? 'video' : 'image',
+        source: 'upload',
+        x: c0.x - 160 + i * 30,
+        y: c0.y - 100 + i * 30,
+        w: 320, h: 200,
+        src: ev.target.result,
+        prompt: f.name,
+        model: 'upload',
+        status: 'done',
+      });
+      renderCard(card);
+    };
+    reader.readAsDataURL(f);
+  });
+  toast(`Added ${accepted.length} upload card${accepted.length>1?'s':''}`, 'ok', 1500);
+}
+
+/* ─── Prompt attachments (ephemeral inputs for the next generate) ─── */
+function renderPromptAttachments() {
+  const el = document.getElementById('prompt-attachments');
+  el.innerHTML = state.pendingUploads.map(att => `
+    <div class="attachment-chip" data-att-id="${att.id}" title="${escapeAttr(att.name)}">
+      <div class="attachment-chip-thumb" style="background-image:url('${escapeAttr(att.src)}')"></div>
+      <span class="attachment-chip-name">${escapeHtml(att.name)}</span>
+      <span class="attachment-chip-x" onclick="removeAttachment('${att.id}')">✕</span>
+    </div>`).join('');
+  $promptBar.classList.toggle('has-attachments', state.pendingUploads.length > 0);
+}
+
+function removeAttachment(id) {
+  state.pendingUploads = state.pendingUploads.filter(a => a.id !== id);
+  renderPromptAttachments();
+}
+
+function clearAttachments() {
+  state.pendingUploads = [];
+  renderPromptAttachments();
+}
+
+// Prompt-bar upload button (JPEG/PNG only, attached to next prompt)
+function promptUploadClick() { document.getElementById('prompt-file-upload').click(); }
+function handlePromptFileUpload(e) {
+  processUploadFiles(e.target.files, { imagesOnly: true, attachToPrompt: true });
+  e.target.value = '';
+}
+
+// Drag-and-drop for files. Drop position decides the intent:
+//   • On the prompt bar  → ephemeral attachment for the next prompt (JPEG/PNG)
+//   • On the canvas      → persistent upload card at the drop point (image OR video)
+//   • Anywhere else      → blocked so the browser doesn't navigate to the file
+(function setupFileDnd() {
+  const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types||[])].includes('Files');
+  const isOnPromptBar = (target) => $promptBar === target || $promptBar.contains(target);
+  // Drops on existing cards are ignored — only empty canvas counts as a target
+  const isOnCanvasEmpty = (target) => {
+    if (!target || target.closest('.card')) return false;
+    return target === $canvasWrap || target === $canvasGrid || target.id === 'canvas';
+  };
+  let promptDragDepth = 0;
+
+  // Capture phase so we win over the contenteditable's own drag handling
+  document.addEventListener('dragenter', (e) => {
+    if (!hasFiles(e)) return;
+    if (isOnPromptBar(e.target)) {
+      promptDragDepth++;
+      e.preventDefault();
+      $promptBar.classList.add('drag-over');
+    } else if (isOnCanvasEmpty(e.target)) {
+      $canvasWrap.classList.add('drag-over-canvas');
+      e.preventDefault();
+    }
+  }, true);
+
+  document.addEventListener('dragover', (e) => {
+    if (!hasFiles(e)) return;
+    if (isOnPromptBar(e.target) || isOnCanvasEmpty(e.target)) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  }, true);
+
+  document.addEventListener('dragleave', (e) => {
+    if (!hasFiles(e)) return;
+    if (isOnPromptBar(e.target)) {
+      promptDragDepth = Math.max(0, promptDragDepth - 1);
+      if (promptDragDepth === 0) $promptBar.classList.remove('drag-over');
+    }
+  }, true);
+
+  document.addEventListener('drop', (e) => {
+    if (!hasFiles(e)) return;
+
+    // Prompt bar → attachment for next prompt
+    if (isOnPromptBar(e.target)) {
+      e.preventDefault();
+      promptDragDepth = 0;
+      $promptBar.classList.remove('drag-over');
+      $canvasWrap.classList.remove('drag-over-canvas');
+      processUploadFiles(e.dataTransfer.files, { imagesOnly: true, attachToPrompt: true });
+      return;
+    }
+
+    // Empty canvas → persistent upload card at the drop position
+    if (isOnCanvasEmpty(e.target)) {
+      e.preventDefault();
+      $canvasWrap.classList.remove('drag-over-canvas');
+      const p = screenToCanvas(e.clientX, e.clientY);
+      processUploadFiles(e.dataTransfer.files, {
+        imagesOnly: false,         // images + video both make sense as on-canvas references
+        attachToPrompt: false,     // persistent cards, not ephemeral
+        placeAt: { x: p.x, y: p.y },
+      });
+      return;
+    }
+  }, true);
+
+  // Block default drop EVERYWHERE so dropping a file outside our zones
+  // doesn't navigate the browser away from the canvas.
+  document.addEventListener('dragover', (e) => {
+    if (hasFiles(e)) e.preventDefault();
+  });
+  document.addEventListener('drop', (e) => {
+    if (hasFiles(e)) { e.preventDefault(); $canvasWrap.classList.remove('drag-over-canvas'); }
+  });
+})();
+
+// Paste image from clipboard (Cmd/Ctrl+V) while prompt is focused
+$promptInput.addEventListener('paste', (e) => {
+  const items = [...(e.clipboardData?.items || [])];
+  const imageItems = items.filter(it => it.kind === 'file' && /^image\/(jpeg|png)$/.test(it.type));
+  if (imageItems.length === 0) return; // let the existing text-paste handler run
+  e.preventDefault();
+  e.stopPropagation();
+  const files = imageItems.map(it => it.getAsFile()).filter(Boolean);
+  processUploadFiles(files, { imagesOnly: true, attachToPrompt: true });
+}, true);
+
+// ───────────────────────── MINIMAP ─────────────────────────
+function updateMinimap() {
+  $minimap.innerHTML = '';
+  $minimapLabel.textContent = `${state.cards.length} NODE${state.cards.length===1?'':'S'}`;
+  if (state.cards.length === 0) {
+    $minimapVp.style.display = 'none';
+    return;
+  }
+  const xs = state.cards.map(c => c.x);
+  const ys = state.cards.map(c => c.y);
+  const xe = state.cards.map(c => c.x + c.w);
+  const ye = state.cards.map(c => c.y + c.h);
+  // Include viewport bounds in mini extent
+  const rW = $canvasWrap.clientWidth, rH = $canvasWrap.clientHeight;
+  const vpA = screenToCanvas(0, 0);
+  const vpB = screenToCanvas(rW, rH);
+  const minX = Math.min(Math.min(...xs), vpA.x) - 40;
+  const minY = Math.min(Math.min(...ys), vpA.y) - 40;
+  const maxX = Math.max(Math.max(...xe), vpB.x) + 40;
+  const maxY = Math.max(Math.max(...ye), vpB.y) + 40;
+  const mW = $minimap.parentElement.clientWidth - 8;
+  const mH = $minimap.parentElement.clientHeight - 20;
+  const scale = Math.min(mW / (maxX - minX), mH / (maxY - minY));
+  for (const c of state.cards) {
+    const d = document.createElement('div');
+    d.style.cssText = `position:absolute;
+      left:${(c.x - minX)*scale + 4}px;
+      top:${(c.y - minY)*scale + 4}px;
+      width:${c.w*scale}px;
+      height:${c.h*scale}px;
+      background:${c.status==='done'?'rgba(255,77,46,0.8)':'rgba(161,161,170,0.4)'};
+      border-radius:2px;`;
+    $minimap.appendChild(d);
+  }
+  $minimapVp.style.display = 'block';
+  $minimapVp.style.left   = ((vpA.x - minX)*scale + 4) + 'px';
+  $minimapVp.style.top    = ((vpA.y - minY)*scale + 4) + 'px';
+  $minimapVp.style.width  = ((vpB.x - vpA.x)*scale) + 'px';
+  $minimapVp.style.height = ((vpB.y - vpA.y)*scale) + 'px';
+}
+
+// ───────────────────────── CONTEXT MENU ─────────────────────────
+function showContextMenu(x, y, kind) {
+  const selCard = state.cards.find(x => x.id === [...state.selection][0]);
+  const isUpload = !!(selCard && selCard.source === 'upload');
+  const items = kind === 'card'
+    ? [
+        { label: 'Duplicate', shortcut: '⌘D', icon: '⎘', action: () => duplicateCard() },
+        ...(isUpload ? [{ label: `Use as @${selCard.name} reference`, shortcut: '', icon: '↪', action: () => useAsContext(selCard.id) }] : []),
+        { label: 'Bring to front', shortcut: '', icon: '↑', action: () => bringToFront() },
+        { type: 'divider' },
+        { label: 'Delete', shortcut: 'Del', icon: '✕', danger: true, action: () => deleteCard() },
+      ]
+    : [
+        { label: 'New empty card here', shortcut: 'N', icon: '✚', action: () => {
+            const p = screenToCanvas(ctxPos.x, ctxPos.y);
+            createDraftCardAt(p.x, p.y);
+        }},
+        { label: 'New text → image', icon: '◇', action: () => { setMode('image'); $promptInput.focus(); } },
+        { label: 'New text → video', icon: '▶', action: () => { setMode('video'); $promptInput.focus(); } },
+        { type: 'divider' },
+        { label: 'Paste',   shortcut: '⌘V', icon: '⎘', action: () => toast('Paste from clipboard not implemented', 'info', 1400) },
+        { label: 'Select all', shortcut: '⌘A', icon: '☐', action: selectAll },
+        { type: 'divider' },
+        { label: 'Reset view', shortcut: '⌘0', icon: '⊙', action: resetView },
+        { label: 'Zoom to fit', shortcut: '⇧1', icon: '⊞', action: zoomFit },
+      ];
+
+  $ctxMenu.innerHTML = items.map(item => {
+    if (item.type === 'divider') return '<div class="ctx-divider"></div>';
+    return `<div class="ctx-item${item.danger?' danger':''}" data-action="${item.label}">
+      <span>${item.icon||''}</span><span>${item.label}</span>
+      ${item.shortcut ? `<span class="ctx-shortcut">${item.shortcut}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  // Bind actions
+  [...$ctxMenu.querySelectorAll('.ctx-item')].forEach((el, i) => {
+    const realItems = items.filter(x => x.type !== 'divider');
+    el.onclick = () => { hideContextMenu(); realItems[i].action(); };
+  });
+
+  $ctxMenu.style.display = 'block';
+  $ctxMenu.style.left = x + 'px';
+  $ctxMenu.style.top = y + 'px';
+  // Clamp inside viewport
+  const r = $ctxMenu.getBoundingClientRect();
+  if (r.right > window.innerWidth)  $ctxMenu.style.left = (window.innerWidth - r.width - 8) + 'px';
+  if (r.bottom > window.innerHeight) $ctxMenu.style.top  = (window.innerHeight - r.height - 8) + 'px';
+}
+function hideContextMenu() { $ctxMenu.style.display = 'none'; }
+window.addEventListener('click', hideContextMenu);
+$canvasWrap.addEventListener('contextmenu', (e) => {
+  if (e.target.closest('.card')) return;
+  e.preventDefault();
+  showContextMenu(e.clientX, e.clientY, 'canvas');
+});
+
+function bringToFront() {
+  const ids = [...state.selection];
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el) $canvas.appendChild(el);
+  }
+}
+
+// ───────────────────────── EXPORT / IMPORT ─────────────────────────
+function exportJson() {
+  const data = {
+    project: document.getElementById('project-name').value,
+    cards: state.cards,
+    connections: state.connections,
+    viewport: state.viewport,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (data.project || 'canvas').replace(/\s+/g,'_') + '.json';
+  a.click();
+  toast('Project exported', 'ok', 1500);
+}
+function importJson() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.onchange = () => {
+    const f = input.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        // Clear current
+        state.cards = [];
+        state.connections = [];
+        state.selection.clear();
+        $canvas.innerHTML = '';
+        if (data.project) document.getElementById('project-name').value = data.project;
+        (data.cards || []).forEach(c => createCard(c));
+        state.connections = data.connections || [];
+        if (data.viewport) { state.viewport = data.viewport; applyViewport(); }
+        updateConnections();
+        updateMinimap();
+        toast('Project loaded', 'ok', 1500);
+      } catch (err) { toast('Invalid project JSON', 'err', 2400); }
+    };
+    reader.readAsText(f);
+  };
+  input.click();
+}
+
+// ───────────────────────── EMPTY HINT ─────────────────────────
+function updateEmptyHint() {
+  $emptyHint.style.display = state.cards.length ? 'none' : 'block';
+}
+
+// ───────────────────────── KEYBOARD ─────────────────────────
+window.addEventListener('keydown', (e) => {
+  // Ignore when typing in inputs (except a few global shortcuts)
+  const inField = document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName);
+
+  if (e.key === 'Escape') {
+    // If the Models modal is open, close it first
+    if (document.getElementById('models-modal')?.classList.contains('active')) {
+      closeModelsModal();
+      return;
+    }
+    if (inField) { document.activeElement.blur(); return; }
+    clearSelection();
+    closeInspector();
+    cancelConnect();
+    return;
+  }
+
+  if (inField) return;
+
+  if (e.key === ' ' && !state.spaceDown) {
+    state.spaceDown = true;
+    $canvasWrap.classList.add('tool-pan');
+    e.preventDefault();
+    return;
+  }
+
+  if (e.key === '/') {
+    e.preventDefault();
+    $promptInput.focus();
+    return;
+  }
+
+  if (e.key === 'v' || e.key === 'V') setTool('select');
+  if (e.key === 'h' || e.key === 'H') setTool('pan');
+  if (e.key === 'c' || e.key === 'C') setTool('connect');
+  if (e.key === 'f' || e.key === 'F') setTool('frame');
+  if (e.key === 'n' || e.key === 'N') setTool('new-card');
+
+  if ((e.key === 'Delete' || e.key === 'Backspace') && state.selection.size > 0) {
+    e.preventDefault();
+    deleteCard();
+  }
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'a' || e.key === 'A')) {
+    e.preventDefault();
+    selectAll();
+  }
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'd' || e.key === 'D')) {
+    e.preventDefault();
+    duplicateCard();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === '0') {
+    e.preventDefault();
+    resetView();
+  }
+  if (e.shiftKey && e.key === '1') {
+    e.preventDefault();
+    zoomFit();
+  }
+  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+    toggleShortcuts();
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.key === ' ') {
+    state.spaceDown = false;
+    if (state.tool !== 'pan') $canvasWrap.classList.remove('tool-pan');
+  }
+});
+
+// Minimap click → pan
+$minimap.parentElement.addEventListener('mousedown', (e) => {
+  if (!state.cards.length) return;
+  // Compute world coord from click
+  const xs = state.cards.map(c => c.x);
+  const ys = state.cards.map(c => c.y);
+  const xe = state.cards.map(c => c.x + c.w);
+  const ye = state.cards.map(c => c.y + c.h);
+  const rW = $canvasWrap.clientWidth, rH = $canvasWrap.clientHeight;
+  const vpA = screenToCanvas(0, 0);
+  const vpB = screenToCanvas(rW, rH);
+  const minX = Math.min(Math.min(...xs), vpA.x) - 40;
+  const minY = Math.min(Math.min(...ys), vpA.y) - 40;
+  const maxX = Math.max(Math.max(...xe), vpB.x) + 40;
+  const maxY = Math.max(Math.max(...ye), vpB.y) + 40;
+  const mW = $minimap.parentElement.clientWidth - 8;
+  const mH = $minimap.parentElement.clientHeight - 20;
+  const scale = Math.min(mW / (maxX - minX), mH / (maxY - minY));
+  const rr = $minimap.parentElement.getBoundingClientRect();
+  const mx = e.clientX - rr.left - 4;
+  const my = e.clientY - rr.top - 4;
+  const wx = mx/scale + minX;
+  const wy = my/scale + minY;
+  state.viewport.x = -wx * state.viewport.zoom + rW/2;
+  state.viewport.y = -wy * state.viewport.zoom + rH/2;
+  applyViewport();
+  e.stopPropagation();
+});
+
+// ───────────────────────── MODELS MODAL ─────────────────────────
+function openModelsModal() {
+  modelEditingId = null;
+  renderModelsModal();
+  document.getElementById('models-modal').classList.add('active');
+}
+function closeModelsModal() {
+  document.getElementById('models-modal').classList.remove('active');
+  modelEditingId = null;
+}
+function openModelForm(id) {
+  modelEditingId = id;
+  renderModelsModal();
+  // Focus the first input after render
+  setTimeout(() => document.getElementById('mf-name')?.focus(), 30);
+}
+
+function renderModelsModal() {
+  const body   = document.getElementById('models-modal-body');
+  const footer = document.getElementById('models-modal-footer');
+
+  if (modelEditingId === null) {
+    // ──── LIST VIEW ────
+    const warn = `
+      <div class="modal-warn">
+        <strong>Keys are stored in this browser only.</strong>
+        Anyone with DevTools access on this machine can read them. For a publicly shared
+        canvas, move keys to a backend proxy (Vercel / Cloudflare Workers).
+      </div>`;
+
+    if (state.models.length === 0) {
+      body.innerHTML = warn + `
+        <div class="model-empty">
+          No models connected yet.<br>
+          Add one to start generating with a real API.
+        </div>`;
+    } else {
+      const rows = state.models.map(m => {
+        const providerLabel = PROVIDERS[m.provider]?.label || m.provider;
+        const keyMark = m.apiKey
+          ? '🔑 connected'
+          : '<span class="nokey">⚠ no key</span>';
+        const caps = (m.capabilities || []);
+        const capChips = caps.length === 0
+          ? '<span class="cap-chip">no capabilities</span>'
+          : caps.map(id => {
+              const def = CAP_BY_ID[id];
+              if (!def) return '';
+              return `<span class="cap-chip ${def.output}">${escapeHtml(def.label)}</span>`;
+            }).join('');
+        // Primary output label for the leading badge
+        const outputs = [...modelOutputs(m)];
+        const primary = outputs.length === 0 ? '—'
+          : outputs.length === 1 ? outputs[0].toUpperCase()
+          : 'MULTI';
+        return `
+          <div class="model-row">
+            <div class="model-row-type">${primary}</div>
+            <div class="model-row-info">
+              <div class="model-row-name">${escapeHtml(m.name)}</div>
+              <div class="model-row-meta">${escapeHtml(providerLabel)} · ${escapeHtml(m.modelId || '—')} · ${keyMark}</div>
+              <div style="margin-top:5px;">${capChips}</div>
+            </div>
+            <div class="model-row-actions">
+              <button class="model-row-btn" onclick="openModelForm('${m.id}')" title="Edit">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+              </button>
+              <button class="model-row-btn danger" onclick="deleteModel('${m.id}')" title="Delete">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+      body.innerHTML = warn + `<div class="model-list">${rows}</div>`;
+    }
+
+    footer.innerHTML = `
+      <div style="font-size:11px; color:var(--text-mute);">
+        ${state.models.length} model${state.models.length===1?'':'s'} configured
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-secondary" onclick="closeModelsModal()">Close</button>
+        <button class="btn-primary" onclick="openModelForm('new')">+ Add Model</button>
+      </div>`;
+    return;
+  }
+
+  // ──── FORM VIEW (add or edit) ────
+  const editing = modelEditingId === 'new'
+    ? { name: '', capabilities: [], provider: 'openai', endpoint: '', modelId: '', apiKey: '' }
+    : (state.models.find(m => m.id === modelEditingId) || {});
+  const m = editing;
+
+  // Pre-fill empty endpoint/modelId from the first selected capability's preset
+  const firstCap = (m.capabilities || [])[0];
+  const preset = (firstCap && PROVIDERS[m.provider]?.presets?.[firstCap]) || {};
+  const endpointValue = m.endpoint || preset.endpoint || '';
+  const modelIdValue  = m.modelId  || preset.modelId  || '';
+
+  const checked = new Set(m.capabilities || []);
+  const capsHtml = CAPABILITIES.map(c => `
+    <label class="cap-checkbox ${checked.has(c.id) ? 'checked' : ''}">
+      <input type="checkbox" value="${c.id}" ${checked.has(c.id) ? 'checked' : ''} onchange="onModelFormChange()">
+      ${escapeHtml(c.label)}
+    </label>`).join('');
+
+  body.innerHTML = `
+    <form class="model-form" onsubmit="event.preventDefault(); saveModelForm();">
+      <div class="form-row">
+        <label>Capabilities</label>
+        <div class="caps-grid" id="mf-caps">${capsHtml}</div>
+        <div class="form-hint">Pick every flow this model supports. The Image / Video / Audio toggle in the prompt bar will filter models by these.</div>
+      </div>
+      <div class="form-row">
+        <label>Provider</label>
+        <select class="form-select" id="mf-provider" onchange="onModelFormChange()">
+          ${Object.entries(PROVIDERS).map(([k,v]) =>
+            `<option value="${k}" ${m.provider===k?'selected':''}>${escapeHtml(v.label)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Display name</label>
+        <input class="form-input" id="mf-name" value="${escapeAttr(m.name||'')}" placeholder="e.g. GPT Image 1 — high quality">
+        <div class="form-hint">Shown in the prompt-bar dropdown.</div>
+      </div>
+      <div class="form-row">
+        <label>Model ID</label>
+        <input class="form-input" id="mf-modelId" value="${escapeAttr(modelIdValue)}" placeholder="gpt-image-1">
+        <div class="form-hint">Provider-specific identifier sent in the request body.</div>
+      </div>
+      <div class="form-row">
+        <label>Endpoint</label>
+        <input class="form-input" id="mf-endpoint" value="${escapeAttr(endpointValue)}" placeholder="https://api.openai.com/v1/images/generations">
+        <div class="form-hint">Point this to your backend proxy in production (e.g. /api/openai-image).</div>
+      </div>
+      <div class="form-row">
+        <label>API key</label>
+        <input class="form-input" id="mf-apiKey" type="password" value="${escapeAttr(m.apiKey||'')}" placeholder="sk-... or leave blank if your proxy handles auth">
+      </div>
+    </form>`;
+
+  footer.innerHTML = `
+    <button class="btn-secondary" onclick="modelEditingId=null; renderModelsModal();">← Back</button>
+    <div style="display:flex; gap:8px;">
+      ${modelEditingId !== 'new' ? `<button class="btn-secondary danger" onclick="deleteModel('${modelEditingId}')">Delete</button>` : ''}
+      <button class="btn-primary" onclick="saveModelForm()">${modelEditingId === 'new' ? 'Add' : 'Save'}</button>
+    </div>`;
+}
+
+// When a capability is toggled OR provider changes:
+//   1) Update the visual "checked" class on each capability checkbox
+//   2) Refill endpoint/modelId from the first selected capability's provider preset
+//      (only when those fields are still empty — never clobber user edits)
+function onModelFormChange() {
+  // Update checkbox visual state
+  document.querySelectorAll('#mf-caps .cap-checkbox').forEach(lbl => {
+    lbl.classList.toggle('checked', lbl.querySelector('input').checked);
+  });
+
+  const provider = document.getElementById('mf-provider').value;
+  const firstChecked = [...document.querySelectorAll('#mf-caps input:checked')][0]?.value;
+  const preset = (firstChecked && PROVIDERS[provider]?.presets?.[firstChecked]) || {};
+  const ep = document.getElementById('mf-endpoint');
+  const mid = document.getElementById('mf-modelId');
+  if (!ep.value.trim()  && preset.endpoint) ep.value  = preset.endpoint;
+  if (!mid.value.trim() && preset.modelId)  mid.value = preset.modelId;
+}
+
+function saveModelForm() {
+  const name     = document.getElementById('mf-name').value.trim();
+  const provider = document.getElementById('mf-provider').value;
+  const endpoint = document.getElementById('mf-endpoint').value.trim();
+  const modelId  = document.getElementById('mf-modelId').value.trim();
+  const apiKey   = document.getElementById('mf-apiKey').value.trim();
+  const capabilities = [...document.querySelectorAll('#mf-caps input:checked')].map(i => i.value);
+
+  if (!name)             { toast('Display name is required', 'err', 1500); return; }
+  if (!modelId)          { toast('Model ID is required', 'err', 1500); return; }
+  if (capabilities.length === 0) { toast('Pick at least one capability', 'err', 1500); return; }
+
+  if (modelEditingId === 'new') {
+    state.models.push({
+      id: 'm-' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      name, capabilities, provider, endpoint, modelId, apiKey,
+    });
+    toast(`Added model "${name}"`, 'ok', 1500);
+  } else {
+    const m = state.models.find(x => x.id === modelEditingId);
+    if (m) Object.assign(m, { name, capabilities, provider, endpoint, modelId, apiKey });
+    toast('Model updated', 'ok', 1300);
+  }
+  saveModelsToStorage();
+  refreshModelSelect();
+  modelEditingId = null;
+  renderModelsModal();
+}
+
+function deleteModel(id) {
+  const m = state.models.find(x => x.id === id);
+  if (!m) return;
+  if (!confirm(`Delete model "${m.name}"?`)) return;
+  state.models = state.models.filter(x => x.id !== id);
+  saveModelsToStorage();
+  refreshModelSelect();
+  // If we were editing it, drop back to list view
+  if (modelEditingId === id) modelEditingId = null;
+  renderModelsModal();
+  toast('Model removed', 'ok', 1200);
+}
+
+// ───────────────────────── TOOLTIP SYSTEM ─────────────────────────
+// A single floating tooltip that follows the cursor's target. Reads from
+// either `data-tip` (preferred) or `title`. Replaces the native browser
+// tooltip (which is slow + ugly) by temporarily stripping the title attribute
+// while the custom tip is visible, and restoring it on leave.
+(function setupTooltips() {
+  const tip = document.createElement('div');
+  tip.className = 'tooltip';
+  document.body.appendChild(tip);
+
+  let currentTarget = null;
+  let showTimer = null;
+  const DELAY = 250; // ms before tip appears
+  const MARGIN = 8;
+
+  // Convert "Select (V)" → "Select <kbd>V</kbd>" for nicer keyboard hints.
+  function formatTipHtml(text) {
+    const m = text.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+    if (!m) return escapeHtml(text);
+    return `${escapeHtml(m[1])}<kbd>${escapeHtml(m[2])}</kbd>`;
+  }
+
+  // Decide which side of the element to place the tip on, based on screen position.
+  function placement(rect) {
+    if (rect.left < 80)               return 'right';   // left toolbar
+    if (rect.right > innerWidth - 80) return 'left';    // right inspector / minimap
+    if (rect.top < 80)                return 'bottom';  // topbar
+    if (rect.bottom > innerHeight - 100) return 'top';  // prompt bar / bottom controls
+    return 'bottom';
+  }
+
+  function positionTip(el) {
+    const r = el.getBoundingClientRect();
+    const place = el.dataset.tipPos || placement(r);
+    // Force layout to read tip size after content set
+    const tr = tip.getBoundingClientRect();
+    let left, top;
+    switch (place) {
+      case 'right':
+        left = r.right + MARGIN;
+        top  = r.top + r.height/2 - tr.height/2;
+        break;
+      case 'left':
+        left = r.left - tr.width - MARGIN;
+        top  = r.top + r.height/2 - tr.height/2;
+        break;
+      case 'top':
+        left = r.left + r.width/2 - tr.width/2;
+        top  = r.top - tr.height - MARGIN;
+        break;
+      case 'bottom':
+      default:
+        left = r.left + r.width/2 - tr.width/2;
+        top  = r.bottom + MARGIN;
+        break;
+    }
+    // Clamp to viewport
+    left = Math.max(6, Math.min(innerWidth  - tr.width  - 6, left));
+    top  = Math.max(6, Math.min(innerHeight - tr.height - 6, top));
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function show(el) {
+    const text = el.dataset.tip || el.getAttribute('title') || '';
+    if (!text.trim()) return;
+    // Suppress the native browser tooltip while ours is on
+    if (el.hasAttribute('title')) {
+      el.dataset.tipBackup = el.getAttribute('title');
+      el.removeAttribute('title');
+    }
+    currentTarget = el;
+    tip.innerHTML = formatTipHtml(text);
+    positionTip(el);
+    requestAnimationFrame(() => {
+      // Re-position after content is in (kbd renders may shift width)
+      positionTip(el);
+      tip.classList.add('show');
+    });
+  }
+
+  function hide() {
+    if (!currentTarget) return;
+    if (currentTarget.dataset.tipBackup) {
+      currentTarget.setAttribute('title', currentTarget.dataset.tipBackup);
+      delete currentTarget.dataset.tipBackup;
+    }
+    currentTarget = null;
+    tip.classList.remove('show');
+  }
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest('[title], [data-tip]');
+    if (!el || el === currentTarget) return;
+    if (currentTarget) hide();
+    clearTimeout(showTimer);
+    showTimer = setTimeout(() => show(el), DELAY);
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    clearTimeout(showTimer);
+    if (!currentTarget) return;
+    // If we're leaving the current target (or anything inside it)
+    if (e.target === currentTarget || currentTarget.contains(e.target)) {
+      hide();
+    }
+  });
+
+  // Click anywhere = hide (so the tip doesn't linger after action)
+  document.addEventListener('mousedown', () => {
+    clearTimeout(showTimer);
+    hide();
+  }, true);
+
+  // Hide on scroll/resize since the anchor moves
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+})();
+
+// ───────────────────────── SHORTCUTS PANEL ─────────────────────────
+function toggleShortcuts() {
+  document.getElementById('shortcuts-panel').classList.toggle('active');
+}
+
+// ───────────────────────── INIT ─────────────────────────
+function init() {
+  state.models = loadModelsFromStorage();
+  refreshModelSelect();
+  applyViewport();
+  updateEmptyHint();
+  updateMinimap();
+
+  // Seed: one uploaded reference (taggable) + one generated derivative,
+  // so the @-mention flow is visible on first load.
+  const c0 = createCard({
+    type: 'image',
+    source: 'upload',
+    x: -180, y: -100,
+    prompt: 'reference photo',
+    model: 'upload',
+    status: 'done',
+    ar: '16:9',
+  });
+  c0.src = mockImageDataUrl('seed-1', c0.w, c0.h);
+  renderCard(c0);
+
+  const c1 = createCard({
+    type: 'video',
+    x: 280, y: -100,
+    w: 400, h: 261,
+    prompt: `@${c0.name} animated forward through the city`,
+    model: '',
+    status: 'done',
+    ar: '16:9',
+    duration: 5,
+  });
+  renderCard(c1);
+
+  state.connections.push({ id: 'c-init', from: c0.id, to: c1.id });
+  updateConnections();
+  updateMinimap();
+
+  // Welcome toast
+  setTimeout(() => toast('Welcome — type a prompt below to generate', 'info', 2400), 400);
+}
+
+init();
+</script>
+</body>
+</html>

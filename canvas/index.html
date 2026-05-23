@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI GEN CANVAS — Higgsfield-style Workspace</title>
+<!-- Supabase JS SDK (Auth + Postgres client) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -1216,6 +1218,168 @@
     to { transform: translateX(0); opacity: 1; }
   }
 
+  /* ───────────────────────── AUTH GATE ───────────────────────── */
+  .auth-gate {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f7 100%);
+    z-index: 9000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .auth-gate.active { display: flex; }
+  .auth-card {
+    width: 100%; max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: var(--shadow-float);
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .auth-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 16px; letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+  .auth-logo .logo-mark { width: 28px; height: 28px; font-size: 14px; border-radius: 7px; }
+  .auth-tabs {
+    display: flex; gap: 2px;
+    background: var(--surface-2);
+    padding: 3px;
+    border-radius: 9px;
+  }
+  .auth-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .auth-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(15,23,42,0.10);
+  }
+  .auth-form { display: flex; flex-direction: column; gap: 10px; }
+  .auth-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    box-sizing: border-box;
+  }
+  .auth-input:focus { border-color: var(--brand); }
+  .auth-submit {
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px var(--brand-glow);
+  }
+  .auth-submit:hover { filter: brightness(1.08); }
+  .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-divider {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-mute);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    margin: 4px 0;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: ''; position: absolute; top: 50%;
+    width: calc(50% - 24px); height: 1px;
+    background: var(--border);
+  }
+  .auth-divider::before { left: 0; }
+  .auth-divider::after  { right: 0; }
+  .auth-google {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    border-radius: 9px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .auth-google:hover { background: var(--surface-2); }
+  .auth-google svg { width: 16px; height: 16px; }
+  .auth-msg {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    display: none;
+    line-height: 1.4;
+  }
+  .auth-msg.show { display: block; }
+  .auth-msg.err { background: rgba(239,68,68,0.08); color: var(--err); border: 1px solid rgba(239,68,68,0.3); }
+  .auth-msg.ok  { background: rgba(34,197,94,0.08); color: #15803d; border: 1px solid rgba(34,197,94,0.3); }
+  .auth-foot {
+    font-size: 10.5px;
+    color: var(--text-mute);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* Topbar user widget (right side) */
+  .topbar-user {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 4px 4px 10px;
+    border-radius: 7px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .topbar-user.show { display: inline-flex; }
+  .topbar-user-email {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+    max-width: 180px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .topbar-user .topbar-btn { padding: 4px 10px; height: 24px; font-size: 11px; }
+
+  /* Sync indicator — small dot next to user widget */
+  .sync-indicator {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--text-mute);
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .sync-indicator.saving { background: var(--warn); animation: sync-pulse 0.8s ease-in-out infinite; }
+  .sync-indicator.saved  { background: var(--ok); }
+  .sync-indicator.error  { background: var(--err); }
+  @keyframes sync-pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
   /* ───────────────────────── TOOLTIPS ───────────────────────── */
   .tooltip {
     position: fixed;
@@ -1539,6 +1703,35 @@
 </head>
 <body>
 
+<!-- AUTH GATE (covers canvas until signed in) -->
+<div class="auth-gate active" id="auth-gate">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-mark">A</div>
+      AI GEN CANVAS
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="setAuthTab('signin')">Sign in</button>
+      <button class="auth-tab" id="tab-signup" onclick="setAuthTab('signup')">Create account</button>
+    </div>
+    <form class="auth-form" onsubmit="event.preventDefault(); doAuth();">
+      <input class="auth-input" id="auth-email" type="email" placeholder="Email" autocomplete="email" required>
+      <input class="auth-input" id="auth-password" type="password" placeholder="Password (min 8 chars)" autocomplete="current-password" minlength="8" required>
+      <button class="auth-submit" id="auth-submit" type="submit">Continue</button>
+    </form>
+    <div class="auth-divider">or</div>
+    <button class="auth-google" onclick="signInWithGoogle()">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.99 10.99 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.09A6.61 6.61 0 0 1 5.49 12c0-.72.13-1.43.35-2.09V7.07H2.18a10.99 10.99 0 0 0 0 9.86l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-msg" id="auth-msg"></div>
+    <div class="auth-foot">
+      Your canvas (cards, models, attachments) syncs across devices.<br>
+      Keys you add via the Models modal are stored per-account.
+    </div>
+  </div>
+</div>
+
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="logo">
@@ -1562,6 +1755,12 @@
   <button class="topbar-btn" onclick="toggleShortcuts()" title="Keyboard shortcuts">
     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
   </button>
+  <!-- User widget (shows when signed in) -->
+  <div class="topbar-user" id="topbar-user">
+    <div class="sync-indicator" id="sync-indicator" title="Sync status"></div>
+    <span class="topbar-user-email" id="topbar-user-email">—</span>
+    <button class="topbar-btn" onclick="signOut()" title="Sign out">Sign out</button>
+  </div>
 </div>
 
 <!-- TOOLBAR (LEFT) -->
@@ -4439,14 +4638,309 @@ function toggleShortcuts() {
   document.getElementById('shortcuts-panel').classList.toggle('active');
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+//  AUTH + SYNC (Supabase)
+//  - Login gate covers the canvas until signed in
+//  - Per-user canvas state stored as a single JSONB blob in `canvas_state`
+//  - Auto-save throttled to 1.5s after the last change
+//  - Auto-load on sign-in; new users get the seed canvas
+// ═══════════════════════════════════════════════════════════════════════
+const SUPABASE_URL      = 'https://jnystjavktpwvcmektdo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpueXN0amF2a3Rwd3ZjbWVrdGRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0ODY1MDYsImV4cCI6MjA5NTA2MjUwNn0.AjjoFQfjNrSjII4EXQrWLNuAMKmjIvyNaAZznuj1AZ0';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true }
+});
+
+let currentUser = null;
+let currentAccessToken = null;  // stored from session so beforeunload can use it
+let authMode = 'signin';      // 'signin' | 'signup'
+let saveTimer = null;
+let saveInFlight = false;
+let lastSavedJson = '';
+let hydrating = false;          // true while loading state from DB — blocks auto-save
+
+const $authGate    = document.getElementById('auth-gate');
+const $authMsg     = document.getElementById('auth-msg');
+const $authSubmit  = document.getElementById('auth-submit');
+const $userWidget  = document.getElementById('topbar-user');
+const $userEmail   = document.getElementById('topbar-user-email');
+const $syncDot     = document.getElementById('sync-indicator');
+
+function setAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-signin').classList.toggle('active', mode === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+  $authSubmit.textContent = mode === 'signup' ? 'Create account' : 'Continue';
+  document.getElementById('auth-password').setAttribute('autocomplete',
+    mode === 'signup' ? 'new-password' : 'current-password');
+  showAuthMsg('', '');
+}
+
+function showAuthMsg(text, kind) {
+  $authMsg.textContent = text;
+  $authMsg.className = 'auth-msg ' + (text ? 'show ' + (kind || 'err') : '');
+}
+
+async function doAuth() {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email || !password) return;
+  $authSubmit.disabled = true;
+  showAuthMsg('', '');
+  try {
+    if (authMode === 'signup') {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      if (!data.session) {
+        // Email confirmation required (only happens if you've turned that setting back on)
+        showAuthMsg('Account created. Check your inbox to confirm, then sign in.', 'ok');
+        setAuthTab('signin');
+      }
+      // onAuthStateChange will fire SIGNED_IN → drives onAuthSuccess
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      // onAuthStateChange will fire SIGNED_IN → drives onAuthSuccess
+    }
+  } catch (e) {
+    showAuthMsg(e.message || 'Sign-in failed', 'err');
+  } finally {
+    $authSubmit.disabled = false;
+  }
+}
+
+async function signInWithGoogle() {
+  showAuthMsg('', '');
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href.split('#')[0] }
+  });
+  if (error) showAuthMsg(error.message, 'err');
+}
+
+async function signOut() {
+  // Flush a final save before logging out
+  await saveStateNow().catch(() => {});
+  await sb.auth.signOut();
+  currentUser = null;
+  // Hard reload so the in-memory canvas is fully reset
+  window.location.reload();
+}
+
+let authHandledForUserId = null;
+
+async function bootstrapAuth() {
+  initBaseUI(); // UI shell needs to exist regardless of auth state
+
+  // Single listener handles ALL auth lifecycle events:
+  //   INITIAL_SESSION — fired right after registration; tells us whether
+  //                     a session already existed (e.g. from localStorage
+  //                     or a Google OAuth redirect)
+  //   SIGNED_IN       — fired when the user signs in via the modal
+  //   SIGNED_OUT      — fired on signOut()
+  sb.auth.onAuthStateChange(async (evt, session) => {
+    console.log('[auth]', evt, session?.user?.email || '(no session)');
+    if (session) currentAccessToken = session.access_token;
+    if ((evt === 'INITIAL_SESSION' || evt === 'SIGNED_IN') && session) {
+      currentUser = session.user;
+      await onAuthSuccess();
+    } else if (evt === 'INITIAL_SESSION' && !session) {
+      // No existing session → show the login gate
+      $authGate.classList.add('active');
+    } else if (evt === 'TOKEN_REFRESHED' && session) {
+      // Keep our cached token in sync after auto-refresh
+      currentAccessToken = session.access_token;
+    } else if (evt === 'SIGNED_OUT') {
+      currentUser = null;
+      currentAccessToken = null;
+      authHandledForUserId = null;
+    }
+  });
+}
+
+async function onAuthSuccess() {
+  // Idempotency guard — listener can fire INITIAL_SESSION + SIGNED_IN
+  // in rapid succession for the same user, and doAuth() may also race.
+  // We only want to hydrate / seed ONCE per user.
+  if (authHandledForUserId === currentUser.id) return;
+  authHandledForUserId = currentUser.id;
+
+  $authGate.classList.remove('active');
+  $userWidget.classList.add('show');
+  $userEmail.textContent = currentUser.email || 'signed in';
+  setSyncStatus('saved');
+
+  // BLOCK auto-save while we read + hydrate so a polling tick can't
+  // race in and overwrite the DB row with empty in-memory state.
+  hydrating = true;
+  try {
+    const { data, error } = await sb
+      .from('canvas_state')
+      .select('state')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
+    if (error) {
+      toast('Could not load saved canvas: ' + error.message, 'err', 4000);
+      console.error('[load] error:', error);
+    }
+
+    // Recognize a real saved state by the presence of `cards` (an array),
+    // not just any keys. This way an accidentally-empty row {} still triggers seed.
+    const saved = data && data.state;
+    const hasSavedCanvas = saved && Array.isArray(saved.cards);
+    console.log('[load]', hasSavedCanvas
+      ? `restoring ${saved.cards.length} cards from DB`
+      : 'no saved canvas — seeding first-time experience');
+
+    if (hasSavedCanvas) {
+      hydrateState(saved);
+      lastSavedJson = JSON.stringify(snapshotState());
+      toast('Welcome back — loaded your saved canvas', 'ok', 1800);
+    } else {
+      migrateLegacyLocalStorage();
+      seedFirstTime();
+      // Capture the seeded state in lastSavedJson BEFORE the first save,
+      // so the polling loop has a baseline.
+      const beforeSave = JSON.stringify(snapshotState());
+      await saveStateNow();
+      // If saveStateNow failed (lastSavedJson unchanged), force-set it so
+      // we don't infinite-loop retrying every 2s.
+      if (!lastSavedJson) lastSavedJson = beforeSave;
+      setTimeout(() => toast('Welcome — type a prompt below to generate', 'info', 2400), 400);
+    }
+  } finally {
+    hydrating = false;
+  }
+
+  startAutoSave();
+}
+
+function migrateLegacyLocalStorage() {
+  try {
+    const raw = localStorage.getItem('aigc-models');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length) {
+        state.models = arr;
+        refreshModelSelect();
+        toast(`Migrated ${arr.length} model${arr.length>1?'s':''} from local storage`, 'info', 2200);
+      }
+    }
+  } catch {}
+}
+
+/* What we send to / load from the DB. Excludes ephemeral UI state. */
+function snapshotState() {
+  return {
+    v: 1,
+    cards:       state.cards,
+    connections: state.connections,
+    models:      state.models,
+    viewport:    state.viewport,
+    uid:         state.uid,
+    projectName: document.getElementById('project-name').value,
+  };
+}
+
+function hydrateState(snap) {
+  state.cards       = Array.isArray(snap.cards) ? snap.cards : [];
+  state.connections = Array.isArray(snap.connections) ? snap.connections : [];
+  state.models      = Array.isArray(snap.models) ? snap.models : [];
+  state.viewport    = snap.viewport || { x: 0, y: 0, zoom: 1 };
+  state.uid         = snap.uid || 1;
+  if (snap.projectName) document.getElementById('project-name').value = snap.projectName;
+
+  // Clear DOM and re-render every card
+  document.querySelectorAll('#canvas .card').forEach(el => el.remove());
+  for (const c of state.cards) renderCard(c);
+  updateConnections();
+  refreshModelSelect();
+  applyViewport();
+  updateMinimap();
+  updateEmptyHint();
+}
+
+function setSyncStatus(kind) {
+  $syncDot.classList.remove('saving', 'saved', 'error');
+  if (kind) $syncDot.classList.add(kind);
+  $syncDot.title = kind === 'saving' ? 'Saving…'
+                 : kind === 'saved'  ? 'All changes saved'
+                 : kind === 'error'  ? 'Save failed'
+                                     : 'Idle';
+}
+
+async function saveStateNow() {
+  if (!currentUser) return;
+  if (hydrating)    return;          // never write while we're mid-read
+  const snap = snapshotState();
+  const json = JSON.stringify(snap);
+  if (json === lastSavedJson) return; // nothing changed
+  if (saveInFlight) return;           // skip overlapping saves
+  saveInFlight = true;
+  setSyncStatus('saving');
+  try {
+    const { error } = await sb
+      .from('canvas_state')
+      .upsert({ user_id: currentUser.id, state: snap }, { onConflict: 'user_id' });
+    if (error) throw error;
+    lastSavedJson = json;
+    setSyncStatus('saved');
+    console.log('[save] ok —', snap.cards.length, 'cards,', snap.models.length, 'models,', json.length, 'bytes');
+  } catch (e) {
+    console.warn('[save] failed:', e);
+    setSyncStatus('error');
+  } finally {
+    saveInFlight = false;
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveStateNow, 1500);
+}
+
+function startAutoSave() {
+  // Cheap change detection: poll every 2s, save only if JSON differs from
+  // last save. Avoids invasive hooks into every mutator.
+  setInterval(() => {
+    const json = JSON.stringify(snapshotState());
+    if (json !== lastSavedJson) scheduleSave();
+  }, 2000);
+  // Try a final save on tab close. Uses fetch keepalive because async
+  // operations (like supabase-js) won't complete during unload.
+  window.addEventListener('beforeunload', () => {
+    if (!currentUser || !currentAccessToken) return;
+    const snap = snapshotState();
+    const json = JSON.stringify(snap);
+    if (json === lastSavedJson) return;
+    try {
+      fetch(`${SUPABASE_URL}/rest/v1/canvas_state?on_conflict=user_id`, {
+        method: 'POST',
+        headers: {
+          'apikey':        SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + currentAccessToken,
+          'Content-Type':  'application/json',
+          'Prefer':        'resolution=merge-duplicates',
+        },
+        body: JSON.stringify({ user_id: currentUser.id, state: snap }),
+        keepalive: true,
+      });
+    } catch {}
+  });
+}
+
 // ───────────────────────── INIT ─────────────────────────
-function init() {
-  state.models = loadModelsFromStorage();
+function initBaseUI() {
+  state.models = []; // will be replaced by hydrate or migrate
   refreshModelSelect();
   applyViewport();
   updateEmptyHint();
   updateMinimap();
+}
 
+function seedFirstTime() {
   // Seed: one uploaded reference (taggable) + one generated derivative,
   // so the @-mention flow is visible on first load.
   const c0 = createCard({
@@ -4476,12 +4970,9 @@ function init() {
   state.connections.push({ id: 'c-init', from: c0.id, to: c1.id });
   updateConnections();
   updateMinimap();
-
-  // Welcome toast
-  setTimeout(() => toast('Welcome — type a prompt below to generate', 'info', 2400), 400);
 }
 
-init();
+bootstrapAuth();
 </script>
 </body>
 </html>

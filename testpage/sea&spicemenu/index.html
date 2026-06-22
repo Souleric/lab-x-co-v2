@@ -220,7 +220,9 @@
   #screen{flex:1;min-height:0;display:flex;flex-direction:column}
   #bottomnav{position:relative;display:flex;background:linear-gradient(0deg,#3c080e 0%,#3c080e 52%,rgba(60,8,14,0) 100%);padding:26px 0 calc(10px + env(safe-area-inset-bottom))}
   #bottomnav.hide{display:none}
-  .navtab{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted2);font-size:11.5px;cursor:pointer;z-index:1}
+  .navtab{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted2);font-size:11.5px;cursor:pointer;z-index:1;position:relative}
+  .navbadge{position:absolute;top:-4px;left:calc(50% + 7px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:linear-gradient(180deg,#f9e09a,#e0b24e);color:#5a0f12;font-size:10.5px;font-weight:700;font-family:var(--cor);display:none;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.4);z-index:3}
+  .navbadge.show{display:flex}
   .navtab .navico{width:23px;height:23px;display:block;transition:opacity .2s}
   .navtab .navico svg{width:23px;height:23px;display:block}
   .navtab.on{color:var(--gold2)}
@@ -237,6 +239,28 @@
   .cartbar .ci{flex:1}
   .cartbar .cl{font-size:12px;color:var(--muted2)}
   .cartbar .cv{font-family:var(--cor);font-size:24px;font-weight:700;color:var(--gold2)}
+  .cartlist{padding:6px 18px 0;display:flex;flex-direction:column;gap:10px}
+  .crow{display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,rgba(106,16,24,.6),rgba(74,10,17,.4));border:1px solid var(--line);border-radius:16px;padding:11px}
+  .cthumb{width:60px;height:60px;border-radius:12px;object-fit:cover;flex:none}
+  .cthumb.ph{display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25)}
+  .cthumb.ph svg{width:30px;height:30px}
+  .cmid{flex:1;min-width:0}
+  .ctitle{font-size:15px;font-weight:700;color:var(--cream)}
+  .csub{font-size:11.5px;color:var(--muted2);margin-top:2px;line-height:1.45}
+  .cprice{font-family:var(--cor);font-size:16px;color:var(--gold2);font-weight:700;margin-top:5px}
+  .cright{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
+  .crm{background:none;border:none;color:var(--muted2);font-size:21px;line-height:.8;cursor:pointer;padding:0 2px}
+  .cqty{display:flex;align-items:center;gap:9px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:30px;padding:4px 6px}
+  .cqty button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);background:rgba(0,0,0,.2);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .cqty span{font-family:var(--cor);font-size:15px;color:var(--gold2);min-width:13px;text-align:center}
+  .cartsum{margin:14px 18px 0;background:rgba(0,0,0,.25);border:1px solid var(--line2);border-radius:16px;padding:14px 18px}
+  .cartsum .srow{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);padding:5px 0}
+  .cartsum .srow span:last-child{color:var(--cream);font-family:var(--cor)}
+  .cartsum .srow.tbd{color:var(--gold-d);font-size:12.5px}
+  .cartsum .srow.tot{border-top:1px solid var(--line);margin-top:5px;padding-top:11px;font-size:17px;font-weight:700;color:var(--cream)}
+  .cartsum .srow.tot span:last-child{color:var(--gold2);font-size:20px;font-weight:700}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(10px);background:rgba(20,4,6,.92);border:1px solid var(--line2);color:var(--gold2);padding:11px 22px;border-radius:30px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -279,7 +303,9 @@ const S = {
   flow:null,                          // 'fish' | 'hotpot' | null(standalone add-ons)
   hp:{potType:null,broths:[]},        // 单点火锅 DIY hotpot
   member:null,                        // 会员查询 (read-only, from POS)
+  cart:[],                            // 购物车 line items -> shown on 订单 tab
 };
+let _cid=0;
 
 const app = document.getElementById('app');
 
@@ -293,7 +319,7 @@ const TABS=[{cn:'菜单',ico:'menu',screen:'hub'},{cn:'订单',ico:'orders',scre
 const NAV_SCREENS=['hub','orders','me'];
 let screenEl,navEl,circleEl;
 function navHTML(){
-  const tabs=TABS.map((t,i)=>`<div class="navtab" data-i="${i}" onclick="switchTab(${i})"><span class="navico">${ICO[t.ico]('#e9c477')}</span>${t.cn}</div>`).join('');
+  const tabs=TABS.map((t,i)=>`<div class="navtab" data-i="${i}" onclick="switchTab(${i})"><span class="navico">${ICO[t.ico]('#e9c477')}</span>${t.cn}${i===1?'<span class="navbadge" id="navbadge"></span>':''}</div>`).join('');
   return `<div id="bottomnav" class="hide"><div class="navcircle" id="navcircle"></div>${tabs}</div>`;
 }
 function mountShell(){
@@ -308,7 +334,9 @@ function updateNav(){
   circleEl.style.left=((2*idx+1)/6*100)+'%';
   circleEl.innerHTML=ICO[TABS[idx].ico]('#5a0f12');
   navEl.querySelectorAll('.navtab').forEach((el,i)=>el.classList.toggle('on',i===idx));
+  updateCartBadge();
 }
+function updateCartBadge(){ const b=document.getElementById('navbadge'); if(!b)return; const n=S.cart.reduce((s,c)=>s+c.qty,0); b.textContent=n>99?'99+':n; b.classList.toggle('show',n>0); }
 window.switchTab=function(i){ go(TABS[i].screen); }
 function go(s){ S.screen=s; render(); const sc=screenEl.querySelector('.scroll'); if(sc)sc.scrollTop=0; }
 
@@ -436,7 +464,7 @@ function scrPkgConfirm(){
     <div class="conf"><div class="mainrow"><span class="nm">${p.cn}</span><span class="pr">${money(p.price)} ${C}</span></div>
       ${lines}<div class="line"><span>调料</span><span class="v">套餐已含</span></div></div>
     <div class="total"><div class="tl">合计</div><div class="tv">${money(p.price)}<small>${C} · 含调料</small></div></div>
-    <div class="footer"><button class="cta" onclick="alert('Demo: 确认下单 — 后续接入下单/支付')">确认下单</button></div>
+    <div class="footer"><button class="cta" onclick="addPkgToCart()">加入购物车 →</button></div>
   </div>`;
 }
 
@@ -623,7 +651,7 @@ function confirmShell(title,detailHtml){
       <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
     <div class="conf">${detailHtml}</div>
     <div class="total"><div class="tl">合计</div><div class="tv">${money(orderTotal())}<small>${C} · 含调料费</small></div></div>
-    <div class="footer"><button class="cta" onclick="alert('Demo: 确认下单 — 后续接入下单/支付')">确认下单</button></div></div>`;
+    <div class="footer"><button class="cta" onclick="addOrderToCart()">加入购物车 →</button></div></div>`;
 }
 function addonConfLines(){
   return addonLineItems().map(l=>`<div class="line"><span>${l.it.cn}${l.por==='half'?'（半份）':''} ×${l.qty}</span>
@@ -657,7 +685,7 @@ function scrConfirm(){
       <div class="line"><span>调料费 (${S.pax} 位 × ${money(cp)})</span><span class="v">${money(cond)} ${C}</span></div>
       ${lines?`<div class="ch" style="margin-top:14px">加购配菜</div>${lines}`:''}</div>
     <div class="total"><div class="tl">合计</div><div class="tv">${money(orderTotal())}<small>${C} · 含调料费</small></div></div>
-    <div class="footer"><button class="cta" onclick="alert('Demo: 确认下单 — 后续接入下单/支付')">确认下单</button></div></div>`;
+    <div class="footer"><button class="cta" onclick="addOrderToCart()">加入购物车 →</button></div></div>`;
 }
 function scrHotpotConfirm(){
   const pot=POTS.find(p=>p.id===S.hp.potType), cp=M.condiment.price, cond=S.pax*cp;
@@ -716,6 +744,74 @@ function lookupMember(phone){
   return { name:'会员 ·'+phone.slice(-4), points: 80+(h%1920), balance: (h%46)*10 };
 }
 
+// ---- 购物车 Cart (shown on 订单 tab) ----
+function pushCart(item){
+  if(item.key){ const ex=S.cart.find(c=>c.key===item.key); if(ex){ ex.qty+=item.qty; return; } }
+  item.cid=++_cid; S.cart.push(item);
+}
+function resetOrder(){ S.flow=null; S.order={fish:null,numb:1,spicy:1,cook:1,broth:0,dish:'鱼火锅',mode:'fhp'}; S.addons={}; S.por={}; S.hp={potType:null,broths:[]}; }
+window.addOrderToCart=function(){
+  if(S.flow==='fish' && S.order.fish!==null){
+    const f=FISH[S.order.fish], direct=S.order.mode==='direct';
+    const b=S.order.broth!=null?brothList()[S.order.broth]:null;
+    const unit=f.price + (direct?(b?DIRECT_UPGRADE:0):M.potFee);
+    const brothTxt = direct ? (b?`升级·${b.cn}`:'纯享鱼·不升级') : `内圈·${b.cn}`;
+    const sub=`${NUMB[S.order.numb].k}·${SPICY[S.order.spicy].k} · ${COOK[S.order.cook].k} · ${brothTxt}`;
+    pushCart({type:'fish',title:`${S.order.dish} · ${f.cn}`,sub,img:f.img,qty:1,unit,needsCondiment:true});
+  } else if(S.flow==='hotpot' && S.hp.potType){
+    const pot=POTS.find(p=>p.id===S.hp.potType);
+    const broths=S.hp.broths.map(id=>(BROTHS.find(b=>b.id===id)||{}).cn).join('、');
+    pushCart({type:'hotpot',title:`单点火锅 · ${pot?pot.cn:''}`,sub:`锅底·${broths}`,img:'assets/menu/0112.jpg',qty:1,unit:M.potFee,needsCondiment:true});
+  }
+  addonLineItems().forEach(l=>pushCart({type:'addon',key:`addon|${l.it.id}|${l.por}`,
+    title:l.it.cn+(l.por==='half'?'（半份）':''),sub:'加购配菜',img:l.it.img,qty:l.qty,unit:l.unit,needsCondiment:false}));
+  resetOrder(); toast('已加入购物车 ✓'); go('orders');
+}
+window.addPkgToCart=function(){
+  const p=pkgById(S.pkgId);
+  const sub = p.fixed ? '套餐 · 含饮品'
+    : p.groups.map((g,i)=>{const sel=S.pkgSel[i]; return g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('+'):(sel||'—');}).join(' · ');
+  pushCart({type:'package',title:p.cn,sub,img:p.img,qty:1,unit:p.price,needsCondiment:false});
+  S.pkgId=null; S.pkgSel={}; S.pkgStep=0; toast('已加入购物车 ✓'); go('orders');
+}
+window.cartQty=function(cid,d){ const c=S.cart.find(x=>x.cid===cid); if(!c)return; c.qty+=d; if(c.qty<=0)S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
+window.cartRemove=function(cid){ S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
+window.placeOrder=function(){ if(!S.cart.length)return; S.cart=[]; toast('已下单 ✓ 服务员将为您备餐（Demo）'); go('orders'); }
+function cartItemsTotal(){ return S.cart.reduce((s,c)=>s+(c.unit||0)*c.qty,0); }
+function cartCondiment(){ return S.cart.some(c=>c.needsCondiment)? S.pax*M.condiment.price : 0; }
+function cartRow(c){
+  const price=c.unit==null?'时价':money(c.unit*c.qty)+' '+C;
+  return `<div class="crow">
+    ${c.img?`<img class="cthumb" src="${c.img}" alt="">`:`<div class="cthumb ph">${PLACE_ICON}</div>`}
+    <div class="cmid"><div class="ctitle">${c.title}</div>${c.sub?`<div class="csub">${c.sub}</div>`:''}
+      <div class="cprice">${price}</div></div>
+    <div class="cright"><button class="crm" onclick="cartRemove(${c.cid})" aria-label="remove">×</button>
+      <div class="cqty"><button onclick="cartQty(${c.cid},-1)">−</button><span>${c.qty}</span><button onclick="cartQty(${c.cid},1)">+</button></div></div>
+  </div>`;
+}
+function scrOrders(){
+  if(!S.cart.length){
+    return `<div class="screen scroll">${topbar()}<div class="placeholder"><div class="pe">${ICO.orders('#cda968')}</div>
+      <div style="font-size:18px;color:var(--gold2)">购物车是空的</div><div>先去菜单挑选喜欢的菜品</div>
+      <button class="cta" style="width:auto;padding:12px 28px;margin-top:6px" onclick="go('hub')">去点单 →</button></div></div>`;
+  }
+  const cp=M.condiment.price, items=cartItemsTotal(), cond=cartCondiment(), total=items+cond;
+  const hasTBD=S.cart.some(c=>c.unit==null);
+  return `<div class="screen scroll">${topbar()}
+    <div class="seclbl2" style="padding:10px 18px 0">购物车 <small>CART · 桌号 ${M.table}</small></div>
+    <div class="cartlist">${S.cart.map(cartRow).join('')}</div>
+    <div class="cartsum">
+      <div class="srow"><span>小计 Subtotal</span><span>${money(items)} ${C}</span></div>
+      ${cond>0?`<div class="srow"><span>调料费 (${S.pax}位 × ${money(cp)})</span><span>${money(cond)} ${C}</span></div>`:''}
+      ${hasTBD?`<div class="srow tbd"><span>含时价项目</span><span>结账时确认</span></div>`:''}
+      <div class="srow tot"><span>合计 Total</span><span>${money(total)} ${C}</span></div></div>
+    <div class="footer"><button class="cta" onclick="placeOrder()">确认下单 · ${money(total)} ${C}</button></div></div>`;
+}
+function toast(msg){
+  let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1700);
+}
+
 function flowScreen(title,sub,content,enabled,ctaLabel,ctaAct){
   return `<div class="screen scroll">
     <div class="backrow"><button class="back" onclick="flowBack()">← 返回</button>
@@ -729,7 +825,7 @@ window.flowBack=function(){ const i=FLOW.indexOf(S.screen); if(i<=0)go('hub'); e
 let _prevScreen=null;
 function render(){
   const m={pax:scrPax,hub:scrHub,fish:scrFish,spice:scrSpice,cook:scrCook,broth:scrBroth,
-    addons:scrAddons,confirm:scrConfirm,hotpot:scrHotpot,pkgstep:scrPkgStep,pkgconfirm:scrPkgConfirm,orders:()=>scrTab('orders'),me:scrMe};
+    addons:scrAddons,confirm:scrConfirm,hotpot:scrHotpot,pkgstep:scrPkgStep,pkgconfirm:scrPkgConfirm,orders:scrOrders,me:scrMe};
   const old=screenEl.querySelector('.scroll'); const keep=old?old.scrollTop:0;
   screenEl.innerHTML=(m[S.screen]||scrHub)();
   updateNav();

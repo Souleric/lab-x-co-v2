@@ -261,6 +261,18 @@
   .cartsum .srow.tot span:last-child{color:var(--gold2);font-size:20px;font-weight:700}
   .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(10px);background:rgba(20,4,6,.92);border:1px solid var(--line2);color:var(--gold2);padding:11px 22px;border-radius:30px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .histlist{padding:6px 18px 0;display:flex;flex-direction:column;gap:10px}
+  .ocard{background:linear-gradient(180deg,rgba(74,10,17,.55),rgba(40,6,9,.4));border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .ohead{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .ono{font-family:var(--cor);font-size:17px;font-weight:700;color:var(--gold2)}
+  .ostatus{font-size:11px;color:#7be0a6;border:1px solid rgba(123,224,166,.35);background:rgba(123,224,166,.1);border-radius:20px;padding:2px 9px}
+  .otime{margin-left:auto;font-size:12px;color:var(--muted2);font-family:var(--cor)}
+  .oline{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);padding:5px 0;border-bottom:1px solid rgba(233,196,119,.1)}
+  .oline span:last-child{color:var(--cream);font-family:var(--cor);white-space:nowrap}
+  .oline.sub{color:var(--muted2)}
+  .ofoot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .ofoot .ol{font-size:13px;color:var(--muted)}
+  .otot{font-family:var(--cor);font-size:18px;font-weight:700;color:var(--gold2)}
 </style>
 </head>
 <body>
@@ -304,6 +316,7 @@ const S = {
   hp:{potType:null,broths:[]},        // 单点火锅 DIY hotpot
   member:null,                        // 会员查询 (read-only, from POS)
   cart:[],                            // 购物车 line items -> shown on 订单 tab
+  orders:[],                          // 历史订单 placed this session (newest first)
 };
 let _cid=0;
 
@@ -776,7 +789,21 @@ window.addPkgToCart=function(){
 }
 window.cartQty=function(cid,d){ const c=S.cart.find(x=>x.cid===cid); if(!c)return; c.qty+=d; if(c.qty<=0)S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
 window.cartRemove=function(cid){ S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
-window.placeOrder=function(){ if(!S.cart.length)return; S.cart=[]; toast('已下单 ✓ 服务员将为您备餐（Demo）'); go('orders'); }
+window.placeOrder=function(){
+  if(!S.cart.length)return;
+  const cond=cartCondiment(), total=cartItemsTotal()+cond;
+  const d=new Date(), p2=n=>String(n).padStart(2,'0');
+  const no='#'+String(S.orders.length+1).padStart(3,'0');
+  S.orders.unshift({ no, time:p2(d.getHours())+':'+p2(d.getMinutes()), status:'备餐中 Preparing',
+    items:S.cart.map(c=>({title:c.title,qty:c.qty,unit:c.unit})), condiment:cond, total });
+  S.cart=[]; toast('已下单 ✓ '+no); go('orders');
+}
+function orderCard(o){
+  const lines=o.items.map(it=>`<div class="oline"><span>${it.title}${it.qty>1?` ×${it.qty}`:''}</span><span>${it.unit==null?'时价':money(it.unit*it.qty)+' '+C}</span></div>`).join('')
+    + (o.condiment>0?`<div class="oline sub"><span>调料费</span><span>${money(o.condiment)} ${C}</span></div>`:'');
+  return `<div class="ocard"><div class="ohead"><span class="ono">${o.no}</span><span class="ostatus">${o.status}</span><span class="otime">${o.time}</span></div>
+    ${lines}<div class="ofoot"><span class="ol">合计 Total</span><span class="otot">${money(o.total)} ${C}</span></div></div>`;
+}
 function cartItemsTotal(){ return S.cart.reduce((s,c)=>s+(c.unit||0)*c.qty,0); }
 function cartCondiment(){ return S.cart.some(c=>c.needsCondiment)? S.pax*M.condiment.price : 0; }
 function cartRow(c){
@@ -790,22 +817,27 @@ function cartRow(c){
   </div>`;
 }
 function scrOrders(){
-  if(!S.cart.length){
+  const hasCart=S.cart.length>0, hasHist=S.orders.length>0;
+  if(!hasCart && !hasHist){
     return `<div class="screen scroll">${topbar()}<div class="placeholder"><div class="pe">${ICO.orders('#cda968')}</div>
-      <div style="font-size:18px;color:var(--gold2)">购物车是空的</div><div>先去菜单挑选喜欢的菜品</div>
+      <div style="font-size:18px;color:var(--gold2)">还没有订单</div><div>先去菜单挑选喜欢的菜品</div>
       <button class="cta" style="width:auto;padding:12px 28px;margin-top:6px" onclick="go('hub')">去点单 →</button></div></div>`;
   }
   const cp=M.condiment.price, items=cartItemsTotal(), cond=cartCondiment(), total=items+cond;
   const hasTBD=S.cart.some(c=>c.unit==null);
-  return `<div class="screen scroll">${topbar()}
-    <div class="seclbl2" style="padding:10px 18px 0">购物车 <small>CART · 桌号 ${M.table}</small></div>
+  const cartSection = hasCart ? `
+    <div class="seclbl2" style="padding:10px 18px 0">本次点单 <small>CART · 桌号 ${M.table}</small></div>
     <div class="cartlist">${S.cart.map(cartRow).join('')}</div>
     <div class="cartsum">
       <div class="srow"><span>小计 Subtotal</span><span>${money(items)} ${C}</span></div>
       ${cond>0?`<div class="srow"><span>调料费 (${S.pax}位 × ${money(cp)})</span><span>${money(cond)} ${C}</span></div>`:''}
       ${hasTBD?`<div class="srow tbd"><span>含时价项目</span><span>结账时确认</span></div>`:''}
-      <div class="srow tot"><span>合计 Total</span><span>${money(total)} ${C}</span></div></div>
-    <div class="footer"><button class="cta" onclick="placeOrder()">确认下单 · ${money(total)} ${C}</button></div></div>`;
+      <div class="srow tot"><span>合计 Total</span><span>${money(total)} ${C}</span></div></div>` : '';
+  const histSection = hasHist ? `
+    <div class="seclbl2" style="padding:${hasCart?'20':'10'}px 18px 0">历史订单 <small>ORDER HISTORY · ${S.orders.length}</small></div>
+    <div class="histlist">${S.orders.map(orderCard).join('')}</div><div style="height:14px"></div>` : '';
+  return `<div class="screen scroll">${topbar()}${cartSection}${histSection}
+    ${hasCart?`<div class="footer"><button class="cta" onclick="placeOrder()">确认下单 · ${money(total)} ${C}</button></div>`:''}</div>`;
 }
 function toast(msg){
   let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }

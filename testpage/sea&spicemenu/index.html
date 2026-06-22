@@ -218,7 +218,13 @@
   .total .tv{font-family:var(--cor);font-size:32px;font-weight:700;color:var(--gold2)}
   .total .tv small{font-size:12px;color:var(--gold-d);font-family:var(--ser);display:block;text-align:right}
   #screen{flex:1;min-height:0;display:flex;flex-direction:column}
-  #bottomnav{position:relative;display:flex;background:linear-gradient(0deg,#3c080e 0%,#3c080e 52%,rgba(60,8,14,0) 100%);padding:26px 0 calc(10px + env(safe-area-inset-bottom))}
+  #bottomnav{position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;padding:24px 0 calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(74,12,20,.30),rgba(44,7,12,.55));
+    backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);
+    border-top:1px solid rgba(247,218,136,.18);
+    box-shadow:0 -10px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.12)}
+  #app.navon .scroll{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+  .cartcta{padding:14px 18px 4px}
   #bottomnav.hide{display:none}
   .navtab{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted2);font-size:11.5px;cursor:pointer;z-index:1;position:relative}
   .navbadge{position:absolute;top:-4px;left:calc(50% + 7px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:linear-gradient(180deg,#f9e09a,#e0b24e);color:#5a0f12;font-size:10.5px;font-weight:700;font-family:var(--cor);display:none;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.4);z-index:3}
@@ -342,6 +348,7 @@ function mountShell(){
 function updateNav(){
   const show=NAV_SCREENS.includes(S.screen);
   navEl.classList.toggle('hide',!show);
+  app.classList.toggle('navon',show);
   if(!show) return;
   const idx=Math.max(0,TABS.findIndex(t=>t.screen===S.screen));
   circleEl.style.left=((2*idx+1)/6*100)+'%';
@@ -832,12 +839,12 @@ function scrOrders(){
       <div class="srow"><span>小计 Subtotal</span><span>${money(items)} ${C}</span></div>
       ${cond>0?`<div class="srow"><span>调料费 (${S.pax}位 × ${money(cp)})</span><span>${money(cond)} ${C}</span></div>`:''}
       ${hasTBD?`<div class="srow tbd"><span>含时价项目</span><span>结账时确认</span></div>`:''}
-      <div class="srow tot"><span>合计 Total</span><span>${money(total)} ${C}</span></div></div>` : '';
+      <div class="srow tot"><span>合计 Total</span><span>${money(total)} ${C}</span></div></div>
+    <div class="cartcta"><button class="cta" onclick="placeOrder()">确认下单 · ${money(total)} ${C}</button></div>` : '';
   const histSection = hasHist ? `
     <div class="seclbl2" style="padding:${hasCart?'20':'10'}px 18px 0">历史订单 <small>ORDER HISTORY · ${S.orders.length}</small></div>
-    <div class="histlist">${S.orders.map(orderCard).join('')}</div><div style="height:14px"></div>` : '';
-  return `<div class="screen scroll">${topbar()}${cartSection}${histSection}
-    ${hasCart?`<div class="footer"><button class="cta" onclick="placeOrder()">确认下单 · ${money(total)} ${C}</button></div>`:''}</div>`;
+    <div class="histlist">${S.orders.map(orderCard).join('')}</div>` : '';
+  return `<div class="screen scroll">${topbar()}${cartSection}${histSection}</div>`;
 }
 function toast(msg){
   let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }

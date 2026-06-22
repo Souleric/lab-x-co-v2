@@ -1,769 +1,744 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>香海鲜鱼庄 · Sea & Spice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="menu-data.js?v=12"></script>
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; height: 100%; background: #480a11; }
-  ::-webkit-scrollbar { width: 0; height: 0; }
-  @keyframes seaspice-rise { from{transform:translateY(100%)} to{transform:translateY(0)} }
-  @keyframes seaspice-fade { from{opacity:0} to{opacity:1} }
-  @keyframes seaspice-slidein { from{transform:translateX(100%)} to{transform:translateX(0)} }
+  :root{
+    --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
+    --line:rgba(233,196,119,.22); --line2:rgba(233,196,119,.4);
+    --cream:#f6ead0; --gold:#e9c477; --gold2:#f7da88; --gold-d:#cda968; --bronze:#9a6a3a;
+    --muted:#d8c39a; --muted2:#bb9a68; --red-a:#a8312a;
+    --ser:'Noto Serif SC',serif; --cor:'Cormorant Garamond',serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:none}
+  body{background:radial-gradient(120% 80% at 50% 0%, #5a0f12 0%, #480a11 55%, #3a070d 100%);
+    color:var(--cream);font-family:var(--ser);-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:0;height:0}
+  #app{max-width:480px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .screen{animation:rise .28s ease both}
+  .topbar{display:flex;align-items:center;gap:10px;padding:16px 18px 10px}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .brand .cn{font-family:var(--cor);font-weight:700;font-size:21px;color:var(--gold2);letter-spacing:2px}
+  .brand .en{font-family:var(--ser);font-size:10px;letter-spacing:5px;color:var(--gold-d);margin-top:2px}
+  .spacer{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line2);color:var(--gold);
+    border-radius:30px;padding:6px 12px;font-size:12px;background:rgba(0,0,0,.18)}
+  .chip.lang{cursor:pointer}
+  .divider{display:flex;align-items:center;gap:14px;color:var(--gold-d);font-size:13px;letter-spacing:3px;margin:18px 18px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
+  .cta{display:block;width:100%;border:none;cursor:pointer;border-radius:16px;padding:17px;font-family:var(--ser);
+    font-weight:700;font-size:16px;color:#3a070d;background:linear-gradient(180deg,#f7da88,#e9bb5e 60%,#c8923c);
+    box-shadow:0 8px 26px rgba(201,127,31,.35),inset 0 1px 0 rgba(255,255,255,.4)}
+  .cta:active{transform:translateY(1px)}
+  .cta.disabled{filter:grayscale(.6) brightness(.6);box-shadow:none;cursor:not-allowed}
+  .skiplink{display:block;width:100%;margin-top:10px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:14px;padding:13px;font-family:var(--ser);font-size:14px;cursor:pointer}
+  .skiplink:active{background:rgba(0,0,0,.2)}
+  .backrow{display:flex;align-items:center;gap:12px;padding:14px 18px 6px}
+  .back{background:rgba(0,0,0,.2);border:1px solid var(--line);color:var(--cream);border-radius:11px;padding:8px 14px;font-size:14px;cursor:pointer;font-family:var(--ser)}
+  .htitle{font-size:20px;font-weight:700;color:var(--gold2)}
+  .hsub{font-size:12px;color:var(--muted2);margin-top:2px}
+  .footer{position:sticky;bottom:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#480a11 70%,transparent)}
+  .pax-wrap{flex:1;display:flex;flex-direction:column;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  .welcome{position:relative;padding:54px 20px 2px;text-align:center}
+  .welcome .langbtn{position:absolute;top:24px;right:20px;border:1px solid var(--line2);color:var(--gold);background:rgba(0,0,0,.2);border-radius:11px;padding:7px 13px;font-size:13px;font-family:var(--ser);cursor:pointer}
+  .welcome .wlogo{width:172px;height:172px;border-radius:34px;box-shadow:0 12px 30px rgba(0,0,0,.55);border:1px solid rgba(247,218,136,.25)}
+  .wtitle{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:18px}
+  .wtitle .txt{font-size:22px;color:var(--gold2);letter-spacing:7px;font-weight:600;text-indent:7px;font-family:var(--ser)}
+  .wtitle .orn{height:17px;opacity:.92}
+  .wtitle .orn.flip{transform:scaleX(-1)}
+  .pax-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 22px}
+  .pax-cta{margin-top:20px}
+  .pax-card{width:100%;background:linear-gradient(180deg,rgba(122,20,28,.5),rgba(74,10,17,.28));border:1px solid var(--line2);border-radius:24px;padding:28px 22px 26px;display:flex;flex-direction:column;align-items:center;box-shadow:0 14px 34px rgba(0,0,0,.4),inset 0 1px 0 rgba(247,218,136,.12)}
+  .pax-q{font-size:25px;font-weight:700;color:var(--gold2);font-family:var(--ser)}
+  .pax-note{font-size:13px;color:var(--muted2);margin-top:5px;margin-bottom:22px}
+  .stepper{display:flex;align-items:center;gap:18px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:60px;padding:8px 12px}
+  .stepbtn{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:rgba(0,0,0,.25);color:var(--gold);font-size:26px;cursor:pointer;font-family:var(--cor)}
+  .stepbtn:active{background:rgba(233,196,119,.18)}
+  .pax-numwrap{display:flex;flex-direction:column;align-items:center;min-width:72px}
+  .pax-num{font-family:var(--cor);font-size:54px;font-weight:700;color:var(--gold2);line-height:1}
+  .pax-unit{font-size:13px;color:var(--muted2);margin-top:2px}
+  .presets{display:flex;gap:9px;margin-top:22px}
+  .preset{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.2);color:var(--cream);font-family:var(--cor);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .preset.on{background:linear-gradient(180deg,#f7da88,#c8923c);color:#3a070d;border-color:transparent;font-weight:700;box-shadow:0 4px 12px rgba(201,127,31,.4)}
+  .pax-subline{margin-top:24px;font-size:13px;color:var(--muted)}
+  .pax-subline b{font-family:var(--cor);font-size:23px;color:var(--gold2);font-weight:700;vertical-align:middle;margin:0 2px}
+  .pax-subline .calc{color:var(--muted2);font-size:12px}
+  .hero{margin:6px 18px 0;border-radius:22px;padding:22px;position:relative;overflow:hidden;min-height:212px;
+    display:flex;flex-direction:column;align-items:flex-start;
+    border:1px solid rgba(247,218,136,.5);box-shadow:0 14px 36px rgba(0,0,0,.5),inset 0 0 0 1px rgba(247,218,136,.12)}
+  .hero .herobg{position:absolute;inset:0;background-size:cover;background-position:center 38%;z-index:0;transform:scale(1.02)}
+  .hero .heroveil{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(100deg,rgba(36,5,8,.95) 0%,rgba(58,7,12,.8) 38%,rgba(60,8,12,.34) 66%,rgba(20,4,6,.25) 100%),
+      linear-gradient(0deg,rgba(18,3,5,.8),rgba(18,3,5,0) 52%)}
+  .hero>*{position:relative;z-index:2}
+  .hero .badges{display:flex;gap:8px;margin-bottom:10px}
+  .hero .bdg{background:linear-gradient(180deg,#f7da88,#d8a13e);color:#5a0f12;font-size:11px;font-weight:700;border-radius:7px;padding:4px 11px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+  .hero h1{margin:2px 0 4px;font-size:38px;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .hero .tag{color:var(--gold2);font-weight:700;font-size:17px;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+  .hero .sub{color:rgba(246,234,208,.82);font-size:12.5px;margin-top:4px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+  .hero .pill{margin-top:26px;display:inline-flex;align-items:center;gap:8px;background:linear-gradient(180deg,#f9e3a0,#e9bb5e 55%,#c8923c);color:#5a0f12;font-weight:700;border-radius:30px;padding:13px 26px;font-size:15px;cursor:pointer;border:none;font-family:var(--ser);box-shadow:0 8px 20px rgba(201,127,31,.45),inset 0 1px 0 rgba(255,255,255,.5)}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 18px 8px}
+  .card{background:linear-gradient(180deg,rgba(106,16,24,.9),rgba(74,10,17,.8));border:1px solid var(--line);border-radius:16px;padding:0;cursor:pointer;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .card:active{border-color:var(--line2)}
+  .card .cimg{width:100%;height:116px;object-fit:cover;display:block;background:#2a1012}
+  .card .cimg-wrap{position:relative}
+  .card .cimg-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(74,10,17,0) 55%,rgba(74,10,17,.85))}
+  .card .cbody{padding:12px 15px 15px;display:flex;flex-direction:column;gap:3px;flex:1}
+  .card .cn{font-size:18px;font-weight:700;color:var(--gold2)}
+  .card .en{font-family:var(--cor);font-size:12px;color:var(--muted2);letter-spacing:1px}
+  .card .accent{color:var(--red-a);filter:brightness(1.5);font-size:12px;font-weight:600;margin-top:6px}
+  .card .csub{color:var(--muted2);font-size:11px;margin-top:auto;padding-top:4px}
+  .tipbar{margin:8px 18px 14px;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:13px;padding:13px 15px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .tipbar b{color:var(--gold2)}
+  .memberbar{display:flex;align-items:center;gap:12px;margin:12px 18px 0;padding:12px 16px;border:1px solid var(--line2);border-radius:14px;background:linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.1));cursor:pointer}
+  .memberbar:active{border-color:var(--gold)}
+  .memberbar .mb-ico{width:26px;height:26px;flex:none}
+  .memberbar .mb-ico svg{width:26px;height:26px}
+  .memberbar .mb-txt{flex:1}
+  .memberbar .mb-t{font-size:15px;font-weight:700;color:var(--gold2)}
+  .memberbar .mb-s{font-size:11.5px;color:var(--muted2);margin-top:1px}
+  .memberbar .mb-arrow{color:var(--gold);font-size:18px}
+  .seclbl2{padding:16px 18px 2px;font-size:16px;color:var(--gold2);font-weight:700}
+  .seclbl2 small{color:var(--muted2);font-weight:400;font-family:var(--cor);margin-left:7px;font-size:12px;letter-spacing:.5px}
+  .pkgrow{display:flex;gap:13px;overflow-x:auto;padding:8px 18px 6px;scrollbar-width:none}
+  .pkgrow::-webkit-scrollbar{display:none}
+  .pkgcard{flex:none;width:212px;background:linear-gradient(180deg,rgba(106,16,24,.92),rgba(74,10,17,.82));border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer}
+  .pkgcard:active{border-color:var(--line2)}
+  .pkgcard .pimg{width:100%;height:112px;object-fit:cover;display:block}
+  .pkgcard .pb{padding:11px 13px 13px}
+  .pkgcard .pcn{font-size:16px;font-weight:700;color:var(--gold2)}
+  .pkgcard .pen{font-family:var(--cor);font-size:11px;color:var(--muted2);letter-spacing:.5px}
+  .pkgcard .prow{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
+  .pkgcard .ppr{font-family:var(--cor);font-size:23px;font-weight:700;color:var(--gold2)}
+  .pkgcard .pbadge{font-size:10px;font-weight:700;background:var(--red-a);color:#fff;border-radius:5px;padding:3px 8px}
+  .pkgprog{display:flex;align-items:center;gap:10px;padding:8px 18px 2px}
+  .pkgprog .bar{flex:1;height:5px;border-radius:3px;background:rgba(0,0,0,.32);overflow:hidden}
+  .pkgprog .bar i{display:block;height:100%;background:linear-gradient(90deg,#c8923c,#f7da88);border-radius:3px;transition:width .3s}
+  .pkgprog .txt{font-size:12px;color:var(--muted2);white-space:nowrap}
+  .opt .qtyctl button[disabled]{opacity:.35;cursor:not-allowed}
+  .list{padding:6px 18px}
+  .opt{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,rgba(106,16,24,.8),rgba(74,10,17,.6));border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:13px;cursor:pointer;position:relative}
+  .opt.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 6px 20px rgba(0,0,0,.3)}
+  .opt .thumb{width:54px;height:54px;border-radius:12px;object-fit:cover;background:rgba(0,0,0,.3);flex:none}
+  .opt .emoji{width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:30px;flex:none}
+  .opt .emoji{width:62px}
+  .opt .emoji img{width:62px;height:auto;display:block;filter:drop-shadow(0 1px 5px rgba(0,0,0,.45))}
+  .opt .info{flex:1;min-width:0}
+  .opt .nm{font-size:17px;font-weight:700;color:var(--cream);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .opt .en{font-family:var(--cor);font-size:12.5px;color:var(--muted2)}
+  .opt .ds{font-size:11.5px;color:var(--gold-d);margin-top:3px}
+  .opt .feat{font-size:11.5px;color:#7fc08a;margin-top:2px}
+  .hot{background:var(--red-a);color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px}
+  .pick{background:rgba(247,218,136,.9);color:#5a0f12;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px}
+  .opt .pr{font-family:var(--cor);font-size:24px;font-weight:700;color:var(--gold2);text-align:right;flex:none}
+  .opt .pr small{display:block;font-size:11px;color:var(--gold-d);font-family:var(--ser)}
+  .radio{width:24px;height:24px;border-radius:50%;border:2px solid var(--line2);flex:none}
+  .opt.sel .check{background:linear-gradient(180deg,#f7da88,#c8923c);border:none;display:flex;align-items:center;justify-content:center;color:#5a0f12;font-weight:900}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:6px 18px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 18px}
+  .gcell{background:linear-gradient(180deg,rgba(106,16,24,.8),rgba(74,10,17,.6));border:1px solid var(--line);border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;position:relative}
+  .gcell.sel{border-color:var(--gold);background:linear-gradient(180deg,#a8312a,#7a1414);box-shadow:0 0 0 1px var(--gold)}
+  .gcell .ge{font-size:26px}
+  .gcell .chilis{display:inline-flex;gap:4px;align-items:flex-end;justify-content:center}
+  .gcell .chili{height:36px;width:auto;filter:drop-shadow(0 2px 5px rgba(201,127,31,.45))}
+  .opt .emoji svg{width:34px;height:34px;opacity:.6}
+  .acard .aemoji svg{width:40px;height:40px;opacity:.55}
+  .placeholder .pe svg{width:48px;height:48px;opacity:.6}
+  .member-wrap{padding:8px 18px}
+  .mlook{background:linear-gradient(180deg,rgba(122,20,28,.5),rgba(74,10,17,.28));border:1px solid var(--line2);border-radius:20px;padding:28px 22px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .mlook .t{font-size:21px;font-weight:700;color:var(--gold2);font-family:var(--ser)}
+  .mlook .s{font-size:13px;color:var(--muted2);margin:6px 0 20px}
+  .mlook input{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line2);border-radius:13px;padding:15px 16px;color:var(--cream);font-size:17px;font-family:var(--cor);text-align:center;letter-spacing:3px;margin-bottom:14px;outline:none}
+  .mlook input:focus{border-color:var(--gold)}
+  .mlook .err{color:#ec9;font-size:13px;margin-top:12px}
+  .mcard{background:linear-gradient(135deg,#7a1414,#a8312a 60%,#c0431f);border:1px solid rgba(247,218,136,.45);border-radius:20px;padding:22px;box-shadow:0 12px 30px rgba(0,0,0,.45);margin-bottom:14px}
+  .mcard .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+  .mcard .nm{font-size:19px;font-weight:700;color:#fff}
+  .mcard .ph{font-family:var(--cor);font-size:15px;color:rgba(255,235,200,.85);letter-spacing:1px}
+  .mcard .stats{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .mcard .st{background:rgba(0,0,0,.24);border-radius:14px;padding:15px 12px;text-align:center}
+  .mcard .lab{font-size:12px;color:rgba(255,235,200,.8)}
+  .mcard .val{font-family:var(--cor);font-size:32px;font-weight:700;color:var(--gold2);margin:3px 0;line-height:1}
+  .mcard .vs{font-size:11px;color:rgba(255,235,200,.75)}
+  .mcard .note{margin-top:16px;text-align:center;font-size:12px;color:rgba(255,235,200,.85)}
+  .gcell .brothimg{width:104px;height:auto;display:block;margin:0 auto 6px;filter:drop-shadow(0 5px 12px rgba(0,0,0,.5))}
+  .gcell .gt{font-size:16px;font-weight:700;color:var(--cream);margin-top:6px}
+  .gcell .gsub{font-family:var(--cor);font-size:11px;color:var(--muted2)}
+  .gcell .rec{display:inline-block;margin-top:6px;background:rgba(247,218,136,.9);color:#5a0f12;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px}
+  .seclbl{padding:8px 18px 2px;font-size:14px;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:7px}
+  .ctabs{display:flex;gap:15px;overflow-x:auto;padding:12px 18px 10px;scrollbar-width:none}
+  .ctabs::-webkit-scrollbar{display:none}
+  .ctab{flex:none;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}
+  .ctab .cic{width:58px;height:58px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.18);transition:all .22s}
+  .ctab .cic img{width:32px;height:32px;object-fit:contain}
+  .ctab .clbl{position:relative;font-size:12.5px;color:var(--muted2);white-space:nowrap;transition:color .2s}
+  .ctab.on .cic{background:radial-gradient(circle at 50% 34%,#f9e3a0,#e9bb5e 58%,#c8923c);border-color:#f7da88;box-shadow:0 5px 16px rgba(201,127,31,.5),inset 0 1px 0 rgba(255,255,255,.5)}
+  .ctab.on .cic img{filter:brightness(.2) saturate(1.4)}
+  .ctab.on .clbl{color:var(--gold2);font-weight:700}
+  .ctab.on .clbl::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;width:18px;height:2px;background:var(--gold);border-radius:2px}
+  .addon-head{position:sticky;top:0;z-index:6;background:linear-gradient(180deg,#520d15,#470a11 92%);box-shadow:0 10px 18px rgba(0,0,0,.32)}
+  .acat-h{display:flex;align-items:center;gap:9px;padding:16px 18px 4px;color:var(--gold2);font-weight:700;font-size:17px}
+  .acat-h img{width:24px;height:24px;object-fit:contain}
+  .agrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 18px}
+  .acard{background:linear-gradient(180deg,rgba(106,16,24,.8),rgba(74,10,17,.6));border:1px solid var(--line);border-radius:15px;padding:12px;display:flex;flex-direction:column;gap:4px;position:relative}
+  .acard .ai{width:100%;height:78px;border-radius:10px;object-fit:cover;background:rgba(0,0,0,.3)}
+  .acard .aemoji{width:100%;height:78px;border-radius:10px;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:34px}
+  .acard .an{font-size:14px;font-weight:700;color:var(--cream);margin-top:4px;line-height:1.2}
+  .acard .ae{font-family:var(--cor);font-size:11px;color:var(--muted2)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:4px;align-self:flex-start}
+  .seg button{border:none;background:transparent;color:var(--muted2);font-family:var(--ser);font-size:11px;padding:4px 10px;cursor:pointer}
+  .seg button.on{background:linear-gradient(180deg,#f7da88,#c8923c);color:#5a0f12;font-weight:700}
+  .acard .arow{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+  .acard .ap{font-family:var(--cor);font-size:18px;font-weight:700;color:var(--gold2)}
+  .acard .ap small{font-size:10px;color:var(--gold-d);font-family:var(--ser)}
+  .acard .ap.mk{font-family:var(--ser);font-size:14px;color:var(--muted)}
+  .addbtn{width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88,#c8923c);color:#5a0f12;font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .qtyctl{display:flex;align-items:center;gap:10px}
+  .qtyctl button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line2);background:rgba(0,0,0,.2);color:var(--gold);font-size:17px;cursor:pointer}
+  .qtyctl .qn{font-family:var(--cor);font-size:17px;color:var(--gold2);min-width:16px;text-align:center}
+  .conf{background:linear-gradient(180deg,rgba(106,16,24,.7),rgba(74,10,17,.5));border:1px solid var(--line);border-radius:18px;margin:8px 18px;padding:18px}
+  .conf .ch{font-size:14px;color:var(--gold);font-weight:700;margin-bottom:6px;display:flex;gap:7px;align-items:center}
+  .conf .mainrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .conf .mainrow .nm{font-size:17px;font-weight:700;color:var(--cream)}
+  .conf .mainrow .pr{font-family:var(--cor);font-size:18px;color:var(--gold2);font-weight:700}
+  .conf .line{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(233,196,119,.12);font-size:14px;color:var(--muted)}
+  .conf .line .v{color:var(--cream)}
+  .total{display:flex;justify-content:space-between;align-items:center;margin:8px 18px;background:rgba(0,0,0,.25);border:1px solid var(--line2);border-radius:16px;padding:16px 20px}
+  .total .tl{font-size:17px;font-weight:700;color:var(--cream)}
+  .total .tv{font-family:var(--cor);font-size:32px;font-weight:700;color:var(--gold2)}
+  .total .tv small{font-size:12px;color:var(--gold-d);font-family:var(--ser);display:block;text-align:right}
+  #screen{flex:1;min-height:0;display:flex;flex-direction:column}
+  #bottomnav{position:relative;display:flex;background:linear-gradient(0deg,#3c080e 0%,#3c080e 52%,rgba(60,8,14,0) 100%);padding:26px 0 calc(10px + env(safe-area-inset-bottom))}
+  #bottomnav.hide{display:none}
+  .navtab{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted2);font-size:11.5px;cursor:pointer;z-index:1}
+  .navtab .navico{width:23px;height:23px;display:block;transition:opacity .2s}
+  .navtab .navico svg{width:23px;height:23px;display:block}
+  .navtab.on{color:var(--gold2)}
+  .navtab.on .navico{opacity:0}
+  .navcircle{position:absolute;top:-20px;width:56px;height:56px;border-radius:50%;
+    background:radial-gradient(circle at 50% 32%,#f9e09a,#e9bb5e 56%,#c8923c);
+    box-shadow:0 9px 24px rgba(201,127,31,.5),0 2px 6px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.55);
+    display:flex;align-items:center;justify-content:center;transform:translateX(-50%);
+    transition:left .36s cubic-bezier(.34,1.45,.5,1);z-index:2;pointer-events:none}
+  .navcircle svg{width:26px;height:26px}
+  .placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted2);gap:10px;padding:40px}
+  .placeholder .pe{font-size:40px;opacity:.6}
+  .cartbar{position:sticky;bottom:0;margin:0;display:flex;align-items:center;gap:12px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#480a11 70%,transparent)}
+  .cartbar .ci{flex:1}
+  .cartbar .cl{font-size:12px;color:var(--muted2)}
+  .cartbar .cv{font-family:var(--cor);font-size:24px;font-weight:700;color:var(--gold2)}
 </style>
-</helmet>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const M = window.SEASPICE;
+const C = M.currency;
+const money = n => '$'+(Math.round(n*100)/100).toFixed(2);
+const halfP = p => Math.ceil(p*60)/100;           // 半份 = 60% of full, round up to cent
+const addonById = id => M.addons.find(a=>a.id===id);
 
-<div style="position:relative;width:100vw;max-width:480px;height:100dvh;margin:0 auto;overflow:hidden;font-family:'Noto Serif SC',serif;background:radial-gradient(125% 80% at 50% 2%, #a8312a 0%, #8a1c20 30%, #6a1018 55%, #480a11 100%);color:#f6ead0;">
+const FISH = M.fish, BROTHS = M.broths;
+const DIRECT_UPGRADE = 5;  // 冷锅鱼/酸菜鱼: optional 升级鸳鸯锅 = +$5
+// 鱼火锅(fhp): required inner broth (4 options, $30) · 冷锅鱼/酸菜鱼(direct): optional upgrade (原汤+番茄, +$5)
+function brothList(){ return S.order.mode==='direct' ? BROTHS.filter(b=>b.id==='orig'||b.id==='tom') : BROTHS; }
+const NUMB = [{k:'特麻',lv:3},{k:'中麻',lv:2,rec:1},{k:'微麻',lv:1}];
+const SPICY= [{k:'特辣',lv:3},{k:'中辣',lv:2,rec:1},{k:'微辣',lv:1}];
+const COOK = [
+  {k:'全入辣锅',en:'All In Spicy',d:'全部鱼肉入辣锅，汤底更鲜浓',rec:1},
+  {k:'半入辣锅',en:'Half In Spicy',d:'默认鱼肉全部放辣锅，如需留鱼到原汤请备注',rec:1},
+  {k:'自行涮煮',en:'Self Cook',d:'鱼肉不预先入锅，自行涮烫享用'},
+];
+// real pot icons cropped from the client's design
+const COOK_ICON = [
+  '<img src="assets/icons/cook-full.png" alt="">',
+  '<img src="assets/icons/cook-half.png" alt="">',
+  '<img src="assets/icons/cook-self.png" alt="">',
+];
+// fallback food-bowl icon for items without a photo, + chili icon for spice levels
+const PLACE_ICON=`<svg viewBox="0 0 24 24" fill="none" stroke="#cda968" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h17"/><path d="M5.5 12a6.5 6.5 0 0 0 13 0"/><path d="M8.5 4.6c-.6.8-.6 1.3 0 2.1M12 4.1c-.6.8-.6 1.3 0 2.1M15.5 4.6c-.6.8-.6 1.3 0 2.1"/></svg>`;
+const CHILI=`<img class="chili" src="assets/icons/chili.png" alt="">`;
+const chiliRow=n=>`<span class="chilis">${CHILI.repeat(n)}</span>`;
 
-  <div ref="{{ setScroller }}" style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding-bottom:112px;">
+const S = {
+  pax:2, screen:'pax', tab:'menu', addonTab:M.addonCats[0],
+  order:{fish:null,numb:1,spicy:1,cook:1,broth:0,dish:'鱼火锅',mode:'fhp'},
+  addons:{},   // key `${id}|full|half` -> qty
+  por:{},      // id -> 'full'|'half' (current toggle)
+  pkgId:null, pkgStep:0, pkgSel:{},   // set-package wizard
+  flow:null,                          // 'fish' | 'hotpot' | null(standalone add-ons)
+  hp:{potType:null,broths:[]},        // 单点火锅 DIY hotpot
+  member:null,                        // 会员查询 (read-only, from POS)
+};
 
-    <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
-    <!-- top bar -->
-    <div style="position:relative;height:0;z-index:3;">
-      <div onClick="{{ toggleLang }}" style="position:absolute;top:16px;right:22px;border:1.5px solid #c8923c;border-radius:9px;padding:7px 14px;font-size:14px;color:#f0d49a;display:flex;align-items:center;gap:7px;letter-spacing:1px;cursor:pointer;">
-        {{ langLabel }}
-        <svg width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1l4.5 4.5L10 1" stroke="#f0d49a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </div>
+const app = document.getElementById('app');
 
-    <!-- logo -->
-    <div style="display:flex;flex-direction:column;align-items:center;padding:16px 0 8px;">
-      <img src="assets/logo.png" alt="Sea & Spice Fish Hot Pot" style="{{ logoImgHome }}"/>
-      <div style="{{ welcomeHome }}">
-        <img src="assets/ornament.png" alt="" style="width:90px;height:auto;display:block;"/>
-        <span style="font-size:20px;color:#f1d9a4;letter-spacing:4px;">欢迎光临</span>
-        <img src="assets/ornament.png" alt="" style="width:90px;height:auto;display:block;transform:scaleX(-1);"/>
-      </div>
-    </div>
-
-    <!-- category tabs -->
-    <div style="display:flex;gap:4px;padding:18px 14px 8px;overflow-x:auto;">
-      <sc-for list="{{ cats }}" as="cat" hint-placeholder-count="10">
-        <div onClick="{{ cat.select }}" style="flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
-          <div style="{{ cat.circle }}"><img src="{{ cat.icon }}" alt="" style="width:40px;height:40px;object-fit:contain;"/></div>
-          <span style="{{ cat.label }}">{{ cat.text }}</span>
-        </div>
-      </sc-for>
-    </div>
-
-    <!-- menu cards -->
-    <div style="display:flex;flex-direction:column;gap:18px;padding:14px 16px 4px;">
-      <sc-if value="{{ isPackage }}" hint-placeholder-val="{{ true }}">
-
-      <!-- CARD 1: 双人套餐 -->
-      <div style="background:linear-gradient(180deg,rgba(82,12,22,.66) 0%,rgba(54,8,14,.72) 100%);border:1px solid rgba(214,168,90,.32);border-radius:20px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.32);">
-        <div style="position:relative;height:150px;">
-          <img src="assets/food1.png" alt="双人套餐" style="width:100%;height:100%;object-fit:cover;display:block;"/>
-          <div style="position:absolute;top:0;left:0;background:rgba(48,8,14,.85);color:#f1dfb8;font-size:11px;line-height:1.5;padding:7px 12px;border-bottom-right-radius:14px;">周一至周四全天 + 周五午市</div>
-        </div>
-        <div style="padding:15px 16px 16px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <img src="assets/combo2.png" alt="" style="width:30px;height:30px;object-fit:contain;"/>
-            <span style="font-size:22px;font-weight:700;color:#f6ead0;">双人套餐</span>
-            <span style="margin-left:auto;font-size:12px;color:#5a0f12;background:linear-gradient(180deg,#f7da88,#e9bb5e);border-radius:7px;padding:3px 10px;font-weight:700;">调料 2 位</span>
-          </div>
-          <div style="margin-top:12px;">
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">锅底</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">全辣 / 鸳鸯 / 原汤</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">鱼类</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">鲈鱼 / 盲槽</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">菜品</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">牛肉卷 / 羊肉卷 / 鸭血 / 午餐肉 / 迷你小香肠</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">丸类</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">猪肚 / 鱼豆腐 / 蟹肉棒 / 花枝丸 / 鹌鹑蛋</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">主食</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">红薯粉 / 土豆粉 / 年糕 / 土豆 / 甜玉米 / 米饭2碗</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">蔬菜</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">豆腐 / 白萝卜 / 冬瓜 / 鲍鱼菇 / 金针菇 / 大白菜</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-          </div>
-          <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:24px;color:#f0c462;">$68.80</span>
-            <sc-if value="{{ showAdd1 }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ add1 }}" style="background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-weight:700;font-size:16px;border:none;padding:11px 18px;border-radius:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.28);font-family:'Noto Serif SC',serif;">＋ 加入订单</button>
-            </sc-if>
-            <sc-if value="{{ q1 }}" hint-placeholder-val="{{ 0 }}">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <button onClick="{{ dec1 }}" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:20px;line-height:1;cursor:pointer;">−</button>
-                <span style="font-size:19px;font-weight:700;color:#f6ead0;min-width:18px;text-align:center;">{{ q1 }}</span>
-                <button onClick="{{ add1 }}" style="width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-size:20px;line-height:1;cursor:pointer;">＋</button>
-              </div>
-            </sc-if>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD 2: 超值四人套餐 -->
-      <div style="background:linear-gradient(180deg,rgba(82,12,22,.66) 0%,rgba(54,8,14,.72) 100%);border:1px solid rgba(214,168,90,.32);border-radius:20px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.32);">
-        <div style="position:relative;height:150px;">
-          <img src="assets/food2.png" alt="超值四人套餐" style="width:100%;height:100%;object-fit:cover;display:block;"/>
-          <div style="position:absolute;top:0;left:0;background:rgba(48,8,14,.85);color:#f1dfb8;font-size:11px;line-height:1.5;padding:7px 12px;border-bottom-right-radius:14px;">周一至周四全天 + 周五午市</div>
-        </div>
-        <div style="padding:15px 16px 16px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <img src="assets/combo4.png" alt="" style="width:34px;height:30px;object-fit:contain;"/>
-            <span style="font-size:22px;font-weight:700;color:#f6ead0;">超值四人套餐</span>
-            <span style="margin-left:auto;font-size:12px;color:#5a0f12;background:linear-gradient(180deg,#f7da88,#e9bb5e);border-radius:7px;padding:3px 10px;font-weight:700;">调料 4 位</span>
-          </div>
-          <div style="margin-top:12px;">
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">锅底</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">全辣 / 鸳鸯 / 原汤</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">鱼类</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">鲈鱼 / 盲槽</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">菜品</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">虾滑 / 鱼丸 / 双拼鱼丸虾滑 / 手切鲜羊腿 / 手切和牛三花趾</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">肉类</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">牛肉卷 / 羊肉卷 / 鸭血 / 午餐肉 / 迷你小香肠</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">内脏</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">牛百叶 / 黄喉 / 鸭舌 / 鸭掌 / 火箭鱿鱼</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">丸类</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">猪肚 / 鱼豆腐 / 蟹肉棒 / 花枝丸 / 鹌鹑蛋</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">蔬菜</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">豆腐 / 白萝卜 / 冬瓜 / 鲍鱼菇 / 金针菇 / 大白菜</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">主食</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">红薯粉 / 土豆粉 / 年糕 / 土豆 / 甜玉米 / 米饭2碗</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选一</span></div>
-            <div style="display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(214,168,90,.14);"><span style="font-size:12px;font-weight:700;color:#e9c477;flex-shrink:0;width:42px;">甜品</span><span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.55;">冰粉 / 豆花 / 凉虾</span><span style="font-size:10px;color:#cda968;border:1px solid #9a6a3a;border-radius:4px;padding:1px 6px;height:fit-content;flex-shrink:0;">选四</span></div>
-          </div>
-          <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:24px;color:#f0c462;">$168.00</span>
-            <sc-if value="{{ showAdd2 }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ add2 }}" style="background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-weight:700;font-size:16px;border:none;padding:11px 18px;border-radius:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.28);font-family:'Noto Serif SC',serif;">＋ 加入订单</button>
-            </sc-if>
-            <sc-if value="{{ q2 }}" hint-placeholder-val="{{ 0 }}">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <button onClick="{{ dec2 }}" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:20px;line-height:1;cursor:pointer;">−</button>
-                <span style="font-size:19px;font-weight:700;color:#f6ead0;min-width:18px;text-align:center;">{{ q2 }}</span>
-                <button onClick="{{ add2 }}" style="width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-size:20px;line-height:1;cursor:pointer;">＋</button>
-              </div>
-            </sc-if>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD 3: 冷锅鱼单人套餐 -->
-      <div style="background:linear-gradient(180deg,rgba(82,12,22,.66) 0%,rgba(54,8,14,.72) 100%);border:1px solid rgba(214,168,90,.32);border-radius:20px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.32);">
-        <div style="height:150px;"><img src="assets/food3.png" alt="冷锅鱼单人套餐" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
-        <div style="padding:15px 16px 16px;">
-          <span style="font-size:22px;font-weight:700;color:#f6ead0;">冷锅鱼单人套餐</span>
-          <div style="margin-top:13px;display:flex;gap:10px;">
-            <span style="font-size:11px;color:#5a0f12;background:linear-gradient(180deg,#f7da88,#e9bb5e);font-weight:700;border-radius:6px;padding:2px 9px;height:fit-content;flex-shrink:0;">包含</span>
-            <span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.6;">鲜活银鲈鱼片120g / 午餐肉 / 鸭血 / 魔芋 / 厚百叶 / 土豆 / 红薯粉 / 米饭</span>
-          </div>
-          <div style="margin-top:11px;display:flex;gap:10px;">
-            <span style="font-size:11px;color:#f0c462;border:1px solid #c8923c;font-weight:700;border-radius:6px;padding:2px 9px;height:fit-content;flex-shrink:0;">赠送</span>
-            <span style="flex:1;font-size:12.5px;color:#d8c39a;line-height:1.6;">暴打柠檬薄荷（饮品一杯）</span>
-          </div>
-          <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:24px;color:#f0c462;">$28.80</span>
-            <sc-if value="{{ showAdd3 }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ add3 }}" style="background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-weight:700;font-size:16px;border:none;padding:11px 18px;border-radius:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.28);font-family:'Noto Serif SC',serif;">＋ 加入订单</button>
-            </sc-if>
-            <sc-if value="{{ q3 }}" hint-placeholder-val="{{ 0 }}">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <button onClick="{{ dec3 }}" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:20px;line-height:1;cursor:pointer;">−</button>
-                <span style="font-size:19px;font-weight:700;color:#f6ead0;min-width:18px;text-align:center;">{{ q3 }}</span>
-                <button onClick="{{ add3 }}" style="width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-size:20px;line-height:1;cursor:pointer;">＋</button>
-              </div>
-            </sc-if>
-          </div>
-        </div>
-      </div>
-      </sc-if>
-
-      <sc-if value="{{ showItems }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <sc-for list="{{ activeItems }}" as="it" hint-placeholder-count="2">
-            <div style="background:linear-gradient(180deg,rgba(82,12,22,.66),rgba(54,8,14,.74));border:1px solid rgba(214,168,90,.3);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(0,0,0,.28);">
-              <img src="{{ it.img }}" alt="" style="width:100%;height:128px;object-fit:cover;display:block;"/>
-              <div style="padding:11px 12px 13px;display:flex;flex-direction:column;gap:8px;flex:1;">
-                <div style="font-size:15px;font-weight:700;color:#f6ead0;line-height:1.25;">{{ it.name }}</div>
-                <sc-if value="{{ it.hasDesc }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:11.5px;color:#cda968;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ it.desc }}</div>
-                </sc-if>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                  <sc-for list="{{ it.tags }}" as="tag" hint-placeholder-count="2">
-                    <span style="font-size:9.5px;font-weight:700;letter-spacing:.5px;color:#f0c462;border:1px solid #c8923c;border-radius:5px;padding:2px 7px;">{{ tag }}</span>
-                  </sc-for>
-                </div>
-                <div style="margin-top:auto;padding-top:4px;display:flex;align-items:center;justify-content:space-between;gap:6px;">
-                  <span style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#f0c462;">${{ it.priceStr }}</span>
-                  <sc-if value="{{ it.showAdd }}" hint-placeholder-val="{{ true }}">
-                    <button onClick="{{ it.add }}" style="width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-size:21px;line-height:1;cursor:pointer;">＋</button>
-                  </sc-if>
-                  <sc-if value="{{ it.qty }}" hint-placeholder-val="{{ 0 }}">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <button onClick="{{ it.dec }}" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:17px;line-height:1;cursor:pointer;">−</button>
-                      <span style="font-size:15px;font-weight:700;color:#f6ead0;min-width:14px;text-align:center;">{{ it.qty }}</span>
-                      <button onClick="{{ it.add }}" style="width:28px;height:28px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-size:17px;line-height:1;cursor:pointer;">＋</button>
-                    </div>
-                  </sc-if>
-                </div>
-              </div>
-            </div>
-          </sc-for>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ activeEmpty }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex;flex-direction:column;align-items:center;padding:60px 20px;color:#b89a6e;gap:14px;">
-          <svg width="48" height="48" viewBox="0 0 30 30" fill="none" stroke="#9a6a3a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13h20M6 13c0 6 3 10 9 10s9-4 9-10"/><path d="M3 13h2M25 13h2"/><path d="M11 9c0-2 1-3 0-5M15 8c0-2 1-3 0-5M19 9c0-2 1-3 0-5"/></svg>
-          <span style="font-size:15px;">{{ emptyText }}</span>
-        </div>
-      </sc-if>
-    </div>
-
-    <sc-if value="{{ showCart }}" hint-placeholder-val="{{ false }}"><div style="height:88px;"></div></sc-if>
-    </sc-if>
-
-    <!-- ============ HOME PAGE ============ -->
-    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
-    <div style="position:relative;height:0;z-index:3;">
-      <div onClick="{{ toggleLang }}" style="position:absolute;top:16px;right:22px;border:1.5px solid #c8923c;border-radius:9px;padding:7px 14px;font-size:14px;color:#f0d49a;display:flex;align-items:center;gap:7px;letter-spacing:1px;cursor:pointer;">{{ langLabel }}<svg width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1l4.5 4.5L10 1" stroke="#f0d49a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:center;padding:16px 0 4px;">
-      <img src="assets/logo.png" alt="Sea & Spice Fish Hot Pot" style="{{ logoImgHome }}"/>
-      <div style="{{ welcomeHome }}">
-        <img src="assets/ornament.png" alt="" style="width:90px;height:auto;display:block;"/>
-        <span style="font-size:20px;color:#f1d9a4;letter-spacing:4px;">欢迎光临</span>
-        <img src="assets/ornament.png" alt="" style="width:90px;height:auto;display:block;transform:scaleX(-1);"/>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px 0;">
-      <span style="font-size:20px;font-weight:700;color:#f6ead0;">热门优惠</span>
-      <span style="font-size:13px;color:#d9b877;">查看全部 ›</span>
-    </div>
-    <div onClick="{{ goMenu }}" style="margin:12px 16px 0;position:relative;border-radius:20px;overflow:hidden;height:168px;cursor:pointer;border:1px solid rgba(214,168,90,.3);box-shadow:0 8px 22px rgba(0,0,0,.32);">
-      <img src="assets/food1.png" style="width:100%;height:100%;object-fit:cover;display:block;"/>
-      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(40,7,12,.94) 0%,rgba(40,7,12,.55) 52%,rgba(40,7,12,.08) 100%);"></div>
-      <div style="position:absolute;inset:0;padding:20px 22px;display:flex;flex-direction:column;justify-content:center;">
-        <span style="align-self:flex-start;background:#e9c477;color:#5a0f12;font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;">限时特惠</span>
-        <div style="font-size:25px;font-weight:700;color:#f6ead0;margin-top:10px;line-height:1.3;">周三狂欢<br>套餐第二份半价</div>
-        <span style="margin-top:13px;align-self:flex-start;background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-weight:700;font-size:14px;padding:9px 18px;border-radius:11px;">立即抢购 ›</span>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:12px 16px 0;">
-      <div onClick="{{ goMenu }}" style="flex:1;position:relative;border-radius:16px;overflow:hidden;height:118px;cursor:pointer;border:1px solid rgba(214,168,90,.28);">
-        <img src="assets/food2.png" style="width:100%;height:100%;object-fit:cover;display:block;"/>
-        <div style="position:absolute;left:0;right:0;bottom:0;top:0;background:linear-gradient(0deg,rgba(40,7,12,.95) 8%,rgba(40,7,12,.1) 70%);"></div>
-        <div style="position:absolute;left:0;right:0;bottom:0;padding:10px 12px;">
-          <div style="font-size:14px;font-weight:700;color:#f6ead0;">超值四人套餐</div>
-          <div style="font-size:12px;color:#f0c462;margin-top:2px;">立省 $40</div>
-        </div>
-      </div>
-      <div onClick="{{ goMenu }}" style="flex:1;position:relative;border-radius:16px;overflow:hidden;height:118px;cursor:pointer;border:1px solid rgba(214,168,90,.28);">
-        <img src="assets/food3.png" style="width:100%;height:100%;object-fit:cover;display:block;"/>
-        <div style="position:absolute;left:0;right:0;bottom:0;top:0;background:linear-gradient(0deg,rgba(40,7,12,.95) 8%,rgba(40,7,12,.1) 70%);"></div>
-        <div style="position:absolute;left:0;right:0;bottom:0;padding:10px 12px;">
-          <div style="font-size:14px;font-weight:700;color:#f6ead0;">冷锅鱼单人套餐</div>
-          <div style="font-size:12px;color:#f0c462;margin-top:2px;">赠暴打柠檬薄荷</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 18px 0;">
-      <span style="font-size:20px;font-weight:700;color:#f6ead0;">包厢预订</span>
-      <span style="font-size:13px;color:#d9b877;">查看全部 ›</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px;padding:12px 16px 0;">
-      <sc-for list="{{ rooms }}" as="room" hint-placeholder-count="3">
-        <div style="display:flex;background:linear-gradient(180deg,rgba(82,12,22,.66),rgba(54,8,14,.74));border:1px solid rgba(214,168,90,.3);border-radius:18px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.3);">
-          <img src="{{ room.img }}" alt="" style="width:182px;flex-shrink:0;object-fit:cover;align-self:stretch;display:block;"/>
-          <div style="flex:1;min-width:0;padding:14px 14px 14px 16px;display:flex;flex-direction:column;">
-            <div style="font-size:21px;font-weight:700;color:#f6ead0;line-height:1.15;">{{ room.name }}</div>
-            <div style="display:flex;align-items:center;gap:12px;margin-top:9px;">
-              <span style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:#dcc295;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e9c477" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16" cy="8.5" r="2.4"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/><path d="M15 14c2.6 0 6 1.6 6 5"/></svg>{{ room.pax }}</span>
-              <span style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:#dcc295;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e9c477" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h13c0 4-3 7-6.5 7S4 15 4 11Z"/><path d="M17 11c2 0 3.5 1 3.5 3s-2 2.5-3.5 2.5"/><path d="M9 7c0-1.5 1-1.5 0-3M13 7c0-1.5 1-1.5 0-3"/></svg>{{ room.feature }}</span>
-            </div>
-            <div style="border-top:1px dotted #9a6a3a;margin:11px 0 9px;"></div>
-            <div style="font-size:11px;color:#bb9a68;">{{ room.minLabel }}</div>
-            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:2px;">
-              <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#f0c462;line-height:1;">${{ room.price }}</span>
-              <div onClick="{{ bookRoom }}" style="background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-weight:700;font-size:14px;padding:9px 20px;border-radius:11px;cursor:pointer;">{{ room.book }}</div>
-            </div>
-          </div>
-        </div>
-      </sc-for>
-    </div>
-    </sc-if>
-
-    <!-- ============ ORDER PAGE ============ -->
-    <sc-if value="{{ isOrder }}" hint-placeholder-val="{{ false }}">
-    <div style="padding:26px 20px 6px;"><span style="font-size:24px;font-weight:700;color:#f6ead0;">我的订单</span></div>
-    <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
-      <div style="display:flex;flex-direction:column;align-items:center;padding:80px 20px;color:#b89a6e;">
-        <svg width="60" height="60" viewBox="0 0 40 40" fill="none" stroke="#9a6a3a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h5l4.5 18h17l3.5-13H13"/><circle cx="17" cy="33" r="2.6"/><circle cx="31" cy="33" r="2.6"/></svg>
-        <div style="margin-top:18px;font-size:16px;">暂无进行中的订单</div>
-        <div onClick="{{ goMenu }}" style="margin-top:20px;background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-weight:700;font-size:16px;padding:12px 28px;border-radius:13px;cursor:pointer;">去点餐</div>
-      </div>
-    </sc-if>
-    <div style="padding:10px 16px 0;display:flex;flex-direction:column;gap:12px;">
-      <sc-for list="{{ cartList }}" as="row" hint-placeholder-count="0">
-        <div style="display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,rgba(82,12,22,.62),rgba(54,8,14,.72));border:1px solid rgba(214,168,90,.3);border-radius:16px;padding:14px 16px;">
-          <div style="flex:1;">
-            <div style="font-size:17px;color:#f6ead0;font-weight:600;">{{ row.name }}</div>
-            <sc-if value="{{ row.hasSel }}" hint-placeholder-val="{{ false }}">
-              <div style="margin-top:5px;display:flex;flex-direction:column;gap:2px;">
-                <sc-for list="{{ row.sel }}" as="s" hint-placeholder-count="0"><span style="font-size:11.5px;color:#bb9a68;line-height:1.4;">{{ s }}</span></sc-for>
-              </div>
-            </sc-if>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#f0c462;margin-top:5px;">${{ row.priceStr }}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <button onClick="{{ row.dec }}" style="width:30px;height:30px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:18px;cursor:pointer;">−</button>
-            <span style="font-size:17px;font-weight:700;color:#f6ead0;min-width:16px;text-align:center;">{{ row.qty }}</span>
-            <button onClick="{{ row.add }}" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-size:18px;cursor:pointer;">＋</button>
-          </div>
-        </div>
-      </sc-for>
-    </div>
-    <sc-if value="{{ hasItems }}" hint-placeholder-val="{{ false }}">
-      <div style="margin:18px 16px 0;padding:16px;background:linear-gradient(180deg,rgba(96,16,28,.7),rgba(64,10,18,.78));border:1px solid rgba(214,168,90,.32);border-radius:16px;display:flex;align-items:center;gap:14px;">
-        <div style="flex:1;"><div style="font-size:13px;color:#e7cf9e;">合计</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#f0c462;">${{ total }}</div></div>
-        <div onClick="{{ checkout }}" style="background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-weight:700;font-size:17px;padding:13px 30px;border-radius:13px;cursor:pointer;">去结账</div>
-      </div>
-    </sc-if>
-    </sc-if>
-
-    <!-- ============ ACCOUNT PAGE ============ -->
-    <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
-    <div style="padding:30px 20px 6px;display:flex;align-items:center;gap:16px;">
-      <div style="width:68px;height:68px;border-radius:50%;border:2px solid #e9c477;display:flex;align-items:center;justify-content:center;color:#e9c477;flex-shrink:0;">
-        <svg width="36" height="36" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="10" r="4"/><path d="M5 24c0-5 4-8 9-8s9 3 9 8"/></svg>
-      </div>
-      <div>
-        <div style="font-size:21px;font-weight:700;color:#f6ead0;">尊贵会员</div>
-        <div style="font-size:13px;color:#cda968;margin-top:4px;">会员号 8893 · 金卡</div>
-      </div>
-    </div>
-    <div style="margin:20px 16px 0;background:linear-gradient(180deg,rgba(82,12,22,.55),rgba(54,8,14,.65));border:1px solid rgba(214,168,90,.28);border-radius:18px;overflow:hidden;">
-      <sc-for list="{{ accountRows }}" as="r" hint-placeholder-count="5">
-        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid rgba(214,168,90,.14);">
-          <span style="flex:1;font-size:16px;color:#f1e3c4;">{{ r }}</span>
-          <svg width="8" height="13" viewBox="0 0 9 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#cda968" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-      </sc-for>
-    </div>
-    </sc-if>
-  </div>
-
-  <!-- bottom cart bar -->
-  <sc-if value="{{ showCart }}" hint-placeholder-val="{{ false }}">
-  <div style="position:absolute;left:14px;right:14px;bottom:104px;background:linear-gradient(180deg,rgba(96,16,28,.85) 0%,rgba(64,10,18,.9) 100%);border:1px solid rgba(214,168,90,.32);border-radius:20px;box-shadow:0 -2px 24px rgba(0,0,0,.4);display:flex;align-items:center;padding:14px 16px;gap:14px;animation:seaspice-rise .3s cubic-bezier(.2,.8,.2,1);">
-    <div style="position:relative;">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M5 8h5l4.5 18h17l3.5-13H13" stroke="#f0d49a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="33" r="2.6" fill="#f0d49a"/><circle cx="31" cy="33" r="2.6" fill="#f0d49a"/></svg>
-      <div style="{{ badgeStyle }}">{{ count }}</div>
-    </div>
-    <div style="flex:1;line-height:1.35;">
-      <div style="font-size:14px;color:#e7cf9e;">{{ count }} 件商品</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:700;color:#f0c462;">${{ total }}</div>
-    </div>
-    <div onClick="{{ openSheet }}" style="background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-weight:700;font-size:18px;padding:14px 22px;border-radius:14px;display:flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);">
-      查看订单
-      <svg width="9" height="14" viewBox="0 0 9 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#5a0f12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-  </div>
-  </sc-if>
-
-  <!-- order sheet -->
-  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;background:rgba(20,3,6,.62);animation:seaspice-fade .25s ease;z-index:30;"></div>
-    <div style="position:absolute;left:0;right:0;bottom:0;max-height:82%;background:linear-gradient(180deg,#5e1019 0%,#3a070e 100%);border-top:1.5px solid #8a1c28;border-radius:26px 26px 0 0;z-index:31;animation:seaspice-rise .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.5);">
-      <div style="padding:14px 0 4px;display:flex;justify-content:center;"><span style="width:46px;height:4px;border-radius:3px;background:#9a6a3a;"></span></div>
-      <div style="padding:6px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #7a1722;">
-        <span style="font-size:21px;font-weight:700;color:#f6ead0;">我的订单</span>
-        <span onClick="{{ closeSheet }}" style="font-size:14px;color:#e7cf9e;cursor:pointer;border:1px solid #8a5a2e;border-radius:8px;padding:5px 12px;">继续选购</span>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding:0 22px;">
-        <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="text-align:center;color:#b89a6e;padding:50px 0;font-size:15px;line-height:1.8;">订单还是空的<br><span style="font-size:13px;opacity:.8;">挑选喜欢的套餐加入吧</span></div>
-        </sc-if>
-        <sc-for list="{{ cartList }}" as="row" hint-placeholder-count="0">
-          <div style="display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid #6a131c;">
-            <div style="flex:1;">
-              <div style="font-size:17px;color:#f6ead0;font-weight:600;">{{ row.name }}</div>
-              <sc-if value="{{ row.hasSel }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:5px;display:flex;flex-direction:column;gap:2px;">
-                  <sc-for list="{{ row.sel }}" as="s" hint-placeholder-count="0"><span style="font-size:11.5px;color:#bb9a68;line-height:1.4;">{{ s }}</span></sc-for>
-                </div>
-              </sc-if>
-              <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#f0c462;margin-top:5px;">${{ row.priceStr }}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px;">
-              <button onClick="{{ row.dec }}" style="width:30px;height:30px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:18px;cursor:pointer;">−</button>
-              <span style="font-size:17px;font-weight:700;color:#f6ead0;min-width:16px;text-align:center;">{{ row.qty }}</span>
-              <button onClick="{{ row.add }}" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-size:18px;cursor:pointer;">＋</button>
-            </div>
-          </div>
-        </sc-for>
-      </div>
-      <div style="padding:14px 22px;min-height:80px;padding-bottom:max(26px, env(safe-area-inset-bottom));border-top:1px solid #7a1722;display:flex;align-items:center;gap:14px;">
-        <div style="flex:1;">
-          <div style="font-size:13px;color:#e7cf9e;">合计</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:700;color:#f0c462;">${{ total }}</div>
-        </div>
-        <div onClick="{{ checkout }}" style="background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);color:#5a0f12;font-weight:700;font-size:18px;padding:15px 34px;border-radius:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);">去结账</div>
-      </div>
-    </div>
-  </sc-if>
-
-  <!-- bottom nav: floating notched bar with docked FAB -->
-  <div style="position:absolute;left:16px;right:16px;bottom:16px;height:74px;background:linear-gradient(180deg,rgba(86,14,22,.98) 0%,rgba(48,9,14,.99) 100%);border:1px solid rgba(214,168,90,.3);border-radius:26px;display:flex;align-items:center;justify-content:space-around;z-index:26;box-shadow:0 10px 30px rgba(0,0,0,.5);">
-    <div style="{{ indicatorStyle }}"></div>
-    <div onClick="{{ nav.home.select }}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding-bottom:6px;">
-      <div style="{{ nav.home.btn }}"><svg width="24" height="24" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13 14 4l11 9"/><path d="M6 12v11h4v-5a4 4 0 0 1 8 0v5h4V12"/></svg></div>
-      <span style="{{ nav.home.label }}">主页</span>
-    </div>
-    <div onClick="{{ nav.menu.select }}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding-bottom:6px;">
-      <div style="{{ nav.menu.btn }}"><svg width="23" height="23" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h20"/><path d="M5 12c0 6 3 10 9 10s9-4 9-10"/><path d="M3 12h2M23 12h2"/><path d="M10 8c0-2 1-2 0-4M14 7c0-2 1-2 0-4M18 8c0-2 1-2 0-4"/></svg></div>
-      <span style="{{ nav.menu.label }}">菜单</span>
-    </div>
-    <div onClick="{{ nav.order.select }}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding-bottom:6px;">
-      <div style="{{ nav.order.btn }}"><svg width="23" height="23" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h14v22l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M10 9h8M10 14h8M10 19h5"/></svg></div>
-      <span style="{{ nav.order.label }}">订单</span>
-    </div>
-    <div onClick="{{ nav.account.select }}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding-bottom:6px;">
-      <div style="{{ nav.account.btn }}"><svg width="23" height="23" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="10" r="4"/><path d="M5 24c0-5 4-8 9-8s9 3 9 8"/></svg></div>
-      <span style="{{ nav.account.label }}">我的</span>
-    </div>
-  </div>
-
-  <!-- checkout page -->
-  <sc-if value="{{ checkoutOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position:absolute;inset:0;z-index:40;background:radial-gradient(125% 80% at 50% 2%, #a8312a 0%, #8a1c20 30%, #6a1018 55%, #480a11 100%);display:flex;flex-direction:column;animation:seaspice-slidein .34s cubic-bezier(.2,.8,.2,1);">
-      <div style="display:flex;align-items:center;gap:14px;padding:22px 20px 14px;border-bottom:1px solid rgba(214,168,90,.22);">
-        <div onClick="{{ closeCheckout }}" style="width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(214,168,90,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-          <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8 1 2 8l6 7" stroke="#f0d49a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <span style="font-size:22px;font-weight:700;color:#f6ead0;">结账</span>
-      </div>
-
-      <div style="flex:1;overflow-y:auto;padding:20px;">
-        <div style="font-size:14px;color:#cda968;letter-spacing:1px;margin-bottom:10px;">订单明细</div>
-        <div style="background:linear-gradient(180deg,rgba(82,12,22,.55),rgba(54,8,14,.65));border:1px solid rgba(214,168,90,.26);border-radius:16px;padding:4px 16px;">
-          <sc-for list="{{ cartList }}" as="row" hint-placeholder-count="1">
-            <div style="display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid rgba(214,168,90,.12);">
-              <div style="flex:1;">
-                <span style="font-size:16px;color:#f1e3c4;">{{ row.name }}</span>
-                <sc-if value="{{ row.hasSel }}" hint-placeholder-val="{{ false }}">
-                  <div style="margin-top:4px;display:flex;flex-direction:column;gap:2px;">
-                    <sc-for list="{{ row.sel }}" as="s" hint-placeholder-count="0"><span style="font-size:11px;color:#bb9a68;line-height:1.4;">{{ s }}</span></sc-for>
-                  </div>
-                </sc-if>
-              </div>
-              <span style="font-size:14px;color:#cda968;">x{{ row.qty }}</span>
-              <span style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#f0c462;min-width:64px;text-align:right;">${{ row.lineStr }}</span>
-            </div>
-          </sc-for>
-        </div>
-
-        <div style="font-size:14px;color:#cda968;letter-spacing:1px;margin:22px 0 10px;">支付方式</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <sc-for list="{{ pays }}" as="p" hint-placeholder-count="3">
-            <div onClick="{{ p.select }}" style="{{ p.rowStyle }}">
-              <span style="flex:1;font-size:16px;color:#f1e3c4;">{{ p.name }}</span>
-              <div style="{{ p.dotStyle }}"><sc-if value="{{ p.on }}" hint-placeholder-val="{{ false }}"><span style="width:9px;height:9px;border-radius:50%;background:#e9c477;display:block;"></span></sc-if></div>
-            </div>
-          </sc-for>
-        </div>
-
-        <div style="margin-top:22px;background:linear-gradient(180deg,rgba(82,12,22,.45),rgba(54,8,14,.55));border:1px solid rgba(214,168,90,.2);border-radius:16px;padding:16px;">
-          <div style="display:flex;justify-content:space-between;font-size:15px;color:#dcc295;padding:5px 0;"><span>小计</span><span style="font-family:'Cormorant Garamond',serif;">${{ subtotal }}</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:15px;color:#dcc295;padding:5px 0;"><span>服务费</span><span style="font-family:'Cormorant Garamond',serif;">${{ serviceFee }}</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 2px;margin-top:6px;border-top:1px solid rgba(214,168,90,.18);">
-            <span style="font-size:16px;color:#f6ead0;font-weight:700;">合计</span>
-            <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#f0c462;">${{ grandTotal }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="padding:14px 20px 26px;border-top:1px solid rgba(214,168,90,.22);display:flex;align-items:center;gap:14px;">
-        <div style="flex:1;"><div style="font-size:13px;color:#e7cf9e;">应付金额</div><div style="font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:700;color:#f0c462;">${{ grandTotal }}</div></div>
-        <div onClick="{{ confirmOrder }}" style="background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-weight:700;font-size:18px;padding:15px 32px;border-radius:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);">确认下单</div>
-      </div>
-    </div>
-  </sc-if>
-
-  <!-- package selection -->
-  <sc-if value="{{ cfgOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position:absolute;inset:0;z-index:42;background:radial-gradient(125% 80% at 50% 2%, #a8312a 0%, #8a1c20 30%, #6a1018 55%, #480a11 100%);display:flex;flex-direction:column;animation:seaspice-slidein .34s cubic-bezier(.2,.8,.2,1);">
-      <div style="display:flex;align-items:center;gap:14px;padding:22px 20px 14px;border-bottom:1px solid rgba(214,168,90,.22);">
-        <div onClick="{{ closeCfg }}" style="width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(214,168,90,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-          <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8 1 2 8l6 7" stroke="#f0d49a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div style="flex:1;"><div style="font-size:21px;font-weight:700;color:#f6ead0;">{{ cfgName }}</div><div style="font-size:12px;color:#cda968;margin-top:2px;">按以下选项搭配您的套餐</div></div>
-      </div>
-
-      <div style="flex:1;overflow-y:auto;padding:18px 20px;">
-        <sc-for list="{{ cfgGroups }}" as="g" hint-placeholder-count="6">
-          <div style="margin-bottom:20px;">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;">
-              <span style="font-size:16px;font-weight:700;color:#f6ead0;">{{ g.label }}</span>
-              <span style="font-size:10.5px;color:#cda968;border:1px solid #9a6a3a;border-radius:5px;padding:1px 7px;">{{ g.note }}</span>
-              <sc-if value="{{ g.done }}" hint-placeholder-val="{{ false }}">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#e9c477"/><path d="M4.5 8l2.2 2.2L11.5 5.5" stroke="#5a0f12" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </sc-if>
-            </div>
-            <sc-if value="{{ g.multi }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;flex-direction:column;gap:9px;">
-                <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="3">
-                  <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;border:1px solid rgba(214,168,90,.24);background:rgba(82,12,22,.4);">
-                    <span style="flex:1;font-size:14px;color:#f1e3c4;">{{ o.name }}</span>
-                    <button onClick="{{ o.dec }}" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #c8923c;background:transparent;color:#f0d49a;font-size:17px;line-height:1;cursor:pointer;">−</button>
-                    <span style="font-size:15px;font-weight:700;color:#f6ead0;min-width:14px;text-align:center;">{{ o.count }}</span>
-                    <button onClick="{{ o.inc }}" style="width:28px;height:28px;border-radius:50%;border:none;background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-size:17px;line-height:1;cursor:pointer;">＋</button>
-                  </div>
-                </sc-for>
-              </div>
-            </sc-if>
-            <sc-if value="{{ g.single }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;flex-wrap:wrap;gap:9px;">
-                <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="3">
-                  <div onClick="{{ o.pick }}" style="{{ o.chipStyle }}">{{ o.name }}</div>
-                </sc-for>
-              </div>
-            </sc-if>
-          </div>
-        </sc-for>
-      </div>
-
-      <div style="padding:14px 20px;padding-bottom:max(22px, env(safe-area-inset-bottom));border-top:1px solid rgba(214,168,90,.22);display:flex;align-items:center;gap:14px;">
-        <div style="flex:1;"><div style="font-size:13px;color:#e7cf9e;">{{ cfgName }}</div><div style="font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:700;color:#f0c462;">${{ cfgPriceStr }}</div></div>
-        <sc-if value="{{ cfgValid }}" hint-placeholder-val="{{ false }}">
-          <div onClick="{{ confirmCfg }}" style="background:linear-gradient(180deg,#f7da88,#e9bb5e);color:#5a0f12;font-weight:700;font-size:17px;padding:14px 30px;border-radius:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);">＋ 加入订单</div>
-        </sc-if>
-        <sc-if value="{{ cfgInvalid }}" hint-placeholder-val="{{ true }}">
-          <div style="background:rgba(214,168,90,.2);color:#9a7948;font-weight:700;font-size:17px;padding:14px 30px;border-radius:14px;">请完成选择</div>
-        </sc-if>
-      </div>
-    </div>
-  </sc-if>
-
-  <!-- toast -->
-  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
-    <div style="position:absolute;left:50%;top:38%;transform:translateX(-50%);background:rgba(40,7,12,.94);border:1px solid #c8923c;color:#f0d49a;font-size:15px;padding:13px 24px;border-radius:14px;z-index:30;animation:seaspice-fade .2s ease;white-space:nowrap;box-shadow:0 8px 26px rgba(0,0,0,.5);">{{ toast }}</div>
-  </sc-if>
-
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:430,&quot;height&quot;:764}}">
-class Component extends DCLogic {
-  state = { tab: 'home', active: 'Package', cart: {}, sheetOpen: false, toast: '', scrolled: false, checkoutOpen: false, pay: 'wallet', lang: 'cn', cfgPkg: null, sel: {}, cartSel: {} };
-
-  PACKAGES = {
-    1: { groups: [
-      { label: '锅底', pick: 1, opts: ['全辣', '鸳鸯', '原汤'] },
-      { label: '鱼类', pick: 1, opts: ['鲈鱼', '盲槽'] },
-      { label: '菜品', pick: 1, opts: ['牛肉卷', '羊肉卷', '鸭血', '午餐肉', '迷你小香肠'] },
-      { label: '丸类', pick: 1, opts: ['猪肚', '鱼豆腐', '蟹肉棒', '花枝丸', '鹌鹑蛋'] },
-      { label: '主食', pick: 1, opts: ['红薯粉', '土豆粉', '年糕', '土豆', '甜玉米', '米饭2碗'] },
-      { label: '蔬菜', pick: 1, opts: ['豆腐', '白萝卜', '冬瓜', '鲍鱼菇', '金针菇', '大白菜'] },
-    ] },
-    2: { groups: [
-      { label: '锅底', pick: 1, opts: ['全辣', '鸳鸯', '原汤'] },
-      { label: '鱼类', pick: 1, opts: ['鲈鱼', '盲槽'] },
-      { label: '菜品', pick: 1, opts: ['虾滑', '鱼丸', '双拼鱼丸虾滑', '手切鲜羊腿', '手切和牛三花趾'] },
-      { label: '肉类', pick: 1, opts: ['牛肉卷', '羊肉卷', '鸭血', '午餐肉', '迷你小香肠'] },
-      { label: '内脏', pick: 1, opts: ['牛百叶', '黄喉', '鸭舌', '鸭掌', '火箭鱿鱼'] },
-      { label: '丸类', pick: 1, opts: ['猪肚', '鱼豆腐', '蟹肉棒', '花枝丸', '鹌鹑蛋'] },
-      { label: '蔬菜', pick: 1, opts: ['豆腐', '白萝卜', '冬瓜', '鲍鱼菇', '金针菇', '大白菜'] },
-      { label: '主食', pick: 1, opts: ['红薯粉', '土豆粉', '年糕', '土豆', '甜玉米', '米饭2碗'] },
-      { label: '甜品', pick: 4, opts: ['冰粉', '豆花', '凉虾'] },
-    ] },
-  };
-
-  openCfg(id) { if (this.PACKAGES[id]) this.setState({ cfgPkg: id, sel: {} }); else this.add(id); }
-  qtySum(gi) { const o = this.state.sel[gi] || {}; return Object.values(o).reduce((a, b) => a + b, 0); }
-  pickSingle(gi, oi) { this.setState(s => ({ sel: { ...s.sel, [gi]: oi } })); }
-  incQty(gi, oi) {
-    const g = this.PACKAGES[this.state.cfgPkg].groups[gi];
-    if (this.qtySum(gi) >= g.pick) return;
-    this.setState(s => { const o = { ...(s.sel[gi] || {}) }; o[oi] = (o[oi] || 0) + 1; return { sel: { ...s.sel, [gi]: o } }; });
-  }
-  decQty(gi, oi) {
-    this.setState(s => { const o = { ...(s.sel[gi] || {}) }; o[oi] = Math.max(0, (o[oi] || 0) - 1); if (!o[oi]) delete o[oi]; return { sel: { ...s.sel, [gi]: o } }; });
-  }
-  cfgValid() {
-    const id = this.state.cfgPkg; if (!id) return false;
-    return this.PACKAGES[id].groups.every((g, gi) => g.pick > 1 ? this.qtySum(gi) === g.pick : this.state.sel[gi] != null);
-  }
-  buildSelText(id) {
-    return this.PACKAGES[id].groups.map((g, gi) => {
-      if (g.pick > 1) { const o = this.state.sel[gi] || {}; const parts = Object.entries(o).map(([oi, c]) => g.opts[oi] + (c > 1 ? '×' + c : '')); return g.label + '：' + parts.join('、'); }
-      return g.label + '：' + (g.opts[this.state.sel[gi]] || '');
-    });
-  }
-  confirmCfg() { const id = this.state.cfgPkg; const txt = this.buildSelText(id); this.setState(s => ({ cfgPkg: null, cartSel: { ...s.cartSel, [id]: txt } })); this.add(id); }
-
-  CATS = [
-    { name: 'Package', cn: '套餐', icon: 'assets/cat_pkg.png' },
-    { name: 'Condiments per Person', cn: '蘸料', icon: 'assets/cat_condiments.svg' },
-    { name: 'Fish Hot Pot', cn: '鱼火锅', icon: 'assets/cat_base.png' },
-    { name: 'More Fish', cn: '鱼类', icon: 'assets/cat_fish.png' },
-    { name: 'Meat', cn: '肉类', icon: 'assets/cat_meat.png' },
-    { name: 'Vegetables', cn: '蔬菜', icon: 'assets/cat_veg.png' },
-    { name: 'Small Bites', cn: '小吃', icon: 'assets/cat_bites.svg' },
-    { name: 'Drink', cn: '饮料', icon: 'assets/cat_drink.png' },
-    { name: 'Liquor', cn: '酒类', icon: 'assets/cat_liquor.svg' },
-    { name: 'Fish Species', cn: '鱼种', icon: 'assets/cat_species.svg' },
-  ];
-
-  _onScroll = () => {
-    const el = this._sc; if (!el) return;
-    const s = el.scrollTop > 24;
-    if (s !== this.state.scrolled) this.setState({ scrolled: s });
-  };
-
-  ITEMS = {
-    1: { cat: 'Package', cn: '双人套餐', en: 'Two-Person Set', price: 68.80 },
-    2: { cat: 'Package', cn: '超值四人套餐', en: 'Value Four-Person Set', price: 168.00 },
-    3: { cat: 'Package', cn: '冷锅鱼单人套餐', en: 'Cold-Pot Fish Single Set', price: 28.80 },
-    cond1: { cat: 'Condiments per Person', cn: '每位调料', en: 'Condiments per Person', price: 3.50, img: 'assets/item_condiments.png', tagsCn: ['必选', '每位'], tagsEn: ['REQUIRED', 'PERSON'] },
-    fhp1: { cat: 'Fish Hot Pot', cn: '麻辣火锅', en: 'Spicy hotpot', price: 30.00, img: 'assets/fhp_spicy.png', descCn: '先选锅底，再选鱼。一份鱼适合…', descEn: 'Choose soup base first, then choose fish. One serving of fish is suitable…' },
-    fhp2: { cat: 'Fish Hot Pot', cn: '鸳鸯双味锅', en: 'Spicy & Mild Broths', price: 30.00, img: 'assets/fhp_dual.png', descCn: '先选锅底，再选鱼。一份鱼适合…', descEn: 'Choose soup base first, then choose fish. One serving of fish is suitable…' },
-    fhp3: { cat: 'Fish Hot Pot', cn: '清汤鱼锅', en: 'None-spicy fish broth pot', price: 20.00, img: 'assets/fhp_mild.png', descCn: '先选锅底，再选鱼。一份鱼适合…', descEn: 'Choose soup base first, then choose fish. One serving of fish is suitable…' },
-    mf1: { cat: 'More Fish', cn: '珊瑚鳟鱼（1kg）', en: 'Coral Trout (1kg)', price: 145.00, img: 'assets/mf_coral.png', descCn: '肉质紧实弹牙，鲜甜清爽。', descEn: 'Firm and springy, naturally sweet and refreshing.' },
-    mf2: { cat: 'More Fish', cn: '银鲈鱼 700g', en: 'Silver Perch 700g', price: 59.00, img: 'assets/mf_silver.png', descCn: '口感丝滑多汁，浓郁脂香。', descEn: 'Silky-smooth and succulent, with a rich, fatty aroma.' },
-    mf3: { cat: 'More Fish', cn: '尖吻鲈 700g', en: 'Barramundi 700g', price: 59.00, img: 'assets/mf_barra.png', descCn: '肉质细腻软嫩，质地细致。', descEn: 'Delicately tender, with a fine texture.' },
-  };
-
-  itemName(id) { const it = this.ITEMS[id]; return this.state.lang === 'en' ? (it.en || it.cn) : (it.cn || it.en); }
-
-  add(id) {
-    this.setState(s => ({ cart: { ...s.cart, [id]: (s.cart[id] || 0) + 1 } }));
-    this.flash(this.itemName(id) + (this.state.lang === 'en' ? ' added' : ' 已加入订单'));
-  }
-  dec(id) {
-    this.setState(s => { const c = { ...s.cart }; c[id] = (c[id] || 0) - 1; if (c[id] <= 0) delete c[id]; return { cart: c }; });
-  }
-  flash(msg) { this.setState({ toast: msg }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 1400); }
-  componentWillUnmount() { clearTimeout(this._t); }
-
-  count() { return Object.values(this.state.cart).reduce((a, b) => a + b, 0); }
-  total() { return Object.entries(this.state.cart).reduce((a, [id, q]) => a + this.ITEMS[id].price * q, 0); }
-  fmt(n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-
-  navItem(name) {
-    const on = name === this.state.tab;
-    return {
-      select: () => { if (this._sc) this._sc.scrollTop = 0; this.setState({ tab: name, scrolled: false }); },
-      btn: (on
-        ? "color:#5a0f12;transform:translateY(-25px);"
-        : "color:#bf9352;transform:translateY(0);")
-        + "width:34px;height:34px;position:relative;z-index:2;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .42s cubic-bezier(.5,0,.15,1),color .3s ease;",
-      label: `font-size:12px;letter-spacing:.5px;color:${on ? '#f4d79c' : '#bf9352'};font-weight:${on ? 700 : 500};transition:color .3s ease;`,
-    };
-  }
-
-  tab(name) {
-    const on = name === this.state.active;
-    return {
-      select: () => this.setState({ active: name }),
-      circle: `width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.6px solid ${on ? '#e9c477' : '#9a5a32'};background:${on ? 'radial-gradient(circle,#9c1722 0%,#6a0f18 100%)' : 'transparent'};box-shadow:${on ? '0 0 0 3px rgba(233,196,119,.15)' : 'none'};transition:all .2s;`,
-      label: `font-size:13px;line-height:1.25;text-align:center;letter-spacing:.2px;color:${on ? '#f6ead0' : '#caa56e'};font-weight:${on ? 700 : 600};border-bottom:2.5px solid ${on ? '#e9c477' : 'transparent'};padding-bottom:5px;min-height:32px;`,
-    };
-  }
-
-  renderVals() {
-    const cart = this.state.cart;
-    const count = this.count();
-    const cartList = Object.entries(cart).map(([id, q]) => ({
-      name: this.itemName(id),
-      sel: this.state.cartSel[id] || [],
-      hasSel: (this.state.cartSel[id] || []).length > 0,
-      priceStr: this.fmt(this.ITEMS[id].price),
-      lineStr: this.fmt(this.ITEMS[id].price * q),
-      qty: q,
-      add: () => this.add(+id),
-      dec: () => this.dec(+id),
-    }));
-    return {
-      cats: this.CATS.map(c => { const t = this.tab(c.name); return { name: c.name, icon: c.icon, text: this.state.lang === 'cn' ? c.cn : c.name, select: t.select, circle: t.circle, label: t.label }; }),
-      langLabel: this.state.lang === 'cn' ? '中文' : 'EN',
-      isPackage: this.state.active === 'Package',
-      showItems: this.state.active !== 'Package' && Object.values(this.ITEMS).some(it => it.cat === this.state.active),
-      activeEmpty: this.state.active !== 'Package' && !Object.values(this.ITEMS).some(it => it.cat === this.state.active),
-      emptyText: this.state.lang === 'en' ? 'Coming soon' : '敬请期待',
-      activeItems: Object.entries(this.ITEMS).filter(([id, it]) => it.cat === this.state.active).map(([id, it]) => { const q = cart[id] || 0; return { id, img: it.img, name: this.itemName(id), desc: this.state.lang === 'en' ? (it.descEn || '') : (it.descCn || ''), hasDesc: !!(this.state.lang === 'en' ? it.descEn : it.descCn), tags: this.state.lang === 'en' ? (it.tagsEn || []) : (it.tagsCn || []), priceStr: this.fmt(it.price), qty: q, showAdd: !q, add: () => this.add(id), dec: () => this.dec(id) }; }),
-      toggleLang: () => this.setState({ lang: this.state.lang === 'cn' ? 'en' : 'cn' }),
-      q1: cart[1] || 0, q2: cart[2] || 0, q3: cart[3] || 0,
-      showAdd1: !cart[1], showAdd2: !cart[2], showAdd3: !cart[3],
-      add1: () => this.openCfg(1), add2: () => this.openCfg(2), add3: () => this.add(3),
-      dec1: () => this.dec(1), dec2: () => this.dec(2), dec3: () => this.dec(3),
-      cfgOpen: this.state.cfgPkg != null,
-      cfgName: this.state.cfgPkg ? this.ITEMS[this.state.cfgPkg].cn : '',
-      cfgPriceStr: this.state.cfgPkg ? this.fmt(this.ITEMS[this.state.cfgPkg].price) : '',
-      cfgValid: this.cfgValid(),
-      cfgInvalid: !this.cfgValid(),
-      closeCfg: () => this.setState({ cfgPkg: null }),
-      confirmCfg: () => this.confirmCfg(),
-      cfgGroups: (this.state.cfgPkg ? this.PACKAGES[this.state.cfgPkg].groups : []).map((g, gi) => {
-        const multi = g.pick > 1;
-        const sum = multi ? this.qtySum(gi) : ((this.state.sel[gi] != null) ? 1 : 0);
-        return {
-          label: g.label, multi,
-          single: !multi,
-          note: multi ? `已选 ${sum}/${g.pick}` : '选一',
-          done: multi ? sum === g.pick : sum === 1,
-          opts: g.opts.map((o, oi) => {
-            const cnt = multi ? ((this.state.sel[gi] || {})[oi] || 0) : 0;
-            return {
-              name: o,
-              on: multi ? cnt > 0 : this.state.sel[gi] === oi,
-              count: cnt,
-              chipStyle: `font-size:13px;padding:8px 14px;border-radius:11px;cursor:pointer;transition:all .15s;border:1.5px solid ${(this.state.sel[gi] === oi) ? '#e9c477' : 'rgba(214,168,90,.3)'};background:${(this.state.sel[gi] === oi) ? 'linear-gradient(180deg,#f7da88,#e9bb5e)' : 'transparent'};color:${(this.state.sel[gi] === oi) ? '#5a0f12' : '#e7cf9e'};font-weight:${(this.state.sel[gi] === oi) ? 700 : 500};`,
-              pick: () => this.pickSingle(gi, oi),
-              inc: () => this.incQty(gi, oi),
-              dec: () => this.decQty(gi, oi),
-            };
-          }),
-        };
-      }),
-      count,
-      hasItems: count > 0,
-      isHome: this.state.tab === 'home',
-      isMenu: this.state.tab === 'menu',
-      isOrder: this.state.tab === 'order',
-      isAccount: this.state.tab === 'account',
-      showCart: this.state.tab === 'menu' && count > 0,
-      nav: { home: this.navItem('home'), menu: this.navItem('menu'), order: this.navItem('order'), account: this.navItem('account') },
-      indicatorStyle: `position:absolute;top:-28px;left:${12.5 + ['home','menu','order','account'].indexOf(this.state.tab) * 25}%;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#f7da88 0%,#e9bb5e 100%);box-shadow:0 8px 18px rgba(0,0,0,.5);z-index:1;transition:left .42s cubic-bezier(.5,0,.15,1);`,
-      setScroller: (el) => { if (el && el !== this._sc) { this._sc = el; el.addEventListener('scroll', this._onScroll); } },
-      logoImgMenu: `width:${this.state.scrolled ? 46 : 88}px;height:${this.state.scrolled ? 46 : 88}px;object-fit:cover;border-radius:${this.state.scrolled ? 14 : 22}px;box-shadow:0 8px 22px rgba(0,0,0,.45);transition:all .35s cubic-bezier(.4,0,.2,1);`,
-      welcomeMenu: `display:flex;align-items:center;justify-content:center;gap:16px;overflow:hidden;max-height:${this.state.scrolled ? 0 : 44}px;opacity:${this.state.scrolled ? 0 : 1};margin-top:${this.state.scrolled ? 0 : 18}px;transition:all .35s cubic-bezier(.4,0,.2,1);`,
-      logoImgHome: `width:${this.state.scrolled ? 44 : 72}px;height:${this.state.scrolled ? 44 : 72}px;object-fit:cover;border-radius:${this.state.scrolled ? 14 : 18}px;box-shadow:0 8px 22px rgba(0,0,0,.45);transition:all .35s cubic-bezier(.4,0,.2,1);`,
-      welcomeHome: `display:flex;align-items:center;justify-content:center;gap:14px;overflow:hidden;max-height:${this.state.scrolled ? 0 : 44}px;opacity:${this.state.scrolled ? 0 : 1};margin-top:${this.state.scrolled ? 0 : 14}px;transition:all .35s cubic-bezier(.4,0,.2,1);`,
-      goMenu: () => this.setState({ tab: 'menu' }),
-      bookRoom: () => this.flash('包厢预订请求已提交，我们将尽快与您联系'),
-      rooms: (this.state.lang === 'cn' ? [
-        { img: 'assets/room1.png', name: '海景包厢', pax: '6–8 位', feature: '含茶位', minLabel: '最低消费', price: '388', book: '预订' },
-        { img: 'assets/room2.png', name: '雅韵小厅', pax: '2–4 位', feature: '私密舒适', minLabel: '最低消费', price: '188', book: '预订' },
-        { img: 'assets/room3.png', name: '宴会大厅', pax: '10–16 位', feature: '适合聚会', minLabel: '最低消费', price: '888', book: '预订' },
-      ] : [
-        { img: 'assets/room1.png', name: 'Seaview Room', pax: '6–8 pax', feature: 'Tea included', minLabel: 'Min. spend', price: '388', book: 'Book' },
-        { img: 'assets/room2.png', name: 'Elegant Hall', pax: '2–4 pax', feature: 'Private & cosy', minLabel: 'Min. spend', price: '188', book: 'Book' },
-        { img: 'assets/room3.png', name: 'Banquet Hall', pax: '10–16 pax', feature: 'For gatherings', minLabel: 'Min. spend', price: '888', book: 'Book' },
-      ]),
-      accountRows: ['我的订单', '我的收藏', '优惠券', '地址管理', '设置'],
-      total: this.fmt(this.total()),
-      badgeStyle: `position:absolute;top:-6px;right:-8px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:#e9c477;color:#5a0f12;font-size:13px;font-weight:700;display:${count ? 'flex' : 'none'};align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;`,
-      openSheet: () => this.setState({ sheetOpen: true }),
-      closeSheet: () => this.setState({ sheetOpen: false }),
-      sheetOpen: this.state.sheetOpen,
-      cartList,
-      cartEmpty: cartList.length === 0,
-      checkout: () => this.setState({ sheetOpen: false, checkoutOpen: true }),
-      checkoutOpen: this.state.checkoutOpen,
-      closeCheckout: () => this.setState({ checkoutOpen: false }),
-      confirmOrder: () => { this.setState({ checkoutOpen: false, cart: {} }); this.flash('下单成功，感谢惠顾！'); },
-      subtotal: this.fmt(this.total()),
-      grandTotal: this.fmt(this.total() + 2 * count),
-      serviceFee: this.fmt(2 * count),
-      pays: ['wallet', 'card', 'cash'].map(p => ({
-        key: p,
-        name: { wallet: '电子钱包', card: '信用卡 / 借记卡', cash: '到店付款' }[p],
-        select: () => this.setState({ pay: p }),
-        rowStyle: `display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:14px;cursor:pointer;border:1.5px solid ${this.state.pay === p ? '#e9c477' : 'rgba(214,168,90,.22)'};background:${this.state.pay === p ? 'rgba(233,196,119,.08)' : 'transparent'};transition:all .2s;`,
-        dotStyle: `width:20px;height:20px;border-radius:50%;flex-shrink:0;border:2px solid ${this.state.pay === p ? '#e9c477' : '#8a5a2e'};display:flex;align-items:center;justify-content:center;`,
-        on: this.state.pay === p,
-      })),
-      toast: this.state.toast,
-    };
-  }
+// ---- bottom nav (floating animated circle, our style) ----
+const ICO = {
+  menu:c=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11h19"/><path d="M4.5 11a7.5 7.5 0 0 0 15 0"/><path d="M8.5 3.2c-.7.8-.7 1.4 0 2.2M12 2.8c-.7.8-.7 1.4 0 2.2M15.5 3.2c-.7.8-.7 1.4 0 2.2"/></svg>`,
+  orders:c=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M9 3.2h6V6H9z"/><path d="M8.6 11h6.8M8.6 15h4.4"/></svg>`,
+  me:c=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>`,
+};
+const TABS=[{cn:'菜单',ico:'menu',screen:'hub'},{cn:'订单',ico:'orders',screen:'orders'},{cn:'我的',ico:'me',screen:'me'}];
+const NAV_SCREENS=['hub','orders','me'];
+let screenEl,navEl,circleEl;
+function navHTML(){
+  const tabs=TABS.map((t,i)=>`<div class="navtab" data-i="${i}" onclick="switchTab(${i})"><span class="navico">${ICO[t.ico]('#e9c477')}</span>${t.cn}</div>`).join('');
+  return `<div id="bottomnav" class="hide"><div class="navcircle" id="navcircle"></div>${tabs}</div>`;
 }
+function mountShell(){
+  app.innerHTML='<div id="screen"></div>'+navHTML();
+  screenEl=document.getElementById('screen'); navEl=document.getElementById('bottomnav'); circleEl=document.getElementById('navcircle');
+}
+function updateNav(){
+  const show=NAV_SCREENS.includes(S.screen);
+  navEl.classList.toggle('hide',!show);
+  if(!show) return;
+  const idx=Math.max(0,TABS.findIndex(t=>t.screen===S.screen));
+  circleEl.style.left=((2*idx+1)/6*100)+'%';
+  circleEl.innerHTML=ICO[TABS[idx].ico]('#5a0f12');
+  navEl.querySelectorAll('.navtab').forEach((el,i)=>el.classList.toggle('on',i===idx));
+}
+window.switchTab=function(i){ go(TABS[i].screen); }
+function go(s){ S.screen=s; render(); const sc=screenEl.querySelector('.scroll'); if(sc)sc.scrollTop=0; }
+
+function topbar(){
+  return `<div class="topbar">
+    <div class="brand"><span class="cn">Sea &amp; Spice</span></div>
+    <div class="spacer"></div>
+    <span class="chip">桌号 ${M.table}</span><span class="chip lang">中 / EN</span></div>`;
+}
+
+function scrPax(){
+  const cp=M.condiment.price, sub=S.pax*cp;
+  const presets=[1,2,3,4,5,6].map(n=>`<div class="preset ${S.pax===n?'on':''}" onclick="setPax(${n})">${n}</div>`).join('');
+  return `<div class="screen pax-wrap">
+    <div class="welcome">
+      <button class="langbtn">中文 ▾</button>
+      <img class="wlogo" src="assets/logo.png" alt="Sea & Spice">
+      <div class="wtitle"><img class="orn" src="assets/ornament.png" alt=""><span class="txt">欢迎光临</span><img class="orn flip" src="assets/ornament.png" alt=""></div>
+    </div>
+    <div class="pax-body">
+      <div class="pax-card">
+        <div class="pax-q">今天几位用餐？</div>
+        <div class="pax-note">调料费 ${money(cp)}/位 · 自动计入账单</div>
+        <div class="stepper">
+          <button class="stepbtn" onclick="setPax(${Math.max(1,S.pax-1)})">−</button>
+          <div class="pax-numwrap"><span class="pax-num">${S.pax}</span><span class="pax-unit">位</span></div>
+          <button class="stepbtn" onclick="setPax(${S.pax+1})">+</button>
+        </div>
+        <div class="presets">${presets}</div>
+        <div class="pax-subline">调料费小计 <b>${money(sub)}</b>${C} <span class="calc">· ${S.pax}位 × ${money(cp)}</span></div>
+      </div>
+      <button class="cta pax-cta" onclick="go('hub')">开始点单 →</button>
+    </div></div>`;
+}
+window.setPax=function(n){ S.pax=Math.max(1,n); render(); }
+
+function scrHub(){
+  return `<div class="screen scroll">${topbar()}
+    <div class="memberbar" onclick="go('me')">
+      <span class="mb-ico">${ICO.me('#e9c477')}</span>
+      <div class="mb-txt"><div class="mb-t">会员查询 Member</div><div class="mb-s">输入手机号查积分 · 余额</div></div>
+      <span class="mb-arrow">→</span></div>
+    <div class="hero"><div class="herobg" style="background-image:url('assets/hero.jpg')"></div><div class="heroveil"></div>
+      <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">本店独创</span></div>
+      <h1>鱼火锅</h1><div class="tag">一锅两吃 · 先鲜后烫</div><div class="sub">外圈嫩滑鱼肉 · 内圈涮烫百味</div>
+      <button class="pill" onclick="startFish('鱼火锅','fhp')">立即选择 →</button></div>
+    <div class="seclbl2">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
+    <div class="pkgrow">${M.packages.map(pkgCard).join('')}</div>
+    <div class="divider">或 单 独 点 选</div>
+    <div class="cards">
+      ${hubCard('assets/menu/0101.jpg','冷锅鱼','Cold Pot Fish','红油翻滚·麻辣鲜香','鲈鱼·盲曹·星斑',"startFish('冷锅鱼','direct')")}
+      ${hubCard('assets/menu/0201.jpg','酸菜鱼','Pickled Fish','黄金酸汤·清爽开胃','鲈鱼·盲曹·星斑',"startFish('酸菜鱼','direct')")}
+      ${hubCard('assets/menu/0112.jpg','单点火锅','Hot Pot','多种精选锅底','鸳鸯·奔驰锅',"startHotpot()")}
+      ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
+    </div>
+    <div class="tipbar">首次光临？推荐体验本店招牌 <b>「鱼火锅」</b> —— 一锅两吃，感受双重鲜味</div>
+    <div style="height:8px"></div></div>`;
+}
+function hubCard(img,cn,en,accent,sub,act){
+  return `<div class="card" onclick="${act}"><div class="cimg-wrap"><img class="cimg" src="${img}" alt=""></div>
+    <div class="cbody"><div class="cn">${cn}</div><div class="en">${en}</div>
+    <div class="accent">${accent}</div><div class="csub">${sub}</div></div></div>`;
+}
+
+// ---- set packages (multi-step wizard) ----
+const pkgById = id => M.packages.find(p=>p.id===id);
+function pkgCard(p){
+  const badge = p.save?`立省 $${p.save}`:(p.fixed?'含饮品':`${p.pax} 人`);
+  return `<div class="pkgcard" onclick="startPackage(${p.id})">
+    <img class="pimg" src="${p.img}" alt="">
+    <div class="pb"><div class="pcn">${p.cn}</div><div class="pen">${p.en}</div>
+      <div class="prow"><span class="ppr">${money(p.price)}</span><span class="pbadge">${badge}</span></div></div></div>`;
+}
+window.startPackage=function(id){ S.pkgId=id; S.pkgSel={}; S.pkgStep=0; go(pkgById(id).fixed?'pkgconfirm':'pkgstep'); }
+
+function scrPkgStep(){
+  const p=pkgById(S.pkgId), n=p.groups.length, g=p.groups[S.pkgStep], multi=g.pick>1;
+  let body,enabled;
+  const meta=o=>`${o.img?`<img class="thumb" src="${o.img}">`:`<div class="emoji">${PLACE_ICON}</div>`}
+    <div class="info"><div class="nm">${o.n}</div>${o.en?`<div class="en">${o.en}</div>`:''}${o.desc?`<div class="ds">${o.desc}</div>`:''}</div>`;
+  if(multi){
+    const sel=S.pkgSel[S.pkgStep]||{}, total=Object.values(sel).reduce((a,b)=>a+b,0);
+    enabled=total===g.pick;
+    body=`<div class="list">`+g.opts.map(o=>{const q=sel[o.n]||0;
+      return `<div class="opt ${q>0?'sel':''}">${meta(o)}
+        <div class="qtyctl"><button onclick="pkgQty('${o.n}',-1)" ${q<=0?'disabled':''}>−</button><span class="qn">${q}</span><button onclick="pkgQty('${o.n}',1)" ${total>=g.pick?'disabled':''}>+</button></div></div>`;
+    }).join('')+`</div>`;
+  } else {
+    const sel=S.pkgSel[S.pkgStep]; enabled=sel!=null;
+    body=`<div class="list">`+g.opts.map(o=>{const on=sel===o.n;
+      return `<div class="opt ${on?'sel':''}" onclick="pkgPick('${o.n}')">${meta(o)}<div class="radio ${on?'check':''}">${on?'✓':''}</div></div>`;
+    }).join('')+`</div>`;
+  }
+  const last=S.pkgStep===n-1;
+  return `<div class="screen scroll">
+    <div class="backrow"><button class="back" onclick="pkgBack()">← 返回</button>
+      <div><div class="htitle">${p.cn} · ${g.label}</div><div class="hsub">${g.en} · 选 ${g.pick} 份</div></div></div>
+    <div class="pkgprog"><div class="bar"><i style="width:${(S.pkgStep+1)/n*100}%"></i></div><span class="txt">第 ${S.pkgStep+1} / ${n} 步</span></div>
+    ${body}<div style="height:8px"></div>
+    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?'pkgNext()':''}">${last?'完成 · 去确认 →':'下一步 →'}</button></div>
+  </div>`;
+}
+window.pkgPick=function(o){ S.pkgSel[S.pkgStep]=o; render(); }
+window.pkgQty=function(o,d){ const g=pkgById(S.pkgId).groups[S.pkgStep], sel=S.pkgSel[S.pkgStep]||{};
+  const total=Object.values(sel).reduce((a,b)=>a+b,0); if(d>0&&total>=g.pick) return;
+  const q=(sel[o]||0)+d; if(q<=0)delete sel[o]; else sel[o]=q; S.pkgSel[S.pkgStep]=sel; render(); }
+window.pkgNext=function(){ if(S.pkgStep>=pkgById(S.pkgId).groups.length-1) go('pkgconfirm'); else {S.pkgStep++; render();} }
+window.pkgBack=function(){ if(S.pkgStep<=0) go('hub'); else {S.pkgStep--; render();} }
+window.pkgEditBack=function(){ S.pkgStep=pkgById(S.pkgId).groups.length-1; go('pkgstep'); }
+
+function scrPkgConfirm(){
+  const p=pkgById(S.pkgId);
+  let lines;
+  if(p.fixed){
+    lines=`<div class="ch">套餐包含</div>`+p.includes.map(x=>`<div class="line"><span>${x}</span><span class="v">✓</span></div>`).join('')+
+      `<div class="line"><span>饮品 · ${p.drink}</span><span class="v">✓</span></div>`;
+  } else {
+    lines=`<div class="ch">套餐选择</div>`+p.groups.map((g,i)=>{const sel=S.pkgSel[i];
+      const val=g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('、'):(sel||'—');
+      return `<div class="line"><span>${g.label}</span><span class="v">${val}</span></div>`;}).join('');
+  }
+  return `<div class="screen scroll">
+    <div class="backrow"><button class="back" onclick="${p.fixed?"go('hub')":"pkgEditBack()"}">← 返回</button>
+      <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
+    <div class="conf"><div class="mainrow"><span class="nm">${p.cn}</span><span class="pr">${money(p.price)} ${C}</span></div>
+      ${lines}<div class="line"><span>调料</span><span class="v">套餐已含</span></div></div>
+    <div class="total"><div class="tl">合计</div><div class="tv">${money(p.price)}<small>${C} · 含调料</small></div></div>
+    <div class="footer"><button class="cta" onclick="alert('Demo: 确认下单 — 后续接入下单/支付')">确认下单</button></div>
+  </div>`;
+}
+
+function scrFish(){
+  const rows=FISH.map((f,i)=>{
+    const sel=S.order.fish===i;
+    const tag=f.tag==='热销'?'<span class="hot">热销</span>':f.tag==='精选'?'<span class="pick">精选</span>':'';
+    return `<div class="opt ${sel?'sel':''}" onclick="pickFish(${i})">
+      ${f.img?`<img class="thumb" src="${f.img}">`:`<div class="emoji">${PLACE_ICON}</div>`}
+      <div class="info"><div class="nm">${f.cn} ${tag}</div><div class="en">${f.en}</div>
+        ${f.desc?`<div class="ds">${f.desc}</div>`:''}${f.note?`<div class="feat">✦ ${f.note}</div>`:''}</div>
+      <div class="pr">${money(f.price)}<small>${C}</small></div>
+      <div class="radio ${sel?'check':''}">${sel?'✓':''}</div></div>`;
+  }).join('');
+  return flowScreen(`${S.order.dish} — 选鱼种`,'每日新鲜活鱼',`<div class="list">${rows}</div>`,
+    S.order.fish!==null,'下一步：选麻辣度 →',"go('spice')");
+}
+window.pickFish=function(i){ S.order.fish=i; render(); }
+window.startFish=function(dish,mode){ S.flow='fish'; S.addons={}; S.por={}; S.order={fish:null,numb:1,spicy:1,cook:1,broth:mode==='direct'?null:0,dish,mode}; go('fish'); }
+window.startHotpot=function(){ S.flow='hotpot'; S.addons={}; S.por={}; S.hp={potType:null,broths:[]}; go('hotpot'); }
+window.startAddons=function(){ S.flow=null; S.addons={}; S.por={}; go('addons'); }
+
+// ---- 单点火锅 DIY hotpot ----
+const POTS=[{id:'single',cn:'单锅',sub:'选 1 种',max:1},{id:'twin',cn:'鸳鸯锅',sub:'选 2 种',max:2},{id:'benz',cn:'奔驰锅',sub:'选 3 种',max:3}];
+function potMax(){ const p=POTS.find(p=>p.id===S.hp.potType); return p?p.max:0; }
+function hpBroths(){ return BROTHS.filter(b=>b.id!=='mush'); }   // 单点火锅 broths (菌菇 removed)
+function scrHotpot(){
+  const max=potMax(), all=max>=hpBroths().length;   // 奔驰锅 = all 3 -> auto-selected, no manual pick
+  const ptCells=POTS.map(p=>`<div class="gcell ${S.hp.potType===p.id?'sel':''}" onclick="setPot('${p.id}')" style="padding:18px 8px">
+    <div class="gt">${p.cn}</div><div class="gsub">${p.sub}</div></div>`).join('');
+  const brothCells=S.hp.potType?hpBroths().map(b=>{const on=S.hp.broths.includes(b.id);
+    return `<div class="gcell ${on?'sel':''}" ${all?'style="padding:16px 10px 18px;cursor:default"':`onclick="toggleBroth('${b.id}')" style="padding:16px 10px 18px"`}>
+      <img class="brothimg" src="${b.img}" alt=""><div class="gt">${b.cn}</div><div class="gsub">${b.en}</div></div>`;}).join(''):'';
+  const enabled=S.hp.potType&&S.hp.broths.length===max;
+  return `<div class="screen scroll">
+    <div class="backrow"><button class="back" onclick="go('hub')">← 返回</button>
+      <div><div class="htitle">选择锅型与锅底</div><div class="hsub">先选锅型，再选锅底 · 锅底费 ${money(M.potFee)}</div></div></div>
+    <div class="seclbl">锅型 Pot Type</div><div class="grid3">${ptCells}</div>
+    ${S.hp.potType?`<div class="seclbl">锅底 Broth（选 ${max} 种）${all?'· 已全选 (all included)':`· 已选 ${S.hp.broths.length}/${max}`}</div><div class="grid2">${brothCells}</div>`:''}
+    <div style="height:8px"></div>
+    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">下一步：加购配菜 →</button></div>
+  </div>`;
+}
+window.setPot=function(id){ S.hp.potType=id; const m=potMax(), list=hpBroths();
+  if(m>=list.length) S.hp.broths=list.map(b=>b.id);                 // auto-select all (奔驰锅 = 3/3)
+  else if(S.hp.broths.length>m) S.hp.broths=S.hp.broths.slice(0,m); // trim if switching to smaller pot
+  render(); }
+window.toggleBroth=function(id){ const a=S.hp.broths, i=a.indexOf(id), m=potMax();
+  if(i>=0) a.splice(i,1); else { if(a.length>=m) a.shift(); a.push(id); } render(); }
+
+function scrSpice(){
+  const cell=(arr,key,i)=>`<div class="gcell ${S.order[key]===i?'sel':''}" onclick="setOrd('${key}',${i})">
+    <div class="ge">${chiliRow(arr[i].lv)}</div><div class="gt">${arr[i].k}</div>${arr[i].rec?'<div class="rec">推荐</div>':''}</div>`;
+  return flowScreen('选择麻辣度','分别选择麻度和辣度',
+    `<div class="tipbar" style="margin:10px 18px">初次尝试推荐 <b>中麻 + 中辣</b>，麻辣平衡</div>
+     <div class="seclbl">麻度 Numbing Level</div><div class="grid3">${NUMB.map((_,i)=>cell(NUMB,'numb',i)).join('')}</div>
+     <div class="seclbl">辣度 Spicy Level</div><div class="grid3">${SPICY.map((_,i)=>cell(SPICY,'spicy',i)).join('')}</div>`,
+    true,'下一步：选下鱼方式 →',"go('cook')");
+}
+window.setOrd=function(k,i){ S.order[k]=i; render(); }
+
+function scrCook(){
+  const rows=COOK.map((c,i)=>{const sel=S.order.cook===i;
+    return `<div class="opt ${sel?'sel':''}" onclick="setOrd('cook',${i})"><div class="emoji">${COOK_ICON[i]}</div>
+      <div class="info"><div class="nm">${c.k} ${c.rec?'<span class="pick">推荐</span>':''}</div><div class="en">${c.en}</div><div class="ds">${c.d}</div></div>
+      <div class="radio ${sel?'check':''}">${sel?'✓':''}</div></div>`;}).join('');
+  return flowScreen('下鱼方式','一份鱼适合 1-2 人',`<div class="list">${rows}</div>`,true,S.order.mode==='direct'?'下一步：升级鱼火锅 →':'下一步：选内圈锅底 →',"go('broth')");
+}
+
+function scrBroth(){
+  const direct=S.order.mode==='direct', list=brothList();
+  const cells=list.map((b,i)=>{const sel=S.order.broth===i;
+    return `<div class="gcell ${sel?'sel':''}" onclick="setOrd('broth',${i})" style="padding:16px 10px 18px">
+      <img class="brothimg" src="${b.img}" alt=""><div class="gt">${b.cn}</div><div class="gsub">${b.en}</div>
+      ${direct?`<div class="rec" style="margin-top:6px;background:rgba(0,0,0,.3);color:var(--gold)">升级 +${money(DIRECT_UPGRADE)}</div>`:''}</div>`;}).join('');
+  if(direct){
+    const enabled=S.order.broth!=null;
+    return `<div class="screen scroll">
+      <div class="backrow"><button class="back" onclick="go('cook')">← 返回</button>
+        <div><div class="htitle">升级鱼火锅？</div><div class="hsub">加一个锅底，鱼吃完继续涮 · 升级 +${money(DIRECT_UPGRADE)}</div></div></div>
+      <div class="grid2">${cells}</div><div style="height:8px"></div>
+      <div class="footer">
+        <button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">下一步：加购配菜 →</button>
+        <button class="skiplink" onclick="skipUpgrade()">不升级，纯享鱼 →</button>
+      </div></div>`;
+  }
+  return flowScreen('选择内圈锅底',`鱼吃完后继续涮 · 选 1 种 · 锅底费 ${money(M.potFee)}`,
+    `<div class="grid2">${cells}</div>`,true,'下一步：加购配菜 →',"go('addons')");
+}
+window.skipUpgrade=function(){ S.order.broth=null; go('addons'); }
+
+// ---- add-ons ----
+const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼片':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食':'cat_base.png','饮料':'cat_drink.png','儿童套餐':'cat_kids.svg'};
+function key(id,por){ return id+'|'+por; }
+function catItems(c){ return c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c); }
+function addonCard(it){
+  const por=S.por[it.id]||'full';
+  const seg=it.half?`<div class="seg"><button class="${por==='full'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','full')">整份</button>
+      <button class="${por==='half'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','half')">半份</button></div>`:'';
+  let priceHtml, q=S.addons[key(it.id,por)]||0;
+  if(it.price==null) priceHtml='<span class="ap mk">时价</span>';
+  else { const p=por==='half'?halfP(it.price):it.price; priceHtml=`<span class="ap">${money(p)}<small> ${C}</small></span>`; }
+  const ctrl=q>0
+    ? `<div class="qtyctl"><button onclick="addQty('${it.id}','${por}',-1)">−</button><span class="qn">${q}</span><button onclick="addQty('${it.id}','${por}',1)">+</button></div>`
+    : `<button class="addbtn" onclick="addQty('${it.id}','${por}',1)">+</button>`;
+  return `<div class="acard">${it.img?`<img class="ai" src="${it.img}">`:`<div class="aemoji">${PLACE_ICON}</div>`}
+    <div class="an">${it.cn} ${it.hot?'<span class="hot">热销</span>':''}</div><div class="ae">${it.en||''}</div>
+    ${seg}<div class="arow">${priceHtml}${ctrl}</div></div>`;
+}
+function scrAddons(){
+  const fromFlow=(S.flow==='fish'&&S.order.fish!==null)||S.flow==='hotpot';
+  const backTo=S.flow==='hotpot'?'hotpot':(S.flow==='fish'?'broth':'hub');
+  const tabs=M.addonCats.map((c,i)=>`<div class="ctab ${S.addonTab===c?'on':''}" data-i="${i}" onclick="scrollToCat(${i})"><span class="cic"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}" alt=""></span><span class="clbl">${c}</span></div>`).join('');
+  const sections=M.addonCats.map((c,i)=>`<div class="acat" id="cat-${i}">
+    <div class="acat-h"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}" alt=""><span>${c}</span></div>
+    <div class="agrid">${catItems(c).map(addonCard).join('')}</div></div>`).join('');
+  return `<div class="screen scroll">
+    <div class="addon-head">
+      <div class="backrow"><button class="back" onclick="go('${backTo}')">← 返回</button>
+        <div><div class="htitle">加购配菜</div><div class="hsub">荤菜素菜可选整份或半份</div></div></div>
+      <div class="ctabs">${tabs}</div>
+    </div>
+    ${sections}<div class="addon-spacer" style="height:16px"></div>
+    <div class="cartbar"><div class="ci"><div class="cl">${fromFlow?'主菜 + 加购':'加购小计'}</div><div class="cv">${money(orderTotal())}</div></div>
+      <button class="cta" style="width:auto;padding:15px 26px" onclick="go('confirm')">${fromFlow?'去确认 →':'确认下单 →'}</button></div>
+  </div>`;
+}
+let _lastCat=-1;
+function centerTab(sc,i){   // scroll ONLY the tab strip horizontally (won't cancel the vertical smooth scroll)
+  const wrap=sc.querySelector('.ctabs'), t=sc.querySelectorAll('.ctab')[i];
+  if(wrap&&t) wrap.scrollTo({left:t.offsetLeft - wrap.clientWidth/2 + t.offsetWidth/2, behavior:'smooth'});
+}
+function addonSpy(sc){
+  const head=sc.querySelector('.addon-head'); if(!head)return;
+  const hb=head.getBoundingClientRect().bottom; let cur=0;
+  for(let i=0;i<M.addonCats.length;i++){ const sec=sc.querySelector('#cat-'+i); if(sec&&sec.getBoundingClientRect().top<=hb+14) cur=i; }
+  if(cur===_lastCat) return; _lastCat=cur; S.addonTab=M.addonCats[cur];
+  sc.querySelectorAll('.ctab').forEach((t,i)=>t.classList.toggle('on',i===cur));
+  centerTab(sc,cur);
+}
+function attachAddonScroll(){
+  const sc=screenEl.querySelector('.scroll'); if(!sc)return; _lastCat=-1; let raf=null;
+  // bottom spacer so the last category can scroll up under the sticky header
+  const acats=sc.querySelectorAll('.acat'), last=acats[acats.length-1];
+  const head=sc.querySelector('.addon-head'), cart=sc.querySelector('.cartbar'), spacer=sc.querySelector('.addon-spacer');
+  if(spacer&&head&&last){
+    const need=sc.clientHeight - head.offsetHeight - (cart?cart.offsetHeight:0) - last.offsetHeight + 24;
+    spacer.style.height=Math.max(16,need)+'px';
+  }
+  sc.onscroll=()=>{ if(raf)return; raf=requestAnimationFrame(()=>{raf=null;addonSpy(sc);}); };
+  addonSpy(sc);
+}
+window.scrollToCat=function(i){
+  const sc=screenEl.querySelector('.scroll'),sec=sc.querySelector('#cat-'+i),head=sc.querySelector('.addon-head');
+  const top=sec.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - head.offsetHeight - 4;
+  _lastCat=i; S.addonTab=M.addonCats[i];
+  sc.querySelectorAll('.ctab').forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  centerTab(sc,i);
+  sc.scrollTo({top,behavior:'smooth'});
+}
+window.setPor=function(id,por){ S.por[id]=por; render(); }
+window.addQty=function(id,por,d){ const k=key(id,por),q=(S.addons[k]||0)+d; if(q<=0)delete S.addons[k]; else S.addons[k]=q; render(); }
+
+function addonLineItems(){
+  return Object.entries(S.addons).map(([k,q])=>{const [id,por]=k.split('|');const it=addonById(id);
+    const unit=it.price==null?null:(por==='half'?halfP(it.price):it.price);
+    return {it,por,qty:q,unit,amount:unit==null?0:unit*q};});
+}
+function addonsTotal(){ return addonLineItems().reduce((s,l)=>s+l.amount,0); }
+function orderTotal(){
+  let t=addonsTotal();
+  if(S.flow==='fish' && S.order.fish!==null){
+    t+=FISH[S.order.fish].price + S.pax*M.condiment.price;
+    t+= S.order.mode==='direct' ? (S.order.broth!=null?DIRECT_UPGRADE:0) : M.potFee;
+  } else if(S.flow==='hotpot'){
+    t+= M.potFee + S.pax*M.condiment.price;
+  }
+  return t;
+}
+
+function confirmShell(title,detailHtml){
+  return `<div class="screen scroll">
+    <div class="backrow"><button class="back" onclick="go('addons')">← 返回</button>
+      <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
+    <div class="conf">${detailHtml}</div>
+    <div class="total"><div class="tl">合计</div><div class="tv">${money(orderTotal())}<small>${C} · 含调料费</small></div></div>
+    <div class="footer"><button class="cta" onclick="alert('Demo: 确认下单 — 后续接入下单/支付')">确认下单</button></div></div>`;
+}
+function addonConfLines(){
+  return addonLineItems().map(l=>`<div class="line"><span>${l.it.cn}${l.por==='half'?'（半份）':''} ×${l.qty}</span>
+    <span class="v">${l.unit==null?'时价':money(l.amount)+' '+C}</span></div>`).join('');
+}
+function scrConfirm(){
+  if(S.flow==='hotpot') return scrHotpotConfirm();
+  if(S.flow!=='fish') {   // standalone 配菜加点
+    const lines=addonConfLines();
+    return confirmShell('','<div class="ch">加购配菜</div>'+(lines||'<div class="line"><span>还没有加购</span></div>'));
+  }
+  const f=FISH[S.order.fish], cp=M.condiment.price, cond=S.pax*cp;
+  const direct=S.order.mode==='direct';
+  const b=S.order.broth!=null?brothList()[S.order.broth]:null;
+  const brothLines = direct
+    ? (b ? `<div class="line"><span>升级内圈（鸳鸯锅）</span><span class="v">${b.cn}</span></div>
+            <div class="line"><span>升级费</span><span class="v">${money(DIRECT_UPGRADE)} ${C}</span></div>`
+         : `<div class="line"><span>内圈升级</span><span class="v">不升级 · 纯享鱼</span></div>`)
+    : `<div class="line"><span>内圈锅底</span><span class="v">${b.cn}</span></div>
+       <div class="line"><span>锅底费</span><span class="v">${money(M.potFee)} ${C}</span></div>`;
+  const lines=addonLineItems().map(l=>`<div class="line"><span>${l.it.cn}${l.por==='half'?'（半份）':''} ×${l.qty}</span>
+    <span class="v">${l.unit==null?'时价':money(l.amount)+' '+C}</span></div>`).join('');
+  return `<div class="screen scroll">
+    <div class="backrow"><button class="back" onclick="go('addons')">← 返回</button>
+      <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
+    <div class="conf"><div class="ch">主菜详情</div>
+      <div class="mainrow"><span class="nm">${S.order.dish} · ${f.cn}</span><span class="pr">${money(f.price)} ${C}</span></div>
+      <div class="line"><span>麻 / 辣度</span><span class="v">${NUMB[S.order.numb].k} · ${SPICY[S.order.spicy].k}</span></div>
+      <div class="line"><span>下鱼方式</span><span class="v">${COOK[S.order.cook].k}</span></div>
+      ${brothLines}
+      <div class="line"><span>调料费 (${S.pax} 位 × ${money(cp)})</span><span class="v">${money(cond)} ${C}</span></div>
+      ${lines?`<div class="ch" style="margin-top:14px">加购配菜</div>${lines}`:''}</div>
+    <div class="total"><div class="tl">合计</div><div class="tv">${money(orderTotal())}<small>${C} · 含调料费</small></div></div>
+    <div class="footer"><button class="cta" onclick="alert('Demo: 确认下单 — 后续接入下单/支付')">确认下单</button></div></div>`;
+}
+function scrHotpotConfirm(){
+  const pot=POTS.find(p=>p.id===S.hp.potType), cp=M.condiment.price, cond=S.pax*cp;
+  const broths=S.hp.broths.map(id=>(BROTHS.find(b=>b.id===id)||{}).cn).join('、');
+  const lines=addonConfLines();
+  const detail=`<div class="ch">主菜详情</div>
+    <div class="mainrow"><span class="nm">单点火锅 · ${pot?pot.cn:''}</span><span class="pr">${money(M.potFee)} ${C}</span></div>
+    <div class="line"><span>锅底</span><span class="v">${broths}</span></div>
+    <div class="line"><span>锅底费</span><span class="v">${money(M.potFee)} ${C}</span></div>
+    <div class="line"><span>调料费 (${S.pax} 位 × ${money(cp)})</span><span class="v">${money(cond)} ${C}</span></div>
+    ${lines?`<div class="ch" style="margin-top:14px">加购配菜</div>${lines}`:''}`;
+  return confirmShell('',detail);
+}
+
+function scrTab(tab){
+  const map={orders:[ICO.orders('#cda968'),'暂无进行中的订单','下单后可在这里查看订单状态'],me:[ICO.me('#cda968'),'我的','会员 / 历史订单将显示在这里']};
+  const [e,t,s]=map[tab];
+  return `<div class="screen scroll">${topbar()}<div class="placeholder"><div class="pe">${e}</div>
+    <div style="font-size:18px;color:var(--gold2)">${t}</div><div>${s}</div></div></div>`;
+}
+
+// ---- 会员查询 Member lookup (READ-ONLY) ----
+function scrMe(){
+  const m=S.member; let body;
+  if(m&&m.data){
+    const redeem=m.data.points/100*3.5;
+    body=`<div class="mcard">
+      <div class="top"><div class="nm">${m.data.name||'会员'}</div><div class="ph">${m.phone}</div></div>
+      <div class="stats">
+        <div class="st"><div class="lab">积分 Points</div><div class="val">${m.data.points}</div><div class="vs">≈ ${money(redeem)} 可抵扣</div></div>
+        <div class="st"><div class="lab">余额 Balance</div><div class="val">${money(m.data.balance)}</div><div class="vs">充值余额</div></div>
+      </div>
+      <div class="note">消费 $1 积 1 分 · 每 100 积分抵扣 ${money(3.5)}</div></div>
+    <button class="cta" onclick="resetMember()">查询其他号码</button>`;
+  } else {
+    body=`<div class="mlook">
+      <div class="t">会员查询</div><div class="s">输入手机号查询积分与余额</div>
+      <input id="m_phone" type="tel" inputmode="numeric" placeholder="手机号 Phone" value="${(m&&m.phone)||''}">
+      <button class="cta" onclick="doLookup()">查询 →</button>
+      ${m&&m.notFound?'<div class="err">未找到该会员，请确认手机号</div>':''}</div>`;
+  }
+  return `<div class="screen scroll">${topbar()}
+    <div class="seclbl2" style="padding:10px 18px 0">我的会员 <small>MEMBER</small></div>
+    <div class="member-wrap">${body}</div></div>`;
+}
+window.doLookup=function(){
+  const el=document.getElementById('m_phone'); const raw=((el&&el.value)||'').replace(/\s/g,'').trim();
+  const phone=raw||'0412 888 888';   // demo: show mock points even if no number entered
+  S.member={phone,data:lookupMember(phone.replace(/\D/g,''))}; render();
+}
+window.resetMember=function(){ S.member=null; render(); }  // back to the lookup form
+// === POS member lookup — READ-ONLY. Points + balance are owned by the POS (3rd-party company). ===
+// TODO: replace this stub with the live POS member API (lookup by phone -> {name, points, balance}); return null if not found.
+function lookupMember(phone){
+  let h=0; for(const c of phone) h=(h*31+c.charCodeAt(0))>>>0;   // demo data until POS is connected
+  return { name:'会员 ·'+phone.slice(-4), points: 80+(h%1920), balance: (h%46)*10 };
+}
+
+function flowScreen(title,sub,content,enabled,ctaLabel,ctaAct){
+  return `<div class="screen scroll">
+    <div class="backrow"><button class="back" onclick="flowBack()">← 返回</button>
+      <div><div class="htitle">${title}</div><div class="hsub">${sub}</div></div></div>
+    ${content}<div style="height:8px"></div>
+    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?ctaAct:''}">${ctaLabel}</button></div></div>`;
+}
+const FLOW=['fish','spice','cook','broth','addons'];
+window.flowBack=function(){ const i=FLOW.indexOf(S.screen); if(i<=0)go('hub'); else go(FLOW[i-1]); }
+
+let _prevScreen=null;
+function render(){
+  const m={pax:scrPax,hub:scrHub,fish:scrFish,spice:scrSpice,cook:scrCook,broth:scrBroth,
+    addons:scrAddons,confirm:scrConfirm,hotpot:scrHotpot,pkgstep:scrPkgStep,pkgconfirm:scrPkgConfirm,orders:()=>scrTab('orders'),me:scrMe};
+  const old=screenEl.querySelector('.scroll'); const keep=old?old.scrollTop:0;
+  screenEl.innerHTML=(m[S.screen]||scrHub)();
+  updateNav();
+  const neu=screenEl.querySelector('.scroll');
+  if(neu && S.screen===_prevScreen) neu.scrollTop=keep;   // keep position on in-screen updates
+  _prevScreen=S.screen;
+  if(S.screen==='addons') attachAddonScroll();
+}
+mountShell();
+render();
 </script>
 </body>
 </html>

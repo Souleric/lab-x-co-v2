@@ -866,10 +866,12 @@ function render(){
   const m={pax:scrPax,hub:scrHub,fish:scrFish,spice:scrSpice,cook:scrCook,broth:scrBroth,
     addons:scrAddons,confirm:scrConfirm,hotpot:scrHotpot,pkgstep:scrPkgStep,pkgconfirm:scrPkgConfirm,orders:scrOrders,me:scrMe};
   const old=screenEl.querySelector('.scroll'); const keep=old?old.scrollTop:0;
+  const same=(S.screen===_prevScreen);
   screenEl.innerHTML=(m[S.screen]||scrHub)();
+  if(same){ const scr=screenEl.querySelector('.screen'); if(scr) scr.style.animation='none'; }  // no entrance re-animation on in-screen taps
   updateNav();
   const neu=screenEl.querySelector('.scroll');
-  if(neu && S.screen===_prevScreen) neu.scrollTop=keep;   // keep position on in-screen updates
+  if(neu && same) neu.scrollTop=keep;   // keep position on in-screen updates
   _prevScreen=S.screen;
   if(S.screen==='addons') attachAddonScroll();
 }

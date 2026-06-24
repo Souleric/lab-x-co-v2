@@ -81,6 +81,12 @@
     background:linear-gradient(100deg,rgba(36,5,8,.95) 0%,rgba(58,7,12,.8) 38%,rgba(60,8,12,.34) 66%,rgba(20,4,6,.25) 100%),
       linear-gradient(0deg,rgba(18,3,5,.8),rgba(18,3,5,0) 52%)}
   .hero>*{position:relative;z-index:2}
+  .heroslider{margin:6px 18px 0;border-radius:22px;overflow:hidden;position:relative;border:1px solid rgba(247,218,136,.5);box-shadow:0 14px 36px rgba(0,0,0,.5)}
+  .heroslider .heroslides{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+  .heroslider .hero{flex:none;width:100%;margin:0;border-radius:0;border:none;box-shadow:none}
+  .herodots{position:absolute;bottom:11px;left:0;right:0;display:flex;justify-content:center;gap:7px;z-index:5}
+  .herodot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:.3s}
+  .herodot.on{background:var(--gold2);width:18px;border-radius:4px}
   .hero .badges{display:flex;gap:8px;margin-bottom:10px}
   .hero .bdg{background:linear-gradient(180deg,#f7da88,#d8a13e);color:#5a0f12;font-size:11px;font-weight:700;border-radius:7px;padding:4px 11px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
   .hero h1{margin:2px 0 4px;font-size:38px;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
@@ -407,10 +413,16 @@ function scrHub(){
       <span class="mb-ico">${ICO.me('#e9c477')}</span>
       <div class="mb-txt"><div class="mb-t">会员查询 Member</div><div class="mb-s">输入手机号查积分 · 余额</div></div>
       <span class="mb-arrow">→</span></div>
-    <div class="hero"><div class="herobg" style="background-image:url('assets/hero.jpg')"></div><div class="heroveil"></div>
-      <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">本店独创</span></div>
-      <h1>冷锅鱼</h1><div class="tag">红油翻滚 · 麻辣鲜香</div><div class="sub">鲜活鱼片 · 红油慢浸入味</div>
-      <button class="pill" onclick="startFish('冷锅鱼','direct')">立即选择 →</button></div>
+    <div class="heroslider"><div class="heroslides">
+      <div class="hero"><div class="herobg" style="background-image:url('assets/hero.jpg')"></div><div class="heroveil"></div>
+        <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">本店独创</span></div>
+        <h1>冷锅鱼</h1><div class="tag">红油翻滚 · 麻辣鲜香</div><div class="sub">鲜活鱼片 · 红油慢浸入味</div>
+        <button class="pill" onclick="startFish('冷锅鱼','direct')">立即选择 →</button></div>
+      <div class="hero" onclick="scrollToPkg()"><div class="herobg" style="background-image:url('${M.packages[0].img}')"></div><div class="heroveil"></div>
+        <div class="badges"><span class="bdg">超值套餐</span><span class="bdg">限定供应</span></div>
+        <h1>套餐特惠</h1><div class="tag">周一至周四全天 · 周五午市</div><div class="sub">双人 / 四人套餐 · 已含调料</div>
+        <button class="pill">查看套餐 →</button></div>
+    </div><div class="herodots"><span class="herodot on" onclick="heroDot(0)"></span><span class="herodot" onclick="heroDot(1)"></span></div></div>
     <div class="seclbl2">单点精选 <small>À LA CARTE</small></div>
     <div class="cards">
       ${hubCard('assets/menu/0101.jpg','冷锅鱼','Cold Pot Fish','红油翻滚·麻辣鲜香','鲈鱼·盲曹·星斑',"startFish('冷锅鱼','direct')")}
@@ -418,10 +430,25 @@ function scrHub(){
       ${hubCard('assets/menu/0112.jpg','单点火锅','Hot Pot','多种精选锅底','单锅·奔驰锅',"startHotpot()")}
       ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
     </div>
-    <div class="seclbl2" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
+    <div class="seclbl2" id="pkg-section" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
     <div class="pkg-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3.2 1.8"/></svg><span>套餐供应时间：<b>周一至周四全天</b> · <b>周五午市</b>　<i>Mon–Thu all day · Fri lunch</i></span></div>
     <div class="pkgrow">${M.packages.map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
+}
+// ---- hero auto-slider ----
+let _heroSlide=0, _heroTimer=null;
+function setHeroSlide(i){
+  const n=2; _heroSlide=((i%n)+n)%n;
+  const track=screenEl.querySelector('.heroslides'); if(!track)return;
+  track.style.transform='translateX(-'+(_heroSlide*100)+'%)';
+  screenEl.querySelectorAll('.herodot').forEach((d,idx)=>d.classList.toggle('on',idx===_heroSlide));
+}
+function startHeroTimer(){ clearInterval(_heroTimer); _heroTimer=setInterval(()=>setHeroSlide(_heroSlide+1),4500); }
+function attachHero(){ setHeroSlide(_heroSlide); startHeroTimer(); }
+window.heroDot=function(i){ setHeroSlide(i); startHeroTimer(); }
+window.scrollToPkg=function(){
+  const sc=screenEl.querySelector('.scroll'), sec=sc&&sc.querySelector('#pkg-section');
+  if(sec){ const top=sec.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 8; sc.scrollTo({top,behavior:'smooth'}); }
 }
 function hubCard(img,cn,en,accent,sub,act){
   return `<div class="card" onclick="${act}"><div class="cimg-wrap"><img class="cimg" src="${img}" alt=""></div>
@@ -876,12 +903,14 @@ function render(){
     addons:scrAddons,confirm:scrConfirm,hotpot:scrHotpot,pkgstep:scrPkgStep,pkgconfirm:scrPkgConfirm,orders:scrOrders,me:scrMe};
   const old=screenEl.querySelector('.scroll'); const keep=old?old.scrollTop:0;
   const same=(S.screen===_prevScreen);
+  clearInterval(_heroTimer);   // stop hero auto-slide on any re-render / screen change
   screenEl.innerHTML=(m[S.screen]||scrHub)();
   if(same){ const scr=screenEl.querySelector('.screen'); if(scr) scr.style.animation='none'; }  // no entrance re-animation on in-screen taps
   updateNav();
   const neu=screenEl.querySelector('.scroll');
   if(neu && same) neu.scrollTop=keep;   // keep position on in-screen updates
   _prevScreen=S.screen;
+  if(S.screen==='hub') attachHero();
   if(S.screen==='addons') attachAddonScroll();
 }
 mountShell();

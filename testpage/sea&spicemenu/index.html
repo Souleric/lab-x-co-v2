@@ -109,6 +109,10 @@
   .memberbar .mb-s{font-size:11.5px;color:var(--muted2);margin-top:1px}
   .memberbar .mb-arrow{color:var(--gold);font-size:18px}
   .seclbl2{padding:16px 18px 2px;font-size:16px;color:var(--gold2);font-weight:700}
+  .pkg-note{margin:6px 18px 0;padding:9px 13px;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:11px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);line-height:1.4}
+  .pkg-note svg{width:16px;height:16px;flex:none;stroke:var(--gold)}
+  .pkg-note b{color:var(--gold2);font-weight:700}
+  .pkg-note i{color:var(--muted2);font-style:normal;font-family:var(--cor);font-size:11px}
   .seclbl2 small{color:var(--muted2);font-weight:400;font-family:var(--cor);margin-left:7px;font-size:12px;letter-spacing:.5px}
   .pkgrow{display:flex;gap:13px;overflow-x:auto;padding:8px 18px 6px;scrollbar-width:none}
   .pkgrow::-webkit-scrollbar{display:none}
@@ -406,9 +410,7 @@ function scrHub(){
       <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">本店独创</span></div>
       <h1>冷锅鱼</h1><div class="tag">红油翻滚 · 麻辣鲜香</div><div class="sub">鲜活鱼片 · 红油慢浸入味</div>
       <button class="pill" onclick="startFish('冷锅鱼','direct')">立即选择 →</button></div>
-    <div class="seclbl2">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
-    <div class="pkgrow">${M.packages.map(pkgCard).join('')}</div>
-    <div class="divider">或 单 独 点 选</div>
+    <div class="seclbl2">单点精选 <small>À LA CARTE</small></div>
     <div class="cards">
       ${hubCard('assets/menu/0101.jpg','冷锅鱼','Cold Pot Fish','红油翻滚·麻辣鲜香','鲈鱼·盲曹·星斑',"startFish('冷锅鱼','direct')")}
       ${hubCard('assets/menu/0201.jpg','酸菜鱼','Pickled Fish','黄金酸汤·清爽开胃','鲈鱼·盲曹·星斑',"startFish('酸菜鱼','direct')")}
@@ -416,6 +418,9 @@ function scrHub(){
       ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
     </div>
     <div class="tipbar">首次光临？推荐体验本店招牌 <b>「冷锅鱼」</b> —— 红油慢浸，麻辣鲜香入味</div>
+    <div class="seclbl2" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
+    <div class="pkg-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3.2 1.8"/></svg><span>套餐供应时间：<b>周一至周四全天</b> · <b>周五午市</b>　<i>Mon–Thu all day · Fri lunch</i></span></div>
+    <div class="pkgrow">${M.packages.map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
 function hubCard(img,cn,en,accent,sub,act){

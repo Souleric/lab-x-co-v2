@@ -415,7 +415,7 @@ function scrHub(){
     <div class="cards">
       ${hubCard('assets/menu/0101.jpg','冷锅鱼','Cold Pot Fish','红油翻滚·麻辣鲜香','鲈鱼·盲曹·星斑',"startFish('冷锅鱼','direct')")}
       ${hubCard('assets/menu/0201.jpg','酸菜鱼','Pickled Fish','黄金酸汤·清爽开胃','鲈鱼·盲曹·星斑',"startFish('酸菜鱼','direct')")}
-      ${hubCard('assets/menu/0112.jpg','单点火锅','Hot Pot','多种精选锅底','鸳鸯·奔驰锅',"startHotpot()")}
+      ${hubCard('assets/menu/0112.jpg','单点火锅','Hot Pot','多种精选锅底','单锅·奔驰锅',"startHotpot()")}
       ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
     </div>
     <div class="seclbl2" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
@@ -516,7 +516,7 @@ window.startHotpot=function(){ S.flow='hotpot'; S.addons={}; S.por={}; S.hp={pot
 window.startAddons=function(){ S.flow=null; S.addons={}; S.por={}; go('addons'); }
 
 // ---- 单点火锅 DIY hotpot ----
-const POTS=[{id:'single',cn:'单锅',sub:'选 1 种',max:1},{id:'twin',cn:'鸳鸯锅',sub:'选 2 种',max:2},{id:'benz',cn:'奔驰锅',sub:'选 3 种',max:3}];
+const POTS=[{id:'single',cn:'单锅',sub:'选 1 种',max:1},{id:'benz',cn:'奔驰锅',sub:'选 3 种',max:3}];
 function potMax(){ const p=POTS.find(p=>p.id===S.hp.potType); return p?p.max:0; }
 function hpBroths(){ return BROTHS.filter(b=>b.id!=='mush'); }   // 单点火锅 broths (菌菇 removed)
 function scrHotpot(){
@@ -530,7 +530,7 @@ function scrHotpot(){
   return `<div class="screen scroll">
     <div class="backrow"><button class="back" onclick="go('hub')">← 返回</button>
       <div><div class="htitle">选择锅型与锅底</div><div class="hsub">先选锅型，再选锅底 · 锅底费 ${money(M.potFee)}</div></div></div>
-    <div class="seclbl">锅型 Pot Type</div><div class="grid3">${ptCells}</div>
+    <div class="seclbl">锅型 Pot Type</div><div class="grid2">${ptCells}</div>
     ${S.hp.potType?`<div class="seclbl">锅底 Broth（选 ${max} 种）${all?'· 已全选 (all included)':`· 已选 ${S.hp.broths.length}/${max}`}</div><div class="grid2">${brothCells}</div>`:''}
     <div style="height:8px"></div>
     <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">下一步：加购配菜 →</button></div>
@@ -696,7 +696,7 @@ function scrConfirm(){
   const b=S.order.broth!=null?brothList()[S.order.broth]:null;
   const brothLines = direct
     ? `<div class="line"><span>冷锅锅底</span><span class="v">${money(DIRECT_BASE)} ${C}</span></div>`
-      + (b ? `<div class="line"><span>升级内圈（鸳鸯锅）</span><span class="v">${b.cn}</span></div>
+      + (b ? `<div class="line"><span>升级内圈</span><span class="v">${b.cn}</span></div>
             <div class="line"><span>升级费</span><span class="v">${money(DIRECT_UPGRADE)} ${C}</span></div>`
          : `<div class="line"><span>内圈升级</span><span class="v">不升级 · 纯享鱼</span></div>`)
     : `<div class="line"><span>内圈锅底</span><span class="v">${b.cn}</span></div>

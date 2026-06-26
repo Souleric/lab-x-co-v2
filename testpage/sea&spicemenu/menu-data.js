@@ -687,32 +687,11 @@ window.SEASPICE = {
    "img": "assets/menu/0427.jpg"
   },
   {
-   "id": "s1",
-   "cn": "白米饭",
-   "en": "Steamed Rice",
-   "price": 3.5,
-   "cat": "主食",
-   "hot": false,
-   "half": false,
-   "desc": "",
-   "img": "assets/menu/0509.jpg"
-  },
-  {
-   "id": "s2",
-   "cn": "蛋炒饭",
-   "en": "Egg Fried Rice",
-   "price": 12.8,
-   "cat": "主食",
-   "hot": true,
-   "half": false,
-   "desc": "镬气十足"
-  },
-  {
    "id": "s3",
-   "cn": "手工面条",
-   "en": "Handmade Noodles",
+   "cn": "阳春面",
+   "en": "Yangchun Noodles",
    "price": 9.8,
-   "cat": "主食",
+   "cat": "素菜",
    "hot": false,
    "half": false,
    "desc": ""
@@ -722,7 +701,7 @@ window.SEASPICE = {
    "cn": "年糕",
    "en": "Rice Cake",
    "price": 8.8,
-   "cat": "主食",
+   "cat": "素菜",
    "hot": false,
    "half": false,
    "desc": "",
@@ -733,10 +712,31 @@ window.SEASPICE = {
    "cn": "粉丝",
    "en": "Glass Noodles",
    "price": 6.8,
-   "cat": "主食",
+   "cat": "素菜",
    "hot": false,
    "half": false,
    "desc": ""
+  },
+  {
+   "id": "s1",
+   "cn": "白米饭",
+   "en": "Steamed Rice",
+   "price": 3.5,
+   "cat": "主食和小吃",
+   "hot": false,
+   "half": false,
+   "desc": "",
+   "img": "assets/menu/0509.jpg"
+  },
+  {
+   "id": "s2",
+   "cn": "蛋炒饭",
+   "en": "Egg Fried Rice",
+   "price": 12.8,
+   "cat": "主食和小吃",
+   "hot": true,
+   "half": false,
+   "desc": "镬气十足"
   },
   {
    "id": "d1",
@@ -867,7 +867,7 @@ window.SEASPICE = {
   "加鱼",
   "荤菜",
   "素菜",
-  "主食",
+  "主食和小吃",
   "饮料",
   "儿童套餐"
  ],

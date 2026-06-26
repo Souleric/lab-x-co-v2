@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="menu-data.js?v=16"></script>
+<script src="menu-data.js?v=17"></script>
 <style>
   :root{
     --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
@@ -612,7 +612,7 @@ function scrBroth(){
 window.skipUpgrade=function(){ S.order.broth=null; go('addons'); }
 
 // ---- add-ons ----
-const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食':'cat_base.png','饮料':'cat_drink.png','儿童套餐':'cat_kids.svg'};
+const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食和小吃':'cat_base.png','饮料':'cat_drink.png','儿童套餐':'cat_kids.svg'};
 function key(id,por){ return id+'|'+por; }
 function catItems(c){ return c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c); }
 function addonCard(it){

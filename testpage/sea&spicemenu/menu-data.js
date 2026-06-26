@@ -691,7 +691,7 @@ window.SEASPICE = {
    "cn": "阳春面",
    "en": "Yangchun Noodles",
    "price": 9.8,
-   "cat": "主食和小吃",
+   "cat": "素菜",
    "hot": false,
    "half": false,
    "desc": ""
@@ -701,7 +701,7 @@ window.SEASPICE = {
    "cn": "年糕",
    "en": "Rice Cake",
    "price": 8.8,
-   "cat": "主食和小吃",
+   "cat": "素菜",
    "hot": false,
    "half": false,
    "desc": "",
@@ -712,7 +712,7 @@ window.SEASPICE = {
    "cn": "粉丝",
    "en": "Glass Noodles",
    "price": 6.8,
-   "cat": "主食和小吃",
+   "cat": "素菜",
    "hot": false,
    "half": false,
    "desc": ""

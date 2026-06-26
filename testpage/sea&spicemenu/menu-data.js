@@ -868,87 +868,144 @@ window.SEASPICE = {
    "img": "assets/menu/0504.jpg"
   },
   {
-   "id": "d1",
-   "cn": "可乐",
-   "en": "Coca-Cola 330ml",
-   "price": 4.5,
+   "id": "dr1",
+   "cn": "暴打柠檬薄荷",
+   "en": "Hand-beaten Lemon Mint",
+   "price": 5.8,
    "cat": "饮料",
-   "hot": false,
-   "half": false,
+   "hot": true,
    "desc": "",
-   "img": "assets/menu/0701.jpg"
+   "img": "assets/menu/0707.jpg"
   },
   {
-   "id": "d2",
-   "cn": "雪碧",
-   "en": "Sprite 330ml",
-   "price": 4.5,
+   "id": "dr2",
+   "cn": "酸梅汤(扎)",
+   "en": "Sour Plum Drink (Jug)",
+   "price": 9.8,
    "cat": "饮料",
    "hot": false,
-   "half": false,
+   "desc": "",
+   "img": "assets/menu/0709.jpg"
+  },
+  {
+   "id": "dr3",
+   "cn": "哇米诺豆奶",
+   "en": "Vamino Soy Milk",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0710.jpg"
+  },
+  {
+   "id": "dr4",
+   "cn": "雪碧",
+   "en": "Sprite",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
    "desc": "",
    "img": "assets/menu/0703.jpg"
   },
   {
-   "id": "d3",
-   "cn": "矿泉水",
-   "en": "Still Water 600ml",
-   "price": 3,
+   "id": "dr5",
+   "cn": "零度可乐",
+   "en": "Coke Zero",
+   "price": 4.8,
    "cat": "饮料",
    "hot": false,
-   "half": false,
+   "desc": "",
+   "img": "assets/menu/0702.jpg"
+  },
+  {
+   "id": "dr6",
+   "cn": "可乐",
+   "en": "Coca-Cola",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0701.jpg"
+  },
+  {
+   "id": "dr7",
+   "cn": "王老吉",
+   "en": "Wong Lo Kat",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0706.jpg"
+  },
+  {
+   "id": "dr8",
+   "cn": "可尔比思",
+   "en": "Calpis",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0705.jpg"
+  },
+  {
+   "id": "dr9",
+   "cn": "元气森林陈皮山楂水",
+   "en": "Genki Forest Hawthorn Water",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0711.jpg"
+  },
+  {
+   "id": "dr10",
+   "cn": "东方树叶小茉莉花茶",
+   "en": "Oriental Leaf Jasmine Tea",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0712.jpg"
+  },
+  {
+   "id": "dr11",
+   "cn": "POP TOPS 苹果汁",
+   "en": "POP TOPS Apple Juice",
+   "price": 3.5,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0715.jpg"
+  },
+  {
+   "id": "dr12",
+   "cn": "酸角汁",
+   "en": "Tamarind Juice",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0716.jpg"
+  },
+  {
+   "id": "dr13",
+   "cn": "椰树牌椰汁",
+   "en": "Coconut Palm Juice",
+   "price": 4.8,
+   "cat": "饮料",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/0717.jpg"
+  },
+  {
+   "id": "dr14",
+   "cn": "矿泉水",
+   "en": "Mineral Water",
+   "price": 2.5,
+   "cat": "饮料",
+   "hot": false,
    "desc": "",
    "img": "assets/menu/0718.jpg"
-  },
-  {
-   "id": "d4",
-   "cn": "蜜桃乌龙茶",
-   "en": "Peach Oolong Tea",
-   "price": 7.8,
-   "cat": "饮料",
-   "hot": true,
-   "half": false,
-   "desc": "消暑解腻"
-  },
-  {
-   "id": "d5",
-   "cn": "柠檬茶",
-   "en": "Lemon Tea",
-   "price": 7.8,
-   "cat": "饮料",
-   "hot": false,
-   "half": false,
-   "desc": ""
-  },
-  {
-   "id": "d6",
-   "cn": "杨梅汁",
-   "en": "Bayberry Juice",
-   "price": 7.8,
-   "cat": "饮料",
-   "hot": false,
-   "half": false,
-   "desc": "解辣必备"
-  },
-  {
-   "id": "d7",
-   "cn": "青岛啤酒",
-   "en": "Tsingtao Beer 330ml",
-   "price": 8,
-   "cat": "饮料",
-   "hot": false,
-   "half": false,
-   "desc": ""
-  },
-  {
-   "id": "d8",
-   "cn": "红牛",
-   "en": "Red Bull 250ml",
-   "price": 6,
-   "cat": "饮料",
-   "hot": false,
-   "half": false,
-   "desc": ""
   },
   {
    "id": "k1",

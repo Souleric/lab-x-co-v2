@@ -1083,7 +1083,7 @@ window.SEASPICE = {
    "id": 1,
    "cn": "双人套餐",
    "en": "Two-Person Set",
-   "price": 68.8,
+   "price": 95.8,
    "pax": 2,
    "img": "assets/promo2.jpg",
    "groups": [

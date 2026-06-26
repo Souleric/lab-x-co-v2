@@ -718,27 +718,6 @@ window.SEASPICE = {
    "desc": ""
   },
   {
-   "id": "s1",
-   "cn": "白米饭",
-   "en": "Steamed Rice",
-   "price": 3.5,
-   "cat": "主食和小吃",
-   "hot": false,
-   "half": false,
-   "desc": "",
-   "img": "assets/menu/0509.jpg"
-  },
-  {
-   "id": "s2",
-   "cn": "蛋炒饭",
-   "en": "Egg Fried Rice",
-   "price": 12.8,
-   "cat": "主食和小吃",
-   "hot": true,
-   "half": false,
-   "desc": "镬气十足"
-  },
-  {
    "id": "sk1",
    "cn": "招牌鱼酥肉",
    "en": "Signature Crispy Fish",
@@ -746,7 +725,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0507.jpg"
   },
   {
    "id": "sk2",
@@ -754,29 +733,29 @@ window.SEASPICE = {
    "en": "Fish Balls in Broth",
    "price": 8.8,
    "cat": "主食和小吃",
-   "hot": false,
+   "hot": true,
    "desc": "老少皆宜，吃一嘴麻辣，喝一口鱼汤。",
-   "img": ""
+   "img": "assets/menu/0510.jpg"
   },
   {
    "id": "sk3",
    "cn": "香海招牌炒饭",
    "en": "Signature Fried Rice",
-   "price": null,
+   "price": 15.8,
    "cat": "主食和小吃",
    "hot": true,
    "desc": "店长推荐",
-   "img": ""
+   "img": "assets/menu/0508.jpg"
   },
   {
    "id": "sk4",
    "cn": "红糖糍粑",
    "en": "Brown-Sugar Glutinous Cake",
-   "price": null,
+   "price": 9.8,
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0506.jpg"
   },
   {
    "id": "sk5",
@@ -786,7 +765,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0509.jpg"
   },
   {
    "id": "sk6",
@@ -796,7 +775,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0505.jpg"
   },
   {
    "id": "sk7",
@@ -806,7 +785,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "鱼汤煮面，成都杂酱肉臊子（含:花椒油）",
-   "img": ""
+   "img": "assets/menu/0513.jpg"
   },
   {
    "id": "sk8",
@@ -816,7 +795,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0516.jpg"
   },
   {
    "id": "sk9",
@@ -826,7 +805,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0515.jpg"
   },
   {
    "id": "sk10",
@@ -836,7 +815,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0514.jpg"
   },
   {
    "id": "sk11",
@@ -846,7 +825,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "assets/menu/0517.jpg"
   },
   {
    "id": "sk12",
@@ -856,7 +835,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "含：芝麻和花生。糯米制作类似虾米的甜品搭配红糖水，爽滑清凉，解辣首选。",
-   "img": ""
+   "img": "assets/menu/0502.jpg"
   },
   {
    "id": "sk13",
@@ -866,7 +845,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "含：花生和芝麻。冰粉搭配冰西瓜再与山楂葡萄干缠绵，冰甜瞬解热辣。",
-   "img": ""
+   "img": "assets/menu/0501.jpg"
   },
   {
    "id": "sk14",
@@ -876,7 +855,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "含：花生和芝麻。冰粉与凉虾的完美融合，极致爽口。",
-   "img": ""
+   "img": "assets/menu/0503.jpg"
   },
   {
    "id": "sk15",
@@ -886,7 +865,7 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "冰豆花搭配桂花糖浆。入口即化，解辣必选。",
-   "img": ""
+   "img": "assets/menu/0504.jpg"
   },
   {
    "id": "d1",

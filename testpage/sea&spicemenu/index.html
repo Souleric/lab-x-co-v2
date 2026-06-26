@@ -613,7 +613,7 @@ function scrBroth(){
 window.skipUpgrade=function(){ S.order.broth=null; go('addons'); }
 
 // ---- add-ons ----
-const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食和小吃':'cat_base.png','饮料':'cat_drink.png','酒类':'cat_wine.svg','儿童套餐':'cat_kids.svg'};
+const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食和小吃':'cat_base.png','饮料':'cat_drink.svg','酒类':'cat_wine.svg','儿童套餐':'cat_kids.svg'};
 function key(id,por){ return id+'|'+por; }
 function catItems(c){ return c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c); }
 function addonCard(it){
@@ -633,9 +633,9 @@ function addonCard(it){
 function scrAddons(){
   const fromFlow=(S.flow==='fish'&&S.order.fish!==null)||S.flow==='hotpot';
   const backTo=S.flow==='hotpot'?'hotpot':(S.flow==='fish'?'broth':'hub');
-  const tabs=M.addonCats.map((c,i)=>`<div class="ctab ${S.addonTab===c?'on':''}" data-i="${i}" onclick="scrollToCat(${i})"><span class="cic"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}" alt=""></span><span class="clbl">${c}</span></div>`).join('');
+  const tabs=M.addonCats.map((c,i)=>`<div class="ctab ${S.addonTab===c?'on':''}" data-i="${i}" onclick="scrollToCat(${i})"><span class="cic"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}?v=2" alt=""></span><span class="clbl">${c}</span></div>`).join('');
   const sections=M.addonCats.map((c,i)=>`<div class="acat" id="cat-${i}">
-    <div class="acat-h"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}" alt=""><span>${c}</span></div>
+    <div class="acat-h"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}?v=2" alt=""><span>${c}</span></div>
     <div class="agrid">${catItems(c).map(addonCard).join('')}</div></div>`).join('');
   return `<div class="screen scroll">
     <div class="addon-head">

@@ -1,6 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="#e9c477" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="9" y="11" width="11" height="15" rx="1.5"/>
-  <path d="M20 14h3.2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H20"/>
-  <path d="M9 15.5h11"/>
-  <path d="M11.5 8.2c.6.9.2 1.6 0 2.5M14.8 7.6c.6.9.2 1.6 0 2.5M18 8.2c.6.9.2 1.6 0 2.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="#e9c477" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <!-- wine glass -->
+  <path d="M5.4 5h6.6l-.5 4.9a2.8 2.8 0 0 1-5.6 0z"/>
+  <path d="M6 8.4h5.4"/>
+  <path d="M8.7 12.7v6.4"/>
+  <path d="M6 19.3h5.4"/>
+  <!-- beer mug -->
+  <path d="M16.7 11.6v7.6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7.6"/>
+  <path d="M16.4 11.6q1.1-1.7 2.2 0 1.1-1.7 2.2 0 1.1-1.7 2.2 0 1.1-1.7 2.2 0"/>
+  <path d="M24.7 12.9h1.5a1.6 1.6 0 0 1 1.6 1.6v1.7a1.6 1.6 0 0 1-1.6 1.6h-1.5"/>
+  <path stroke-width="1.1" d="M19.2 14v4.1M21.2 14v4.1M23.2 14v4.1"/>
 </svg>

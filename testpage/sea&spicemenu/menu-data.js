@@ -67,11 +67,41 @@ window.SEASPICE = {
  ],
  "addons": [
   {
+   "id": "wf1",
+   "cn": "银鲈整鱼",
+   "en": "Whole Silver Perch 700g",
+   "price": 59,
+   "cat": "加鱼",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/99908.jpg"
+  },
+  {
+   "id": "wf2",
+   "cn": "盲曹整鱼",
+   "en": "Whole Mud Grouper 700g",
+   "price": 59,
+   "cat": "加鱼",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/99907.jpg"
+  },
+  {
+   "id": "wf3",
+   "cn": "东星斑",
+   "en": "Whole Star Grouper ~1.2kg",
+   "price": 145,
+   "cat": "加鱼",
+   "hot": false,
+   "desc": "",
+   "img": "assets/menu/99801.jpg"
+  },
+  {
    "id": "fp1",
    "cn": "银鲈鱼片",
    "en": "Silver Perch Slices",
    "price": 29.8,
-   "cat": "加鱼片",
+   "cat": "加鱼",
    "hot": false,
    "desc": "",
    "img": "assets/menu/1003.jpg"
@@ -81,7 +111,7 @@ window.SEASPICE = {
    "cn": "盲曹鱼片",
    "en": "Mud Grouper Slices",
    "price": 29.8,
-   "cat": "加鱼片",
+   "cat": "加鱼",
    "hot": true,
    "desc": "",
    "img": "assets/menu/1002.jpg"
@@ -91,7 +121,7 @@ window.SEASPICE = {
    "cn": "星斑鱼片",
    "en": "Star Grouper Slices",
    "price": 68,
-   "cat": "加鱼片",
+   "cat": "加鱼",
    "hot": false,
    "desc": "",
    "img": "assets/menu/1001.jpg"
@@ -844,7 +874,7 @@ window.SEASPICE = {
  ],
  "addonCats": [
   "热销首选",
-  "加鱼片",
+  "加鱼",
   "荤菜",
   "素菜",
   "主食",

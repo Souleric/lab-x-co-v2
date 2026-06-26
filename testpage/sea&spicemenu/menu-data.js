@@ -177,7 +177,7 @@ window.SEASPICE = {
    "price": 18.8,
    "cat": "荤菜",
    "hot": false,
-   "half": false,
+   "half": true,
    "desc": "",
    "img": "assets/menu/0308.jpg"
   },
@@ -188,7 +188,7 @@ window.SEASPICE = {
    "price": 14.5,
    "cat": "荤菜",
    "hot": false,
-   "half": false,
+   "half": true,
    "desc": "鱼汤涮羊肉",
    "img": "assets/menu/0323.jpg"
   },

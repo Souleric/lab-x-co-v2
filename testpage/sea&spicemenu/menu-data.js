@@ -117,16 +117,6 @@ window.SEASPICE = {
    "img": "assets/menu/1002.jpg"
   },
   {
-   "id": "fp3",
-   "cn": "星斑鱼片",
-   "en": "Star Grouper Slices",
-   "price": 68,
-   "cat": "加鱼",
-   "hot": false,
-   "desc": "",
-   "img": "assets/menu/1001.jpg"
-  },
-  {
    "id": "h1",
    "cn": "香海虾滑",
    "en": "Shrimp Paste",

@@ -73,7 +73,6 @@ window.SEASPICE = {
    "price": 29.8,
    "cat": "加鱼片",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/1003.jpg"
   },
@@ -84,7 +83,6 @@ window.SEASPICE = {
    "price": 29.8,
    "cat": "加鱼片",
    "hot": true,
-   "half": true,
    "desc": "",
    "img": "assets/menu/1002.jpg"
   },
@@ -95,7 +93,6 @@ window.SEASPICE = {
    "price": 68,
    "cat": "加鱼片",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/1001.jpg"
   },
@@ -106,7 +103,6 @@ window.SEASPICE = {
    "price": 19.8,
    "cat": "荤菜",
    "hot": true,
-   "half": true,
    "desc": "手打新鲜虾滑",
    "img": "assets/menu/0302.jpg"
   },

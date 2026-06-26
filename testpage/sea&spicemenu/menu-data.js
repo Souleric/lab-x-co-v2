@@ -739,6 +739,156 @@ window.SEASPICE = {
    "desc": "镬气十足"
   },
   {
+   "id": "sk1",
+   "cn": "招牌鱼酥肉",
+   "en": "Signature Crispy Fish",
+   "price": 15.8,
+   "cat": "主食和小吃",
+   "hot": true,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk2",
+   "cn": "浓汤鱼丸",
+   "en": "Fish Balls in Broth",
+   "price": 8.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "老少皆宜，吃一嘴麻辣，喝一口鱼汤。",
+   "img": ""
+  },
+  {
+   "id": "sk3",
+   "cn": "香海招牌炒饭",
+   "en": "Signature Fried Rice",
+   "price": null,
+   "cat": "主食和小吃",
+   "hot": true,
+   "desc": "店长推荐",
+   "img": ""
+  },
+  {
+   "id": "sk4",
+   "cn": "红糖糍粑",
+   "en": "Brown-Sugar Glutinous Cake",
+   "price": null,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk5",
+   "cn": "米饭",
+   "en": "Rice",
+   "price": 2.0,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk6",
+   "cn": "金馒头",
+   "en": "Golden Mantou",
+   "price": 9.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk7",
+   "cn": "老成都清汤杂酱面",
+   "en": "Chengdu Clear-Soup Noodles",
+   "price": 7.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "鱼汤煮面，成都杂酱肉臊子（含:花椒油）",
+   "img": ""
+  },
+  {
+   "id": "sk8",
+   "cn": "老成都素椒杂酱面(辣)",
+   "en": "Chengdu Spicy Pepper Noodles",
+   "price": 12.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk9",
+   "cn": "凉拌黄瓜",
+   "en": "Cold Cucumber Salad",
+   "price": 8.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk10",
+   "cn": "鸡蛋",
+   "en": "Egg",
+   "price": 1.0,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk11",
+   "cn": "爽口开胃凉粉(辣)·限量",
+   "en": "Spicy Liangfen (Limited)",
+   "price": 3.0,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "sk12",
+   "cn": "凉虾",
+   "en": "Liang Xia Sweet Jelly",
+   "price": 5.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "含：芝麻和花生。糯米制作类似虾米的甜品搭配红糖水，爽滑清凉，解辣首选。",
+   "img": ""
+  },
+  {
+   "id": "sk13",
+   "cn": "爽口冰粉",
+   "en": "Iced Jelly (Bingfen)",
+   "price": 5.8,
+   "cat": "主食和小吃",
+   "hot": false,
+   "desc": "含：花生和芝麻。冰粉搭配冰西瓜再与山楂葡萄干缠绵，冰甜瞬解热辣。",
+   "img": ""
+  },
+  {
+   "id": "sk14",
+   "cn": "冰爽双拼",
+   "en": "Iced Jelly & Liang Xia Combo",
+   "price": 5.8,
+   "cat": "主食和小吃",
+   "hot": true,
+   "desc": "含：花生和芝麻。冰粉与凉虾的完美融合，极致爽口。",
+   "img": ""
+  },
+  {
+   "id": "sk15",
+   "cn": "桂花冰豆花",
+   "en": "Osmanthus Iced Tofu Pudding",
+   "price": 5.8,
+   "cat": "主食和小吃",
+   "hot": true,
+   "desc": "冰豆花搭配桂花糖浆。入口即化，解辣必选。",
+   "img": ""
+  },
+  {
    "id": "d1",
    "cn": "可乐",
    "en": "Coca-Cola 330ml",

@@ -1008,6 +1008,46 @@ window.SEASPICE = {
    "img": "assets/menu/0718.jpg"
   },
   {
+   "id": "al1",
+   "cn": "青岛330ml",
+   "en": "Tsingtao 330ml",
+   "price": 7.8,
+   "cat": "酒类",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "al2",
+   "cn": "乌苏",
+   "en": "Wusu Beer",
+   "price": 12.0,
+   "cat": "酒类",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "al3",
+   "cn": "asahi",
+   "en": "Asahi",
+   "price": 8.0,
+   "cat": "酒类",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
+   "id": "al4",
+   "cn": "corona",
+   "en": "Corona",
+   "price": 8.0,
+   "cat": "酒类",
+   "hot": false,
+   "desc": "",
+   "img": ""
+  },
+  {
    "id": "k1",
    "cn": "儿童炸鱼薯条",
    "en": "Kids Fish & Chips",
@@ -1055,6 +1095,7 @@ window.SEASPICE = {
   "素菜",
   "主食和小吃",
   "饮料",
+  "酒类",
   "儿童套餐"
  ],
  "packages": [

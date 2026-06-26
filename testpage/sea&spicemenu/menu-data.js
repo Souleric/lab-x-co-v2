@@ -1049,43 +1049,23 @@ window.SEASPICE = {
   },
   {
    "id": "k1",
-   "cn": "儿童炸鱼薯条",
-   "en": "Kids Fish & Chips",
-   "price": 14.8,
+   "cn": "儿童套餐(面)",
+   "en": "Kids Set · Noodles",
+   "price": 7.8,
    "cat": "儿童套餐",
    "hot": false,
-   "half": false,
-   "desc": "酥脆炸鱼配薯条"
+   "desc": "肉末面（猪肉），新鲜西兰花，薯条，鸡块，和苹果汁。（含蛋类、奶制品、芝麻、花生、大豆和麸质过敏原）",
+   "img": "assets/menu/0511.jpg"
   },
   {
    "id": "k2",
-   "cn": "儿童汤面",
-   "en": "Kids Noodle Soup",
-   "price": 12.8,
+   "cn": "儿童套餐(米饭)",
+   "en": "Kids Set · Rice",
+   "price": 7.8,
    "cat": "儿童套餐",
    "hot": false,
-   "half": false,
-   "desc": "清甜原汤手工细面"
-  },
-  {
-   "id": "k3",
-   "cn": "儿童蛋炒饭",
-   "en": "Kids Egg Fried Rice",
-   "price": 11.8,
-   "cat": "儿童套餐",
-   "hot": false,
-   "half": false,
-   "desc": "滑嫩炒蛋香糯米饭"
-  },
-  {
-   "id": "k4",
-   "cn": "儿童鸡米花",
-   "en": "Kids Chicken Nuggets",
-   "price": 11.8,
-   "cat": "儿童套餐",
-   "hot": false,
-   "half": false,
-   "desc": "外酥内嫩儿童喜爱"
+   "desc": "肉末米饭（猪肉），新鲜西兰花，薯条，鸡块，和苹果汁。（含海鲜、蛋类、奶制品、芝麻、花生、大豆和麸质过敏原）",
+   "img": "assets/menu/0512.jpg"
   }
  ],
  "addonCats": [

@@ -1642,7 +1642,8 @@ window.SEASPICE = {
    "drinkUp": {
     "cn": "暴打柠檬薄荷",
     "en": "Hand-beaten Lemon Mint",
-    "price": 2
+    "price": 2,
+    "img": "assets/menu/0707.jpg"
    },
    "time": "午市 12:00–2:30 · 每日"
   },
@@ -1667,7 +1668,8 @@ window.SEASPICE = {
    "drinkUp": {
     "cn": "暴打柠檬薄荷",
     "en": "Hand-beaten Lemon Mint",
-    "price": 2
+    "price": 2,
+    "img": "assets/menu/0707.jpg"
    },
    "time": "午市 12:00–2:30 · 每日"
   }

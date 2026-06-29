@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="menu-data.js?v=27"></script>
+<script src="menu-data.js?v=28"></script>
 <style>
   :root{
     --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
@@ -226,10 +226,14 @@
   .conf .mainrow .pr{font-family:var(--cor);font-size:18px;color:var(--gold2);font-weight:700}
   .pkgcard .ptime{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gold-d);margin-top:6px}
   .pkgcard .ptime svg{width:13px;height:13px;flex:none;stroke:var(--gold-d)}
-  .conf .line.upg{cursor:pointer;align-items:center}
-  .conf .line.upg.on{color:var(--gold2)}
-  .upgbox{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:7px;border:1px solid var(--line2);color:var(--gold);font-size:14px;font-weight:700;flex:none}
-  .upgbox.on{background:linear-gradient(180deg,#f7da88,#c8923c);color:#5a0f12;border-color:#f7da88}
+  .upgcard{display:flex;align-items:center;gap:12px;margin:2px 18px 0;padding:11px;background:linear-gradient(180deg,rgba(122,20,28,.5),rgba(74,10,17,.3));border:1.5px solid var(--line2);border-radius:14px;cursor:pointer;transition:.18s}
+  .upgcard.on{border-color:var(--gold);background:linear-gradient(180deg,rgba(233,196,119,.16),rgba(122,20,28,.4))}
+  .upgcard .upgimg{width:54px;height:54px;border-radius:11px;object-fit:cover;flex:none}
+  .upgcard .upgmid{flex:1;min-width:0}
+  .upgcard .upgt{font-size:15px;font-weight:700;color:var(--cream)}
+  .upgcard .upge{font-size:12px;color:var(--gold-d);font-family:var(--cor);margin-top:2px}
+  .upgcard .upgtick{width:25px;height:25px;border-radius:50%;border:1.6px solid var(--line2);display:flex;align-items:center;justify-content:center;color:#5a0f12;font-size:14px;font-weight:700;flex:none;transition:.18s}
+  .upgcard.on .upgtick{background:linear-gradient(180deg,#f7da88,#c8923c);border-color:#f7da88}
   .conf .line{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(233,196,119,.12);font-size:14px;color:var(--muted)}
   .conf .line .v{color:var(--cream)}
   .total{display:flex;justify-content:space-between;align-items:center;margin:8px 18px;background:rgba(0,0,0,.25);border:1px solid var(--line2);border-radius:16px;padding:16px 20px}
@@ -516,20 +520,25 @@ function scrPkgConfirm(){
   let lines;
   if(p.fixed){
     lines=`<div class="ch">套餐包含</div>`+p.includes.map(x=>`<div class="line"><span>${x}</span><span class="v">✓</span></div>`).join('');
-    if(p.drinkUp) lines+=`<div class="line upg ${up?'on':''}" onclick="togglePkgUp()">
-      <span>升级 ${p.drinkUp.cn} <small style="color:var(--gold-d)">+${money(p.drinkUp.price)}</small></span>
-      <span class="upgbox ${up?'on':''}">${up?'✓':'＋'}</span></div>`;
   } else {
     lines=`<div class="ch">套餐选择</div>`+p.groups.map((g,i)=>{const sel=S.pkgSel[i];
       const val=g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('、'):(sel||'—');
       return `<div class="line"><span>${g.label}</span><span class="v">${val}</span></div>`;}).join('');
   }
+  const du=p.drinkUp;
+  const upgSection = (p.fixed && du) ? `
+    <div class="seclbl2" style="padding:14px 18px 2px">饮品升级 <small>OPTIONAL · 可选</small></div>
+    <div class="upgcard ${up?'on':''}" onclick="togglePkgUp()">
+      ${du.img?`<img class="upgimg" src="${du.img}" alt="">`:''}
+      <div class="upgmid"><div class="upgt">${du.cn}</div><div class="upge">${du.en} · 加 ${money(du.price)}</div></div>
+      <span class="upgtick ${up?'on':''}">${up?'✓':''}</span></div>` : '';
   return `<div class="screen scroll">
     <div class="backrow"><button class="back" onclick="${p.fixed?"go('hub')":"pkgEditBack()"}">← 返回</button>
       <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
     <div class="conf"><div class="mainrow"><span class="nm">${p.cn}</span><span class="pr">${money(p.price)} ${C}</span></div>
       ${lines}<div class="line"><span>调料</span><span class="v">套餐已含</span></div>
       ${p.time?`<div class="line"><span>供应时间</span><span class="v">${p.time}</span></div>`:''}</div>
+    ${upgSection}
     <div class="total"><div class="tl">合计</div><div class="tv">${money(total)}<small>${C} · 含调料</small></div></div>
     <div class="footer"><button class="cta" onclick="addPkgToCart()">加入购物车 →</button></div>
   </div>`;

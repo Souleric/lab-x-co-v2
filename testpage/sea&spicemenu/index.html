@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="menu-data.js?v=28"></script>
+<script src="menu-data.js?v=29"></script>
 <style>
   :root{
     --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
@@ -428,11 +428,19 @@ function scrHub(){
         <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">本店独创</span></div>
         <h1>冷锅鱼</h1><div class="tag">红油翻滚 · 麻辣鲜香</div><div class="sub">鲜活鱼片 · 红油慢浸入味</div>
         <button class="pill" onclick="startFish('冷锅鱼','direct')">立即选择 →</button></div>
+      <div class="hero"><div class="herobg" style="background-image:url('assets/menu/0201.jpg')"></div><div class="heroveil"></div>
+        <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">开胃首选</span></div>
+        <h1>酸菜鱼</h1><div class="tag">黄金酸汤 · 清爽开胃</div><div class="sub">鲜活鱼片 · 酸爽入味</div>
+        <button class="pill" onclick="startFish('酸菜鱼','direct')">立即选择 →</button></div>
+      <div class="hero"><div class="herobg" style="background-image:url('assets/menu/0112.jpg')"></div><div class="heroveil"></div>
+        <div class="badges"><span class="bdg">多味锅底</span><span class="bdg">本店人气</span></div>
+        <h1>奔驰锅</h1><div class="tag">三味一锅 · 一次满足</div><div class="sub">三种锅底 · 自由搭配</div>
+        <button class="pill" onclick="startHotpot()">立即选择 →</button></div>
       <div class="hero" onclick="scrollToPkg()"><div class="herobg" style="background-image:url('${M.packages[0].img}')"></div><div class="heroveil"></div>
         <div class="badges"><span class="bdg">超值套餐</span><span class="bdg">限定供应</span></div>
-        <h1>套餐特惠</h1><div class="tag">周一至周四 · 全天供应</div><div class="sub">双人 / 四人套餐 · 单人套餐午市供应</div>
+        <h1>所有套餐</h1><div class="tag">周一至周四全天 · 单人午市</div><div class="sub">双人 / 四人 / 单人套餐</div>
         <button class="pill">查看套餐 →</button></div>
-    </div><div class="herodots"><span class="herodot on" onclick="heroDot(0)"></span><span class="herodot" onclick="heroDot(1)"></span></div></div>
+    </div><div class="herodots"><span class="herodot on" onclick="heroDot(0)"></span><span class="herodot" onclick="heroDot(1)"></span><span class="herodot" onclick="heroDot(2)"></span><span class="herodot" onclick="heroDot(3)"></span></div></div>
     <div class="seclbl2">单点精选 <small>À LA CARTE</small></div>
     <div class="cards">
       ${hubCard('assets/menu/0101.jpg','冷锅鱼','Cold Pot Fish','红油翻滚·麻辣鲜香','鲈鱼·盲曹·星斑',"startFish('冷锅鱼','direct')")}
@@ -447,8 +455,8 @@ function scrHub(){
 // ---- hero auto-slider ----
 let _heroSlide=0, _heroTimer=null;
 function setHeroSlide(i){
-  const n=2; _heroSlide=((i%n)+n)%n;
   const track=screenEl.querySelector('.heroslides'); if(!track)return;
+  const n=track.querySelectorAll('.hero').length||1; _heroSlide=((i%n)+n)%n;
   track.style.transform='translateX(-'+(_heroSlide*100)+'%)';
   screenEl.querySelectorAll('.herodot').forEach((d,idx)=>d.classList.toggle('on',idx===_heroSlide));
 }

@@ -120,9 +120,8 @@
   .pkg-note b{color:var(--gold2);font-weight:700}
   .pkg-note i{color:var(--muted2);font-style:normal;font-family:var(--cor);font-size:11px}
   .seclbl2 small{color:var(--muted2);font-weight:400;font-family:var(--cor);margin-left:7px;font-size:12px;letter-spacing:.5px}
-  .pkgrow{display:flex;gap:13px;overflow-x:auto;padding:8px 18px 6px;scrollbar-width:none}
-  .pkgrow::-webkit-scrollbar{display:none}
-  .pkgcard{flex:none;width:212px;background:linear-gradient(180deg,rgba(106,16,24,.92),rgba(74,10,17,.82));border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;position:relative}
+  .pkgrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 18px 6px}
+  .pkgcard{background:linear-gradient(180deg,rgba(106,16,24,.92),rgba(74,10,17,.82));border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;position:relative}
   .pkgcard:active{border-color:var(--line2)}
   .pkgcard .pimg{width:100%;height:112px;object-fit:cover;display:block}
   .pkgcard .pb{padding:11px 13px 13px}

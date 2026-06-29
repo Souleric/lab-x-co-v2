@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="menu-data.js?v=26"></script>
+<script src="menu-data.js?v=27"></script>
 <style>
   :root{
     --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
@@ -225,6 +225,12 @@
   .conf .mainrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
   .conf .mainrow .nm{font-size:17px;font-weight:700;color:var(--cream)}
   .conf .mainrow .pr{font-family:var(--cor);font-size:18px;color:var(--gold2);font-weight:700}
+  .pkgcard .ptime{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gold-d);margin-top:6px}
+  .pkgcard .ptime svg{width:13px;height:13px;flex:none;stroke:var(--gold-d)}
+  .conf .line.upg{cursor:pointer;align-items:center}
+  .conf .line.upg.on{color:var(--gold2)}
+  .upgbox{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:7px;border:1px solid var(--line2);color:var(--gold);font-size:14px;font-weight:700;flex:none}
+  .upgbox.on{background:linear-gradient(180deg,#f7da88,#c8923c);color:#5a0f12;border-color:#f7da88}
   .conf .line{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(233,196,119,.12);font-size:14px;color:var(--muted)}
   .conf .line .v{color:var(--cream)}
   .total{display:flex;justify-content:space-between;align-items:center;margin:8px 18px;background:rgba(0,0,0,.25);border:1px solid var(--line2);border-radius:16px;padding:16px 20px}
@@ -421,7 +427,7 @@ function scrHub(){
         <button class="pill" onclick="startFish('冷锅鱼','direct')">立即选择 →</button></div>
       <div class="hero" onclick="scrollToPkg()"><div class="herobg" style="background-image:url('${M.packages[0].img}')"></div><div class="heroveil"></div>
         <div class="badges"><span class="bdg">超值套餐</span><span class="bdg">限定供应</span></div>
-        <h1>套餐特惠</h1><div class="tag">周一至周四全天 · 周五午市</div><div class="sub">双人 / 四人套餐 · 已含调料</div>
+        <h1>套餐特惠</h1><div class="tag">周一至周四 · 全天供应</div><div class="sub">双人 / 四人套餐 · 单人套餐午市供应</div>
         <button class="pill">查看套餐 →</button></div>
     </div><div class="herodots"><span class="herodot on" onclick="heroDot(0)"></span><span class="herodot" onclick="heroDot(1)"></span></div></div>
     <div class="seclbl2">单点精选 <small>À LA CARTE</small></div>
@@ -432,7 +438,6 @@ function scrHub(){
       ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
     </div>
     <div class="seclbl2" id="pkg-section" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
-    <div class="pkg-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3.2 1.8"/></svg><span>套餐供应时间：<b>周一至周四全天</b> · <b>周五午市</b>　<i>Mon–Thu all day · Fri lunch</i></span></div>
     <div class="pkgrow">${M.packages.map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
@@ -460,13 +465,15 @@ function hubCard(img,cn,en,accent,sub,act){
 // ---- set packages (multi-step wizard) ----
 const pkgById = id => M.packages.find(p=>p.id===id);
 function pkgCard(p){
-  const badge = p.save?`立省 $${p.save}`:(p.fixed?'含饮品':`${p.pax} 人`);
+  const badge = p.save?`立省 $${p.save}`:(p.fixed?'午市':`${p.pax} 人`);
   return `<div class="pkgcard" onclick="startPackage(${p.id})">
     <img class="pimg" src="${p.img}" alt=""><span class="pribbon">${badge}</span>
     <div class="pb"><div class="pcn">${p.cn}</div><div class="pen">${p.en}</div>
+      ${p.time?`<div class="ptime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 1.7"/></svg>${p.time}</div>`:''}
       <div class="prow"><span class="ppr">${money(p.price)}</span></div></div></div>`;
 }
-window.startPackage=function(id){ S.pkgId=id; S.pkgSel={}; S.pkgStep=0; go(pkgById(id).fixed?'pkgconfirm':'pkgstep'); }
+window.startPackage=function(id){ S.pkgId=id; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; go(pkgById(id).fixed?'pkgconfirm':'pkgstep'); }
+window.togglePkgUp=function(){ S.pkgUp=!S.pkgUp; render(); }
 
 function scrPkgStep(){
   const p=pkgById(S.pkgId), n=p.groups.length, g=p.groups[S.pkgStep], multi=g.pick>1;
@@ -505,10 +512,14 @@ window.pkgEditBack=function(){ S.pkgStep=pkgById(S.pkgId).groups.length-1; go('p
 
 function scrPkgConfirm(){
   const p=pkgById(S.pkgId);
+  const up = !!(p.fixed && p.drinkUp && S.pkgUp);
+  const total = p.price + (up?p.drinkUp.price:0);
   let lines;
   if(p.fixed){
-    lines=`<div class="ch">套餐包含</div>`+p.includes.map(x=>`<div class="line"><span>${x}</span><span class="v">✓</span></div>`).join('')+
-      `<div class="line"><span>饮品 · ${p.drink}</span><span class="v">✓</span></div>`;
+    lines=`<div class="ch">套餐包含</div>`+p.includes.map(x=>`<div class="line"><span>${x}</span><span class="v">✓</span></div>`).join('');
+    if(p.drinkUp) lines+=`<div class="line upg ${up?'on':''}" onclick="togglePkgUp()">
+      <span>升级 ${p.drinkUp.cn} <small style="color:var(--gold-d)">+${money(p.drinkUp.price)}</small></span>
+      <span class="upgbox ${up?'on':''}">${up?'✓':'＋'}</span></div>`;
   } else {
     lines=`<div class="ch">套餐选择</div>`+p.groups.map((g,i)=>{const sel=S.pkgSel[i];
       const val=g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('、'):(sel||'—');
@@ -518,8 +529,9 @@ function scrPkgConfirm(){
     <div class="backrow"><button class="back" onclick="${p.fixed?"go('hub')":"pkgEditBack()"}">← 返回</button>
       <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
     <div class="conf"><div class="mainrow"><span class="nm">${p.cn}</span><span class="pr">${money(p.price)} ${C}</span></div>
-      ${lines}<div class="line"><span>调料</span><span class="v">套餐已含</span></div></div>
-    <div class="total"><div class="tl">合计</div><div class="tv">${money(p.price)}<small>${C} · 含调料</small></div></div>
+      ${lines}<div class="line"><span>调料</span><span class="v">套餐已含</span></div>
+      ${p.time?`<div class="line"><span>供应时间</span><span class="v">${p.time}</span></div>`:''}</div>
+    <div class="total"><div class="tl">合计</div><div class="tv">${money(total)}<small>${C} · 含调料</small></div></div>
     <div class="footer"><button class="cta" onclick="addPkgToCart()">加入购物车 →</button></div>
   </div>`;
 }
@@ -826,10 +838,12 @@ window.addOrderToCart=function(){
 }
 window.addPkgToCart=function(){
   const p=pkgById(S.pkgId);
-  const sub = p.fixed ? '套餐 · 含饮品'
+  const up = !!(p.fixed && p.drinkUp && S.pkgUp);
+  const unit = p.price + (up?p.drinkUp.price:0);
+  const sub = p.fixed ? ('套餐'+(up?' · 升级'+p.drinkUp.cn:''))
     : p.groups.map((g,i)=>{const sel=S.pkgSel[i]; return g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('+'):(sel||'—');}).join(' · ');
-  pushCart({type:'package',title:p.cn,sub,img:p.img,qty:1,unit:p.price,needsCondiment:false});
-  S.pkgId=null; S.pkgSel={}; S.pkgStep=0; toast('已加入购物车 ✓'); go('orders');
+  pushCart({type:'package',title:p.cn,sub,img:p.img,qty:1,unit,needsCondiment:false});
+  S.pkgId=null; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; toast('已加入购物车 ✓'); go('orders');
 }
 window.cartQty=function(cid,d){ const c=S.cart.find(x=>x.cid===cid); if(!c)return; c.qty+=d; if(c.qty<=0)S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
 window.cartRemove=function(cid){ S.cart=S.cart.filter(x=>x.cid!==cid); render(); }

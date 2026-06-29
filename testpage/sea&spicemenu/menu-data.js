@@ -1297,7 +1297,8 @@ window.SEASPICE = {
       }
      ]
     }
-   ]
+   ],
+   "time": "周一至周四 · 全天"
   },
   {
    "id": 2,
@@ -1617,12 +1618,13 @@ window.SEASPICE = {
       }
      ]
     }
-   ]
+   ],
+   "time": "周一至周四 · 全天"
   },
   {
    "id": 3,
-   "cn": "冷锅鱼单人套餐",
-   "en": "Cold-Pot Fish Single Set",
+   "cn": "午市冷锅鱼单人套餐",
+   "en": "Lunch Cold-Pot Fish Set",
    "price": 28.8,
    "pax": 1,
    "img": "assets/menu/0101.jpg",
@@ -1637,7 +1639,37 @@ window.SEASPICE = {
     "红薯粉",
     "米饭"
    ],
-   "drink": "暴打柠檬薄荷"
+   "drinkUp": {
+    "cn": "暴打柠檬薄荷",
+    "en": "Hand-beaten Lemon Mint",
+    "price": 2
+   },
+   "time": "午市 12:00–2:30 · 每日"
+  },
+  {
+   "id": 4,
+   "cn": "午市酸菜鱼单人套餐",
+   "en": "Lunch Pickled Fish Set",
+   "price": 28.8,
+   "fixed": true,
+   "pax": 1,
+   "img": "assets/menu/0201.jpg",
+   "includes": [
+    "鲜活银鲈鱼片 120g",
+    "午餐肉",
+    "鸭血",
+    "金针菇",
+    "厚百叶",
+    "土豆",
+    "红薯粉",
+    "米饭"
+   ],
+   "drinkUp": {
+    "cn": "暴打柠檬薄荷",
+    "en": "Hand-beaten Lemon Mint",
+    "price": 2
+   },
+   "time": "午市 12:00–2:30 · 每日"
   }
  ]
 };

@@ -16,7 +16,8 @@ window.SEASPICE = {
    "tag": "",
    "desc": "肉质细滑丰腴",
    "note": "嫩滑首选",
-   "img": "assets/menu/99908.jpg"
+   "img": "assets/menu/99908.jpg",
+   "plu": "1003"
   },
   {
    "id": "mud",
@@ -26,7 +27,8 @@ window.SEASPICE = {
    "tag": "热销",
    "desc": "肉质细腻鲜嫩",
    "note": "店长推荐",
-   "img": "assets/menu/99907.jpg"
+   "img": "assets/menu/99907.jpg",
+   "plu": "1002"
   },
   {
    "id": "star",
@@ -36,7 +38,8 @@ window.SEASPICE = {
    "tag": "精选",
    "desc": "鲜甜回甘Q弹",
    "note": "顶级之选",
-   "img": "assets/menu/99801.jpg"
+   "img": "assets/menu/99801.jpg",
+   "plu": "1001"
   }
  ],
  "broths": [
@@ -44,25 +47,29 @@ window.SEASPICE = {
    "id": "spicy",
    "cn": "牛油（全辣）",
    "en": "Spicy Butter",
-   "img": "assets/icons/broth-spicy.png"
+   "img": "assets/icons/broth-spicy.png",
+   "plu": "0101"
   },
   {
    "id": "orig",
    "cn": "原汤",
    "en": "Original Broth",
-   "img": "assets/icons/broth-original.png"
+   "img": "assets/icons/broth-original.png",
+   "plu": "0201"
   },
   {
    "id": "mush",
    "cn": "菌菇",
    "en": "Mushroom Broth",
-   "img": "assets/icons/broth-mushroom.png"
+   "img": "assets/icons/broth-mushroom.png",
+   "plu": ""
   },
   {
    "id": "tom",
    "cn": "番茄",
    "en": "Tomato Broth",
-   "img": "assets/icons/broth-tomato.png"
+   "img": "assets/icons/broth-tomato.png",
+   "plu": ""
   }
  ],
  "addons": [
@@ -74,7 +81,8 @@ window.SEASPICE = {
    "cat": "加鱼",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/99908.jpg"
+   "img": "assets/menu/99908.jpg",
+   "plu": "1003"
   },
   {
    "id": "wf2",
@@ -84,7 +92,8 @@ window.SEASPICE = {
    "cat": "加鱼",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/99907.jpg"
+   "img": "assets/menu/99907.jpg",
+   "plu": "1002"
   },
   {
    "id": "wf3",
@@ -94,7 +103,8 @@ window.SEASPICE = {
    "cat": "加鱼",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/99801.jpg"
+   "img": "assets/menu/99801.jpg",
+   "plu": "1001"
   },
   {
    "id": "fp1",
@@ -104,7 +114,8 @@ window.SEASPICE = {
    "cat": "加鱼",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/1003.jpg"
+   "img": "assets/menu/1003.jpg",
+   "plu": ""
   },
   {
    "id": "fp2",
@@ -114,7 +125,8 @@ window.SEASPICE = {
    "cat": "加鱼",
    "hot": true,
    "desc": "",
-   "img": "assets/menu/1002.jpg"
+   "img": "assets/menu/1002.jpg",
+   "plu": ""
   },
   {
    "id": "h1",
@@ -124,7 +136,8 @@ window.SEASPICE = {
    "cat": "荤菜",
    "hot": true,
    "desc": "手打新鲜虾滑",
-   "img": "assets/menu/0302.jpg"
+   "img": "assets/menu/0302.jpg",
+   "plu": "0302"
   },
   {
    "id": "h2",
@@ -135,7 +148,8 @@ window.SEASPICE = {
    "hot": true,
    "half": true,
    "desc": "手打新鲜鱼丸",
-   "img": "assets/menu/0301.jpg"
+   "img": "assets/menu/0301.jpg",
+   "plu": "0301"
   },
   {
    "id": "h3",
@@ -146,7 +160,8 @@ window.SEASPICE = {
    "hot": true,
    "half": true,
    "desc": "野生黑边鲍",
-   "img": "assets/menu/0306.jpg"
+   "img": "assets/menu/0306.jpg",
+   "plu": "0306"
   },
   {
    "id": "h4",
@@ -157,7 +172,8 @@ window.SEASPICE = {
    "hot": true,
    "half": true,
    "desc": "顶级和牛",
-   "img": "assets/menu/0305.jpg"
+   "img": "assets/menu/0305.jpg",
+   "plu": "0305"
   },
   {
    "id": "h5",
@@ -168,7 +184,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0326.jpg"
+   "img": "assets/menu/0326.jpg",
+   "plu": "0326"
   },
   {
    "id": "h6",
@@ -179,7 +196,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0308.jpg"
+   "img": "assets/menu/0308.jpg",
+   "plu": "0308"
   },
   {
    "id": "h7",
@@ -190,7 +208,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "鱼汤涮羊肉",
-   "img": "assets/menu/0323.jpg"
+   "img": "assets/menu/0323.jpg",
+   "plu": "0323"
   },
   {
    "id": "h8",
@@ -201,7 +220,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0324.jpg"
+   "img": "assets/menu/0324.jpg",
+   "plu": "0324"
   },
   {
    "id": "h9",
@@ -212,7 +232,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0304.jpg"
+   "img": "assets/menu/0304.jpg",
+   "plu": "0304"
   },
   {
    "id": "h10",
@@ -223,7 +244,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0303.jpg"
+   "img": "assets/menu/0303.jpg",
+   "plu": "0303"
   },
   {
    "id": "h11",
@@ -234,7 +256,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0312.jpg"
+   "img": "assets/menu/0312.jpg",
+   "plu": "0312"
   },
   {
    "id": "h12",
@@ -245,7 +268,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0320.jpg"
+   "img": "assets/menu/0320.jpg",
+   "plu": "0320"
   },
   {
    "id": "h13",
@@ -256,7 +280,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0311.jpg"
+   "img": "assets/menu/0311.jpg",
+   "plu": "0311"
   },
   {
    "id": "h14",
@@ -267,7 +292,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0310.jpg"
+   "img": "assets/menu/0310.jpg",
+   "plu": "0310"
   },
   {
    "id": "h15",
@@ -278,7 +304,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0322.jpg"
+   "img": "assets/menu/0322.jpg",
+   "plu": "0322"
   },
   {
    "id": "h16",
@@ -289,7 +316,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0309.jpg"
+   "img": "assets/menu/0309.jpg",
+   "plu": "0309"
   },
   {
    "id": "h17",
@@ -300,7 +328,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0317.jpg"
+   "img": "assets/menu/0317.jpg",
+   "plu": "0317"
   },
   {
    "id": "h18",
@@ -311,7 +340,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0319.jpg"
+   "img": "assets/menu/0319.jpg",
+   "plu": "0319"
   },
   {
    "id": "h19",
@@ -322,7 +352,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0316.jpg"
+   "img": "assets/menu/0316.jpg",
+   "plu": "0316"
   },
   {
    "id": "h20",
@@ -333,7 +364,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0313.jpg"
+   "img": "assets/menu/0313.jpg",
+   "plu": "0313"
   },
   {
    "id": "h21",
@@ -343,7 +375,8 @@ window.SEASPICE = {
    "cat": "荤菜",
    "hot": false,
    "half": true,
-   "desc": ""
+   "desc": "",
+   "plu": ""
   },
   {
    "id": "h22",
@@ -354,7 +387,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0325.jpg"
+   "img": "assets/menu/0325.jpg",
+   "plu": "0325"
   },
   {
    "id": "h23",
@@ -365,7 +399,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0314.jpg"
+   "img": "assets/menu/0314.jpg",
+   "plu": "0314"
   },
   {
    "id": "h24",
@@ -376,7 +411,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0315.jpg"
+   "img": "assets/menu/0315.jpg",
+   "plu": "0315"
   },
   {
    "id": "h25",
@@ -387,7 +423,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0318.jpg"
+   "img": "assets/menu/0318.jpg",
+   "plu": "0318"
   },
   {
    "id": "h26",
@@ -398,7 +435,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "富含胶原蛋白",
-   "img": "assets/menu/0327.jpg"
+   "img": "assets/menu/0327.jpg",
+   "plu": "0327"
   },
   {
    "id": "v1",
@@ -409,7 +447,8 @@ window.SEASPICE = {
    "hot": true,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0404.jpg"
+   "img": "assets/menu/0404.jpg",
+   "plu": "0404"
   },
   {
    "id": "v2",
@@ -420,7 +459,8 @@ window.SEASPICE = {
    "hot": true,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0403.jpg"
+   "img": "assets/menu/0403.jpg",
+   "plu": "0403"
   },
   {
    "id": "v3",
@@ -431,7 +471,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0434.jpg"
+   "img": "assets/menu/0434.jpg",
+   "plu": "0434"
   },
   {
    "id": "v4",
@@ -442,7 +483,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0402.jpg"
+   "img": "assets/menu/0402.jpg",
+   "plu": "0402"
   },
   {
    "id": "v5",
@@ -453,7 +495,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0401.jpg"
+   "img": "assets/menu/0401.jpg",
+   "plu": "0401"
   },
   {
    "id": "v6",
@@ -464,7 +507,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0405.jpg"
+   "img": "assets/menu/0405.jpg",
+   "plu": "0405"
   },
   {
    "id": "v7",
@@ -475,7 +519,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0406.jpg"
+   "img": "assets/menu/0406.jpg",
+   "plu": "0406"
   },
   {
    "id": "v8",
@@ -486,7 +531,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0407.jpg"
+   "img": "assets/menu/0407.jpg",
+   "plu": "0407"
   },
   {
    "id": "v9",
@@ -497,7 +543,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0409.jpg"
+   "img": "assets/menu/0409.jpg",
+   "plu": "0409"
   },
   {
    "id": "v10",
@@ -508,7 +555,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0410.jpg"
+   "img": "assets/menu/0410.jpg",
+   "plu": "0410"
   },
   {
    "id": "v11",
@@ -519,7 +567,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0411.jpg"
+   "img": "assets/menu/0411.jpg",
+   "plu": "0411"
   },
   {
    "id": "v12",
@@ -530,7 +579,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0412.jpg"
+   "img": "assets/menu/0412.jpg",
+   "plu": "0412"
   },
   {
    "id": "v13",
@@ -541,7 +591,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0413.jpg"
+   "img": "assets/menu/0413.jpg",
+   "plu": "0413"
   },
   {
    "id": "v14",
@@ -552,7 +603,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0414.jpg"
+   "img": "assets/menu/0414.jpg",
+   "plu": "0414"
   },
   {
    "id": "v15",
@@ -563,7 +615,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0415.jpg"
+   "img": "assets/menu/0415.jpg",
+   "plu": "0415"
   },
   {
    "id": "v16",
@@ -574,7 +627,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0408.jpg"
+   "img": "assets/menu/0408.jpg",
+   "plu": "0408"
   },
   {
    "id": "v17",
@@ -585,7 +639,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0422.jpg"
+   "img": "assets/menu/0422.jpg",
+   "plu": "0422"
   },
   {
    "id": "v18",
@@ -596,7 +651,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0419.jpg"
+   "img": "assets/menu/0419.jpg",
+   "plu": "0419"
   },
   {
    "id": "v19",
@@ -607,7 +663,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0420.jpg"
+   "img": "assets/menu/0420.jpg",
+   "plu": "0420"
   },
   {
    "id": "v20",
@@ -618,7 +675,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0417.jpg"
+   "img": "assets/menu/0417.jpg",
+   "plu": "0417"
   },
   {
    "id": "v21",
@@ -629,7 +687,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0435.jpg"
+   "img": "assets/menu/0435.jpg",
+   "plu": "0435"
   },
   {
    "id": "v22",
@@ -640,7 +699,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0423.jpg"
+   "img": "assets/menu/0423.jpg",
+   "plu": "0423"
   },
   {
    "id": "v23",
@@ -651,7 +711,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0424.jpg"
+   "img": "assets/menu/0424.jpg",
+   "plu": "0424"
   },
   {
    "id": "v24",
@@ -662,7 +723,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0425.jpg"
+   "img": "assets/menu/0425.jpg",
+   "plu": "0425"
   },
   {
    "id": "v25",
@@ -673,7 +735,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0426.jpg"
+   "img": "assets/menu/0426.jpg",
+   "plu": "0426"
   },
   {
    "id": "v26",
@@ -684,7 +747,8 @@ window.SEASPICE = {
    "hot": false,
    "half": true,
    "desc": "",
-   "img": "assets/menu/0427.jpg"
+   "img": "assets/menu/0427.jpg",
+   "plu": "0427"
   },
   {
    "id": "s3",
@@ -694,7 +758,8 @@ window.SEASPICE = {
    "cat": "素菜",
    "hot": false,
    "half": false,
-   "desc": ""
+   "desc": "",
+   "plu": "0429"
   },
   {
    "id": "s4",
@@ -705,7 +770,8 @@ window.SEASPICE = {
    "hot": false,
    "half": false,
    "desc": "",
-   "img": "assets/menu/0433.jpg"
+   "img": "assets/menu/0433.jpg",
+   "plu": "0433"
   },
   {
    "id": "s5",
@@ -715,7 +781,8 @@ window.SEASPICE = {
    "cat": "素菜",
    "hot": false,
    "half": false,
-   "desc": ""
+   "desc": "",
+   "plu": ""
   },
   {
    "id": "sk1",
@@ -725,7 +792,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "",
-   "img": "assets/menu/0507.jpg"
+   "img": "assets/menu/0507.jpg",
+   "plu": "0507"
   },
   {
    "id": "sk2",
@@ -735,7 +803,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "老少皆宜，吃一嘴麻辣，喝一口鱼汤。",
-   "img": "assets/menu/0510.jpg"
+   "img": "assets/menu/0510.jpg",
+   "plu": "0510"
   },
   {
    "id": "sk3",
@@ -745,7 +814,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "店长推荐",
-   "img": "assets/menu/0508.jpg"
+   "img": "assets/menu/0508.jpg",
+   "plu": "0508"
   },
   {
    "id": "sk4",
@@ -755,7 +825,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0506.jpg"
+   "img": "assets/menu/0506.jpg",
+   "plu": "0506"
   },
   {
    "id": "sk5",
@@ -765,7 +836,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0509.jpg"
+   "img": "assets/menu/0509.jpg",
+   "plu": "0509"
   },
   {
    "id": "sk6",
@@ -775,7 +847,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0505.jpg"
+   "img": "assets/menu/0505.jpg",
+   "plu": "0505"
   },
   {
    "id": "sk7",
@@ -785,7 +858,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "鱼汤煮面，成都杂酱肉臊子（含:花椒油）",
-   "img": "assets/menu/0513.jpg"
+   "img": "assets/menu/0513.jpg",
+   "plu": "0513"
   },
   {
    "id": "sk8",
@@ -795,7 +869,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0516.jpg"
+   "img": "assets/menu/0516.jpg",
+   "plu": "0516"
   },
   {
    "id": "sk9",
@@ -805,7 +880,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0515.jpg"
+   "img": "assets/menu/0515.jpg",
+   "plu": "0515"
   },
   {
    "id": "sk10",
@@ -815,7 +891,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0514.jpg"
+   "img": "assets/menu/0514.jpg",
+   "plu": "0514"
   },
   {
    "id": "sk11",
@@ -825,7 +902,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0517.jpg"
+   "img": "assets/menu/0517.jpg",
+   "plu": "0517"
   },
   {
    "id": "sk12",
@@ -835,7 +913,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "含：芝麻和花生。糯米制作类似虾米的甜品搭配红糖水，爽滑清凉，解辣首选。",
-   "img": "assets/menu/0502.jpg"
+   "img": "assets/menu/0502.jpg",
+   "plu": "0502"
   },
   {
    "id": "sk13",
@@ -845,7 +924,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": false,
    "desc": "含：花生和芝麻。冰粉搭配冰西瓜再与山楂葡萄干缠绵，冰甜瞬解热辣。",
-   "img": "assets/menu/0501.jpg"
+   "img": "assets/menu/0501.jpg",
+   "plu": "0501"
   },
   {
    "id": "sk14",
@@ -855,7 +935,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "含：花生和芝麻。冰粉与凉虾的完美融合，极致爽口。",
-   "img": "assets/menu/0503.jpg"
+   "img": "assets/menu/0503.jpg",
+   "plu": "0503"
   },
   {
    "id": "sk15",
@@ -865,7 +946,8 @@ window.SEASPICE = {
    "cat": "主食和小吃",
    "hot": true,
    "desc": "冰豆花搭配桂花糖浆。入口即化，解辣必选。",
-   "img": "assets/menu/0504.jpg"
+   "img": "assets/menu/0504.jpg",
+   "plu": "0504"
   },
   {
    "id": "dr1",
@@ -875,7 +957,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": true,
    "desc": "",
-   "img": "assets/menu/0707.jpg"
+   "img": "assets/menu/0707.jpg",
+   "plu": "0707"
   },
   {
    "id": "dr2",
@@ -885,7 +968,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0709.jpg"
+   "img": "assets/menu/0709.jpg",
+   "plu": "0709"
   },
   {
    "id": "dr3",
@@ -895,7 +979,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0710.jpg"
+   "img": "assets/menu/0710.jpg",
+   "plu": "0710"
   },
   {
    "id": "dr4",
@@ -905,7 +990,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0703.jpg"
+   "img": "assets/menu/0703.jpg",
+   "plu": "0703"
   },
   {
    "id": "dr5",
@@ -915,7 +1001,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0702.jpg"
+   "img": "assets/menu/0702.jpg",
+   "plu": "0702"
   },
   {
    "id": "dr6",
@@ -925,7 +1012,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0701.jpg"
+   "img": "assets/menu/0701.jpg",
+   "plu": "0701"
   },
   {
    "id": "dr7",
@@ -935,7 +1023,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0706.jpg"
+   "img": "assets/menu/0706.jpg",
+   "plu": "0706"
   },
   {
    "id": "dr8",
@@ -945,7 +1034,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0705.jpg"
+   "img": "assets/menu/0705.jpg",
+   "plu": "0705"
   },
   {
    "id": "dr9",
@@ -955,7 +1045,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0711.jpg"
+   "img": "assets/menu/0711.jpg",
+   "plu": "0711"
   },
   {
    "id": "dr10",
@@ -965,7 +1056,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0712.jpg"
+   "img": "assets/menu/0712.jpg",
+   "plu": "0712"
   },
   {
    "id": "dr11",
@@ -975,7 +1067,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0715.jpg"
+   "img": "assets/menu/0715.jpg",
+   "plu": "0715"
   },
   {
    "id": "dr12",
@@ -985,7 +1078,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0716.jpg"
+   "img": "assets/menu/0716.jpg",
+   "plu": "0716"
   },
   {
    "id": "dr13",
@@ -995,7 +1089,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0717.jpg"
+   "img": "assets/menu/0717.jpg",
+   "plu": "0717"
   },
   {
    "id": "dr14",
@@ -1005,7 +1100,8 @@ window.SEASPICE = {
    "cat": "饮料",
    "hot": false,
    "desc": "",
-   "img": "assets/menu/0718.jpg"
+   "img": "assets/menu/0718.jpg",
+   "plu": "0718"
   },
   {
    "id": "al1",
@@ -1015,7 +1111,8 @@ window.SEASPICE = {
    "cat": "酒类",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "",
+   "plu": ""
   },
   {
    "id": "al2",
@@ -1025,7 +1122,8 @@ window.SEASPICE = {
    "cat": "酒类",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "",
+   "plu": ""
   },
   {
    "id": "al3",
@@ -1035,7 +1133,8 @@ window.SEASPICE = {
    "cat": "酒类",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "",
+   "plu": ""
   },
   {
    "id": "al4",
@@ -1045,7 +1144,8 @@ window.SEASPICE = {
    "cat": "酒类",
    "hot": false,
    "desc": "",
-   "img": ""
+   "img": "",
+   "plu": ""
   },
   {
    "id": "k1",
@@ -1055,7 +1155,8 @@ window.SEASPICE = {
    "cat": "儿童套餐",
    "hot": false,
    "desc": "肉末面（猪肉），新鲜西兰花，薯条，鸡块，和苹果汁。（含蛋类、奶制品、芝麻、花生、大豆和麸质过敏原）",
-   "img": "assets/menu/0511.jpg"
+   "img": "assets/menu/0511.jpg",
+   "plu": "0511"
   },
   {
    "id": "k2",
@@ -1065,7 +1166,8 @@ window.SEASPICE = {
    "cat": "儿童套餐",
    "hot": false,
    "desc": "肉末米饭（猪肉），新鲜西兰花，薯条，鸡块，和苹果汁。（含海鲜、蛋类、奶制品、芝麻、花生、大豆和麸质过敏原）",
-   "img": "assets/menu/0512.jpg"
+   "img": "assets/menu/0512.jpg",
+   "plu": "0512"
   }
  ],
  "addonCats": [
@@ -1298,7 +1400,8 @@ window.SEASPICE = {
      ]
     }
    ],
-   "time": "周一至周四 · 全天"
+   "time": "周一至周四 · 全天",
+   "plu": ""
   },
   {
    "id": 2,
@@ -1619,7 +1722,8 @@ window.SEASPICE = {
      ]
     }
    ],
-   "time": "周一至周四 · 全天"
+   "time": "周一至周四 · 全天",
+   "plu": ""
   },
   {
    "id": 3,
@@ -1645,7 +1749,8 @@ window.SEASPICE = {
     "price": 2,
     "img": "assets/menu/0707.jpg"
    },
-   "time": "午市 12:00–2:30 · 每日"
+   "time": "午市 12:00–2:30 · 每日",
+   "plu": ""
   },
   {
    "id": 4,
@@ -1671,7 +1776,8 @@ window.SEASPICE = {
     "price": 2,
     "img": "assets/menu/0707.jpg"
    },
-   "time": "午市 12:00–2:30 · 每日"
+   "time": "午市 12:00–2:30 · 每日",
+   "plu": ""
   }
  ]
 };

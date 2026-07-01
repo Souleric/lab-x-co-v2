@@ -6,7 +6,7 @@
 <title>Sea & Spice — Menu Backend</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.453.0/lucide.min.js"></script>
-<script src="menu-data.js?v=29"></script>
+<script src="menu-data.js?v=30"></script>
 <style>
   :root{ --bg:#1a0d0e; --panel:#241416; --panel2:#2e1a1c; --line:#3d2528; --ink:#f3e9e0; --muted:#b9a59c; --brand:#C86E1F; --brand2:#e08a36; --green:#3fa45b; --chip:#34201f; }
   *{box-sizing:border-box}
@@ -48,6 +48,8 @@
   input.cell:hover{border-color:var(--line)}
   input.cell:focus{border-color:var(--brand);background:var(--panel2)}
   input.cell.en{color:var(--muted);font-family:ui-monospace,monospace;font-size:12px}
+  input.cell.plu{font-family:ui-monospace,monospace;font-size:12px;color:var(--brand2);width:66px;min-width:0;text-align:center}
+  input.cell.plu::placeholder{color:#6b4a3a}
   input.price-cell{width:82px;color:var(--brand2);font-weight:700;text-align:right}
   td.c{text-align:center}
   .chk{width:17px;height:17px;accent-color:var(--brand);cursor:pointer}
@@ -118,7 +120,10 @@
     <div class="field"><label>价格 Price (空 = 时价)</label><input id="f_price" type="number" step="0.01" placeholder="0.00"></div>
     <div class="field"><label>图片 Image path</label><input id="f_img" placeholder="assets/menu/xxxx.jpg"></div>
   </div>
-  <div class="field"><label>描述 Description</label><input id="f_desc" placeholder="short description"></div>
+  <div class="two">
+    <div class="field"><label>描述 Description</label><input id="f_desc" placeholder="short description"></div>
+    <div class="field"><label>POS Item ID (PLU)</label><input id="f_plu" placeholder="例：0301"></div>
+  </div>
   <div class="checks">
     <label><input type="checkbox" class="chk" id="f_half">可半份</label>
     <label><input type="checkbox" class="chk" id="f_hot">热销</label>
@@ -159,7 +164,7 @@ function render(){
     if(q) items=items.filter(a=>(a.cn||'').toLowerCase().includes(q)||(a.en||'').toLowerCase().includes(q));
     if(q && !items.length) return;
     html+=`<div class="cat"><div class="cat-head"><span class="cn">${esc(c)}</span><span class="count">${items.length}</span></div>
-      <table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th><th style="width:90px">价格</th><th class="c" style="width:52px">半份</th><th class="c" style="width:52px">热销</th><th class="c" style="width:74px">状态</th><th style="width:44px"></th></tr></thead><tbody>
+      <table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th><th class="c" style="width:66px">PLU</th><th style="width:90px">价格</th><th class="c" style="width:52px">半份</th><th class="c" style="width:52px">热销</th><th class="c" style="width:74px">状态</th><th style="width:44px"></th></tr></thead><tbody>
       ${items.map(a=>addonRow(a)).join('')||'<tr><td colspan="8" class="note" style="padding:16px">暂无</td></tr>'}
       </tbody></table>
       <div class="addrow"><button class="btn ghost sm" onclick="openModal(null,'${esc(c)}')"><i data-lucide="plus"></i>新增到「${esc(c)}」</button></div></div>`;
@@ -177,6 +182,7 @@ function addonRow(a){
     <td>${thumb(a)}</td>
     <td><input class="cell" value="${esc(a.cn)}" onchange="upd('addon','${a.id}','cn',this.value)"></td>
     <td class="hide"><input class="cell en" value="${esc(a.en)}" onchange="upd('addon','${a.id}','en',this.value)"></td>
+    <td class="c"><input class="cell plu" value="${esc(a.plu||'')}" placeholder="—" onchange="upd('addon','${a.id}','plu',this.value)"></td>
     <td><input class="cell price-cell" type="number" step="0.01" value="${a.price??''}" placeholder="时价" onchange="updPrice('addon','${a.id}',this.value)"></td>
     <td class="c"><input type="checkbox" class="chk" ${a.half?'checked':''} onchange="upd('addon','${a.id}','half',this.checked)"></td>
     <td class="c"><input type="checkbox" class="chk" ${a.hot?'checked':''} onchange="upd('addon','${a.id}','hot',this.checked)"></td>
@@ -187,10 +193,11 @@ function addonRow(a){
     </div></td></tr>`;
 }
 function simpleTable(arr,kind,withPrice){
-  return `<div class="cat"><table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th>${withPrice?'<th style="width:90px">价格</th>':''}<th class="c" style="width:74px">状态</th></tr></thead><tbody>
+  return `<div class="cat"><table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th><th class="c" style="width:66px">PLU</th>${withPrice?'<th style="width:90px">价格</th>':''}<th class="c" style="width:74px">状态</th></tr></thead><tbody>
     ${arr.map((o,i)=>`<tr class="${o.avail===false?'off':''}"><td>${thumb(o)}</td>
       <td><input class="cell" value="${esc(o.cn)}" onchange="upd('${kind}','${i}','cn',this.value)"></td>
       <td class="hide"><input class="cell en" value="${esc(o.en)}" onchange="upd('${kind}','${i}','en',this.value)"></td>
+      <td class="c"><input class="cell plu" value="${esc(o.plu||'')}" placeholder="—" onchange="upd('${kind}','${i}','plu',this.value)"></td>
       ${withPrice?`<td><input class="cell price-cell" type="number" step="0.01" value="${o.price??''}" onchange="updPrice('${kind}','${i}',this.value)"></td>`:''}
       <td class="c">${availPill(kind,i,o)}</td></tr>`).join('')}
   </tbody></table></div>`;
@@ -220,6 +227,7 @@ function openModal(id,presetCat){
   document.getElementById('f_price').value=a&&a.price!=null?a.price:'';
   document.getElementById('f_img').value=a?(a.img||''):'';
   document.getElementById('f_desc').value=a?(a.desc||''):'';
+  document.getElementById('f_plu').value=a?(a.plu||''):'';
   document.getElementById('f_half').checked=a?!!a.half:false;
   document.getElementById('f_hot').checked=a?!!a.hot:false;
   document.getElementById('f_avail').checked=a?a.avail!==false:true;
@@ -233,7 +241,7 @@ function saveItem(){
   const priceVal=document.getElementById('f_price').value;
   const obj={ cn, en, cat:document.getElementById('f_cat').value,
     price: priceVal===''?null:+priceVal, img:document.getElementById('f_img').value.trim(),
-    desc:document.getElementById('f_desc').value.trim(),
+    desc:document.getElementById('f_desc').value.trim(), plu:document.getElementById('f_plu').value.trim(),
     half:document.getElementById('f_half').checked, hot:document.getElementById('f_hot').checked,
     avail:document.getElementById('f_avail').checked };
   const id=document.getElementById('f_id').value;

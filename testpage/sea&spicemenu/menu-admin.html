@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sea & Spice — Menu Backend</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.453.0/lucide.min.js"></script>
+<script src="menu-data.js?v=29"></script>
+<style>
+  :root{ --bg:#1a0d0e; --panel:#241416; --panel2:#2e1a1c; --line:#3d2528; --ink:#f3e9e0; --muted:#b9a59c; --brand:#C86E1F; --brand2:#e08a36; --green:#3fa45b; --chip:#34201f; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,sans-serif;font-size:14px}
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#241416,#1f1112);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .logo{font-weight:800;letter-spacing:.5px;color:#fff;font-size:16px}
+  .logo span{color:var(--brand2)}
+  .sub{color:var(--muted);font-size:12px}
+  .spacer{flex:1}
+  .saved{color:var(--green);font-size:12px;display:flex;align-items:center;gap:5px;opacity:0;transition:.3s}
+  .saved.show{opacity:1}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;padding:9px 14px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+  .btn{background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand2)}
+  .btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--brand)}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .wrap{max-width:1120px;margin:0 auto;padding:20px}
+  .banner{background:rgba(200,110,31,.1);border:1px solid var(--line);border-radius:11px;padding:11px 14px;color:var(--muted);font-size:12.5px;line-height:1.55;margin-bottom:16px}
+  .banner b{color:var(--ink)}
+  .globals{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  .globals label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:flex;flex-direction:column;gap:5px}
+  .globals input{width:120px}
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  input,select{font-family:inherit;font-size:13px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 11px;outline:none}
+  input:focus,select:focus{border-color:var(--brand)}
+  .search{flex:1;min-width:180px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 13px;color:var(--muted);font-size:12px}
+  .stat b{color:var(--ink);font-size:15px}
+  .sec-title{font-size:12px;font-weight:700;color:var(--brand2);margin:24px 2px 10px;text-transform:uppercase;letter-spacing:.6px}
+  .cat{margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .cat-head{display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .cat-head .cn{font-weight:700;font-size:14px}
+  .cat-head .count{margin-left:auto;background:var(--chip);color:var(--muted);border-radius:20px;padding:3px 11px;font-size:12px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:7px 12px;border-bottom:1px solid var(--line)}
+  td{padding:7px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#2a1718}
+  tr.off td{opacity:.5}
+  input.cell{background:transparent;border:1px solid transparent;border-radius:6px;padding:5px 7px;color:var(--ink);width:100%;min-width:70px;font-size:13px}
+  input.cell:hover{border-color:var(--line)}
+  input.cell:focus{border-color:var(--brand);background:var(--panel2)}
+  input.cell.en{color:var(--muted);font-family:ui-monospace,monospace;font-size:12px}
+  input.price-cell{width:82px;color:var(--brand2);font-weight:700;text-align:right}
+  td.c{text-align:center}
+  .chk{width:17px;height:17px;accent-color:var(--brand);cursor:pointer}
+  .pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;border-radius:20px;padding:3px 11px;font-weight:600;cursor:pointer;border:none}
+  .pill.on{background:rgba(63,164,91,.15);color:var(--green)}
+  .pill.off{background:rgba(139,26,26,.25);color:#e88}
+  .thumb{width:42px;height:42px;border-radius:9px;object-fit:cover;background:var(--panel2);border:1px solid var(--line);vertical-align:middle;display:inline-block}
+  img.thumb{cursor:zoom-in}
+  img.thumb:hover{border-color:var(--brand)}
+  span.thumb{display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px}
+  .icon-btn{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px;color:var(--muted)}
+  .icon-btn:hover{color:var(--ink);border-color:var(--brand)}
+  .icon-btn.del:hover{color:#e88;border-color:#e88}
+  .addrow{padding:9px 16px;border-top:1px solid var(--line)}
+  .row-actions{display:flex;gap:6px;justify-content:flex-end}
+  .note{color:var(--muted);font-size:11.5px}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:100%;max-width:460px;padding:20px;max-height:90vh;overflow:auto}
+  .modal h3{margin:0 0 16px;font-size:17px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .field input,.field select{width:100%}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .checks{display:flex;gap:18px;margin:6px 0 4px}
+  .checks label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink)}
+  .modal-actions{display:flex;gap:10px;margin-top:16px}
+  .modal-actions .btn{flex:1;justify-content:center}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;z-index:100;cursor:zoom-out;padding:24px}
+  .lightbox.show{display:flex}
+  .lightbox img{max-width:88vw;max-height:82vh;border-radius:14px}
+  @media(max-width:720px){ th.hide,td.hide{display:none} .wrap{padding:12px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">SEA &amp; <span>SPICE</span></div>
+  <div class="sub">Menu Backend</div>
+  <span class="saved" id="saved"><i data-lucide="check"></i>已保存 Saved</span>
+  <div class="spacer"></div>
+  <button class="btn ghost sm" onclick="resetMenu()"><i data-lucide="rotate-ccw"></i>恢复默认</button>
+  <button class="btn sm" onclick="exportMenu()"><i data-lucide="download"></i>导出 menu-data.js</button>
+</header>
+
+<div class="wrap">
+  <div class="banner">
+    <b>实时联动 Live-linked：</b>在这里的任何修改都会即时保存到浏览器，并<b>直接反映到前台点单 app</b>（同一浏览器）。价格、名称、上架/下架、半份、热销都可改。<br>
+    要<b>永久生效（所有设备）</b>：改完点「导出 menu-data.js」，用它替换项目里的 menu-data.js 再部署即可。「恢复默认」= 清除本地修改，回到已部署的 menu-data.js。
+  </div>
+
+  <div class="globals" id="globals"></div>
+
+  <div class="toolbar">
+    <input class="search" id="search" placeholder="搜索名称 / Search…" oninput="render()">
+    <div class="stat"><b id="itemCount">0</b> 加购项</div>
+    <div class="stat"><b id="pkgCount">0</b> 套餐</div>
+  </div>
+  <div id="list"></div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal">
+  <h3 id="modalTitle">新增加购项</h3>
+  <input type="hidden" id="f_id">
+  <div class="field"><label>分类 Category</label><select id="f_cat"></select></div>
+  <div class="two">
+    <div class="field"><label>中文名 *</label><input id="f_cn" placeholder="例：肥牛卷"></div>
+    <div class="field"><label>English</label><input id="f_en" placeholder="Wagyu Beef Roll"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label>价格 Price (空 = 时价)</label><input id="f_price" type="number" step="0.01" placeholder="0.00"></div>
+    <div class="field"><label>图片 Image path</label><input id="f_img" placeholder="assets/menu/xxxx.jpg"></div>
+  </div>
+  <div class="field"><label>描述 Description</label><input id="f_desc" placeholder="short description"></div>
+  <div class="checks">
+    <label><input type="checkbox" class="chk" id="f_half">可半份</label>
+    <label><input type="checkbox" class="chk" id="f_hot">热销</label>
+    <label><input type="checkbox" class="chk" id="f_avail" checked>上架</label>
+  </div>
+  <div class="modal-actions">
+    <button class="btn ghost" onclick="closeModal()">取消</button>
+    <button class="btn" onclick="saveItem()">保存</button>
+  </div>
+</div></div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" src="" alt=""></div>
+
+<script>
+const KEY='seaspice_menu';
+const clone=o=>JSON.parse(JSON.stringify(o));
+function load(){ try{const o=JSON.parse(localStorage.getItem(KEY)); if(o&&o.addons&&o.addonCats&&o.packages) return o;}catch(e){} return clone(window.SEASPICE); }
+let M = load();
+function save(){ localStorage.setItem(KEY, JSON.stringify(M)); const s=document.getElementById('saved'); s.classList.add('show'); clearTimeout(save._t); save._t=setTimeout(()=>s.classList.remove('show'),1400); }
+const esc=s=>(s==null?'':s+'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const realCats=()=>M.addonCats.filter(c=>c!=='热销首选');
+
+// ---- edit handlers ----
+function getObj(kind,key){ if(kind==='addon')return M.addons.find(a=>a.id===key); if(kind==='pkg')return M.packages.find(p=>p.id===key); if(kind==='fish')return M.fish[+key]; if(kind==='broth')return M.broths[+key]; return null; }
+function upd(kind,key,field,val){ const o=getObj(kind,key); if(o){ o[field]=val; save(); } }
+function updPrice(kind,key,val){ const o=getObj(kind,key); if(o){ o.price = val===''?null:+val; save(); } }
+function updDrink(id,val){ const p=M.packages.find(p=>p.id===id); if(p&&p.drinkUp){ p.drinkUp.price=+val||0; save(); } }
+function toggleAvail(kind,key){ const o=getObj(kind,key); if(o){ o.avail = o.avail===false?true:false; save(); render(); } }
+function updGlobal(which,val){ if(which==='cond')M.condiment.price=+val||0; else if(which==='pot')M.potFee=+val||0; else if(which==='table')M.table=val; save(); }
+
+// ---- render ----
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  document.getElementById('itemCount').textContent=M.addons.length;
+  document.getElementById('pkgCount').textContent=M.packages.length;
+  document.getElementById('globals').innerHTML=
+    `<label>调料费 / 位<input type="number" step="0.01" value="${M.condiment.price}" onchange="updGlobal('cond',this.value)"></label>
+     <label>锅底费 (单点火锅)<input type="number" step="0.01" value="${M.potFee}" onchange="updGlobal('pot',this.value)"></label>
+     <label>桌号 Table<input value="${esc(M.table)}" onchange="updGlobal('table',this.value)"></label>`;
+  let html='<div class="sec-title">加购项 · Add-ons</div>';
+  realCats().forEach(c=>{
+    let items=M.addons.filter(a=>a.cat===c);
+    if(q) items=items.filter(a=>(a.cn||'').toLowerCase().includes(q)||(a.en||'').toLowerCase().includes(q));
+    if(q && !items.length) return;
+    html+=`<div class="cat"><div class="cat-head"><span class="cn">${esc(c)}</span><span class="count">${items.length}</span></div>
+      <table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th><th style="width:90px">价格</th><th class="c" style="width:52px">半份</th><th class="c" style="width:52px">热销</th><th class="c" style="width:74px">状态</th><th style="width:44px"></th></tr></thead><tbody>
+      ${items.map(a=>addonRow(a)).join('')||'<tr><td colspan="8" class="note" style="padding:16px">暂无</td></tr>'}
+      </tbody></table>
+      <div class="addrow"><button class="btn ghost sm" onclick="openModal(null,'${esc(c)}')"><i data-lucide="plus"></i>新增到「${esc(c)}」</button></div></div>`;
+  });
+  html+='<div class="sec-title">鱼类 · Fish</div>'+simpleTable(M.fish,'fish',true);
+  html+='<div class="sec-title">内圈锅底 · Broths</div>'+simpleTable(M.broths,'broth',false);
+  html+='<div class="sec-title">套餐 · Packages</div>'+pkgTable();
+  document.getElementById('list').innerHTML=html;
+  if(window.lucide)lucide.createIcons();
+}
+function thumb(o){ return o.img?`<img class="thumb" src="${esc(o.img)}" onerror="this.style.opacity=.15" onclick="zoom('${esc(o.img)}')">`:'<span class="thumb">·</span>'; }
+function availPill(kind,key,o){ const on=o.avail!==false; return `<button class="pill ${on?'on':'off'}" onclick="toggleAvail('${kind}','${key}')">${on?'上架':'下架'}</button>`; }
+function addonRow(a){
+  return `<tr class="${a.avail===false?'off':''}">
+    <td>${thumb(a)}</td>
+    <td><input class="cell" value="${esc(a.cn)}" onchange="upd('addon','${a.id}','cn',this.value)"></td>
+    <td class="hide"><input class="cell en" value="${esc(a.en)}" onchange="upd('addon','${a.id}','en',this.value)"></td>
+    <td><input class="cell price-cell" type="number" step="0.01" value="${a.price??''}" placeholder="时价" onchange="updPrice('addon','${a.id}',this.value)"></td>
+    <td class="c"><input type="checkbox" class="chk" ${a.half?'checked':''} onchange="upd('addon','${a.id}','half',this.checked)"></td>
+    <td class="c"><input type="checkbox" class="chk" ${a.hot?'checked':''} onchange="upd('addon','${a.id}','hot',this.checked)"></td>
+    <td class="c">${availPill('addon',a.id,a)}</td>
+    <td><div class="row-actions">
+      <button class="icon-btn" onclick="openModal('${a.id}')"><i data-lucide="pencil"></i></button>
+      <button class="icon-btn del" onclick="delAddon('${a.id}')"><i data-lucide="trash-2"></i></button>
+    </div></td></tr>`;
+}
+function simpleTable(arr,kind,withPrice){
+  return `<div class="cat"><table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th>${withPrice?'<th style="width:90px">价格</th>':''}<th class="c" style="width:74px">状态</th></tr></thead><tbody>
+    ${arr.map((o,i)=>`<tr class="${o.avail===false?'off':''}"><td>${thumb(o)}</td>
+      <td><input class="cell" value="${esc(o.cn)}" onchange="upd('${kind}','${i}','cn',this.value)"></td>
+      <td class="hide"><input class="cell en" value="${esc(o.en)}" onchange="upd('${kind}','${i}','en',this.value)"></td>
+      ${withPrice?`<td><input class="cell price-cell" type="number" step="0.01" value="${o.price??''}" onchange="updPrice('${kind}','${i}',this.value)"></td>`:''}
+      <td class="c">${availPill(kind,i,o)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function pkgTable(){
+  return `<div class="cat"><table><thead><tr><th style="width:52px"></th><th>套餐名</th><th style="width:90px">价格</th><th class="hide">类型 / 升级</th><th class="c" style="width:74px">状态</th></tr></thead><tbody>
+    ${M.packages.map(p=>{
+      const type = p.fixed ? '固定套餐'+(p.drinkUp?` · 升级饮品 +$<input class="cell" style="width:52px;display:inline" type="number" step="0.01" value="${p.drinkUp.price}" onchange="updDrink('${p.id}',this.value)">`:'') : `DIY · ${(p.groups||[]).length} 项选择`;
+      return `<tr class="${p.avail===false?'off':''}"><td>${thumb(p)}</td>
+        <td><input class="cell" value="${esc(p.cn)}" onchange="upd('pkg','${p.id}','cn',this.value)"><br><input class="cell en" value="${esc(p.en)}" onchange="upd('pkg','${p.id}','en',this.value)"></td>
+        <td><input class="cell price-cell" type="number" step="0.01" value="${p.price??''}" onchange="updPrice('pkg','${p.id}',this.value)"></td>
+        <td class="hide note">${type}</td>
+        <td class="c">${availPill('pkg',p.id,p)}</td></tr>`;
+    }).join('')}
+  </tbody></table></div>`;
+}
+
+// ---- add / edit modal (add-ons) ----
+function fillCat(sel,val){ sel.innerHTML=realCats().map(c=>`<option>${esc(c)}</option>`).join(''); if(val)sel.value=val; }
+function openModal(id,presetCat){
+  const a = id ? M.addons.find(x=>x.id===id) : null;
+  document.getElementById('modalTitle').textContent = a?'编辑加购项':'新增加购项';
+  fillCat(document.getElementById('f_cat'), a?a.cat:(presetCat||realCats()[0]));
+  document.getElementById('f_id').value=a?a.id:'';
+  document.getElementById('f_cn').value=a?(a.cn||''):'';
+  document.getElementById('f_en').value=a?(a.en||''):'';
+  document.getElementById('f_price').value=a&&a.price!=null?a.price:'';
+  document.getElementById('f_img').value=a?(a.img||''):'';
+  document.getElementById('f_desc').value=a?(a.desc||''):'';
+  document.getElementById('f_half').checked=a?!!a.half:false;
+  document.getElementById('f_hot').checked=a?!!a.hot:false;
+  document.getElementById('f_avail').checked=a?a.avail!==false:true;
+  document.getElementById('overlay').classList.add('show');
+  setTimeout(()=>document.getElementById('f_cn').focus(),50);
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+function saveItem(){
+  const cn=document.getElementById('f_cn').value.trim(), en=document.getElementById('f_en').value.trim();
+  if(!cn&&!en){ alert('中文名或 English 至少填一个'); return; }
+  const priceVal=document.getElementById('f_price').value;
+  const obj={ cn, en, cat:document.getElementById('f_cat').value,
+    price: priceVal===''?null:+priceVal, img:document.getElementById('f_img').value.trim(),
+    desc:document.getElementById('f_desc').value.trim(),
+    half:document.getElementById('f_half').checked, hot:document.getElementById('f_hot').checked,
+    avail:document.getElementById('f_avail').checked };
+  const id=document.getElementById('f_id').value;
+  if(id){ Object.assign(M.addons.find(x=>x.id===id), obj); }
+  else { obj.id='x'+Date.now().toString(36); M.addons.push(obj); }
+  save(); closeModal(); render();
+}
+function delAddon(id){ const a=M.addons.find(x=>x.id===id); if(confirm('删除「'+(a.cn||a.en)+'」？')){ M.addons=M.addons.filter(x=>x.id!==id); save(); render(); } }
+
+function zoom(src){ document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('show'); }
+function resetMenu(){ if(confirm('清除本地修改，恢复到已部署的 menu-data.js？')){ localStorage.removeItem(KEY); M=clone(window.SEASPICE); render(); } }
+function exportMenu(){
+  const js='window.SEASPICE = '+JSON.stringify(M,null,1)+';\n';
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([js],{type:'text/javascript'})); a.download='menu-data.js'; a.click();
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.getElementById('lightbox').classList.remove('show'); closeModal(); } });
+render();
+</script>
+</body>
+</html>

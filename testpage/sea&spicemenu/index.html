@@ -307,7 +307,9 @@
 <body>
 <div id="app"></div>
 <script>
-const M = window.SEASPICE;
+// menu source: localStorage overlay (edited in the backend admin) overrides menu-data.js, so backend changes reflect live
+const M = (function(){ try{ const o=JSON.parse(localStorage.getItem('seaspice_menu')); if(o && o.addons && o.addonCats && o.packages) return o; }catch(e){} return window.SEASPICE; })();
+const avail = x => x && x.avail!==false;   // 下架 items (avail:false) are hidden from the customer app
 const C = M.currency;
 const money = n => '$'+(Math.round(n*100)/100).toFixed(2);
 const halfP = p => Math.ceil(p*60)/100;           // 半份 = 60% of full, round up to cent
@@ -449,7 +451,7 @@ function scrHub(){
       ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
     </div>
     <div class="seclbl2" id="pkg-section" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
-    <div class="pkgrow">${M.packages.map(pkgCard).join('')}</div>
+    <div class="pkgrow">${M.packages.filter(avail).map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
 // ---- hero auto-slider ----
@@ -643,7 +645,7 @@ window.skipUpgrade=function(){ S.order.broth=null; go('addons'); }
 // ---- add-ons ----
 const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食和小吃':'cat_base.png','饮料':'cat_drink.svg','酒类':'cat_wine.svg','儿童套餐':'cat_kids.svg'};
 function key(id,por){ return id+'|'+por; }
-function catItems(c){ return c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c); }
+function catItems(c){ return (c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c)).filter(avail); }
 function addonCard(it){
   const por=S.por[it.id]||'full';
   const seg=it.half?`<div class="seg"><button class="${por==='full'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','full')">整份</button>

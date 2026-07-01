@@ -63,6 +63,9 @@
   .icon-btn{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px;color:var(--muted)}
   .icon-btn:hover{color:var(--ink);border-color:var(--brand)}
   .icon-btn.del:hover{color:#e88;border-color:#e88}
+  .tbtn{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 11px;color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap}
+  .tbtn:hover{color:var(--ink);border-color:var(--brand)}
+  .tbtn.del:hover{color:#e88;border-color:#e88}
   .addrow{padding:9px 16px;border-top:1px solid var(--line)}
   .row-actions{display:flex;gap:6px;justify-content:flex-end}
   .note{color:var(--muted);font-size:11.5px}
@@ -164,7 +167,7 @@ function render(){
     if(q) items=items.filter(a=>(a.cn||'').toLowerCase().includes(q)||(a.en||'').toLowerCase().includes(q));
     if(q && !items.length) return;
     html+=`<div class="cat"><div class="cat-head"><span class="cn">${esc(c)}</span><span class="count">${items.length}</span></div>
-      <table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th><th class="c" style="width:66px">PLU</th><th style="width:90px">价格</th><th class="c" style="width:52px">半份</th><th class="c" style="width:52px">热销</th><th class="c" style="width:74px">状态</th><th style="width:44px"></th></tr></thead><tbody>
+      <table><thead><tr><th style="width:52px"></th><th>中文名</th><th class="hide">English</th><th class="c" style="width:66px">PLU</th><th style="width:90px">价格</th><th class="c" style="width:52px">半份</th><th class="c" style="width:52px">热销</th><th class="c" style="width:74px">状态</th><th class="c" style="width:110px">操作</th></tr></thead><tbody>
       ${items.map(a=>addonRow(a)).join('')||'<tr><td colspan="8" class="note" style="padding:16px">暂无</td></tr>'}
       </tbody></table>
       <div class="addrow"><button class="btn ghost sm" onclick="openModal(null,'${esc(c)}')"><i data-lucide="plus"></i>新增到「${esc(c)}」</button></div></div>`;
@@ -188,8 +191,8 @@ function addonRow(a){
     <td class="c"><input type="checkbox" class="chk" ${a.hot?'checked':''} onchange="upd('addon','${a.id}','hot',this.checked)"></td>
     <td class="c">${availPill('addon',a.id,a)}</td>
     <td><div class="row-actions">
-      <button class="icon-btn" onclick="openModal('${a.id}')"><i data-lucide="pencil"></i></button>
-      <button class="icon-btn del" onclick="delAddon('${a.id}')"><i data-lucide="trash-2"></i></button>
+      <button class="tbtn" onclick="openModal('${a.id}')">编辑</button>
+      <button class="tbtn del" onclick="delAddon('${a.id}')">删除</button>
     </div></td></tr>`;
 }
 function simpleTable(arr,kind,withPrice){

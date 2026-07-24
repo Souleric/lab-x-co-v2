@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LabX Flow — AI creative studio | LabX Co</title>
+<meta name="description" content="LabX Flow is an AI-native creative studio: generate image, video and audio on a node canvas, design finished artwork in a vector editor, and let AI agents create alongside you.">
+<link rel="canonical" href="https://www.labxco.com/flow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.labxco.com/flow">
+<meta property="og:title" content="LabX Flow — AI creative studio">
+<meta property="og:description" content="Generate image, video and audio on an infinite node canvas, design finished artwork in a vector editor, and let AI agents create alongside you — one browser workspace.">
+<meta name="theme-color" content="#1E6FEB">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231E6FEB'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='26' height='26' rx='7' fill='url(%23g)'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --ground:#f3f5fb; --surface:#ffffff; --surface-2:#eef1f8;
+    --ink:#0e1324; --muted:#525c76; --faint:#8b93a9; --border:#e3e7f1; --border-2:#d7dcea;
+    --accent:#1E6FEB; --accent-2:#7c3aed;
+    --grad:linear-gradient(100deg,#1E6FEB,#7c3aed);
+    --grad-soft:linear-gradient(100deg,rgba(30,111,235,.10),rgba(124,58,237,.10));
+    --shadow:0 1px 2px rgba(16,22,40,.04), 0 12px 32px -12px rgba(16,22,40,.14);
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#080b14; --surface:#111624; --surface-2:#161d2f;
+      --ink:#eef1f9; --muted:#9aa4bd; --faint:#657092; --border:#212a41; --border-2:#2a3450;
+      --accent:#4d8bff; --accent-2:#a78bfa;
+      --grad:linear-gradient(100deg,#4d8bff,#a78bfa);
+      --grad-soft:linear-gradient(100deg,rgba(77,139,255,.14),rgba(167,139,250,.14));
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 40px -16px rgba(0,0,0,.6);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  img,svg{max-width:100%}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased;
+    font-size:16.5px; overflow-x:hidden;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px}
+  a{color:inherit; text-decoration:none}
+  .eyebrow{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--faint); display:inline-flex; align-items:center; gap:9px;
+  }
+  .eyebrow::before{content:""; width:22px; height:2px; border-radius:2px; background:var(--grad)}
+  .grad-text{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+  h1,h2,h3{text-wrap:balance; line-height:1.1; margin:0}
+
+  /* top bar */
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:22px 0 0}
+  .topbar .home{font-family:var(--mono); font-size:12.5px; color:var(--muted); display:inline-flex; align-items:center; gap:8px}
+  .topbar .home:hover{color:var(--ink)}
+  .topbar .cta{font-family:var(--mono); font-size:12.5px; color:#fff; background:var(--grad); border-radius:999px; padding:8px 15px}
+
+  header.hero{position:relative; padding:56px 0 40px}
+  .hero-node{position:absolute; inset:0; z-index:0; pointer-events:none;
+    -webkit-mask-image:linear-gradient(90deg,transparent 6%,#000 42%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 6%,#000 42%,#000 100%); opacity:.5;}
+  .hero-inner{position:relative; z-index:1; max-width:760px}
+  .brand{margin:20px 0 22px; font-size:clamp(46px,8.5vw,88px); font-weight:800; letter-spacing:-.03em; line-height:.98}
+  .lede{font-size:clamp(17px,2.1vw,21px); color:var(--muted); max-width:640px; margin:0 0 26px}
+  .lede b{color:var(--ink); font-weight:640}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px}
+  .chip{font-family:var(--mono); font-size:12px; letter-spacing:.02em; color:var(--ink);
+    background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:7px 13px;
+    display:inline-flex; align-items:center; gap:7px; box-shadow:var(--shadow);}
+  .chip i{width:7px; height:7px; border-radius:50%; background:var(--grad); display:inline-block}
+
+  .pillars{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:8px 0 4px}
+  .pillar{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px 20px; box-shadow:var(--shadow)}
+  .pillar .pk{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent)}
+  .pillar h3{font-size:19px; margin:9px 0 6px; letter-spacing:-.01em}
+  .pillar p{margin:0; color:var(--muted); font-size:14.5px; line-height:1.55}
+
+  section{padding:52px 0; border-top:1px solid var(--border)}
+  .sec-head{max-width:680px; margin-bottom:30px}
+  .sec-head h2{font-size:clamp(26px,3.6vw,38px); font-weight:780; letter-spacing:-.02em; margin:14px 0 12px}
+  .sec-head p{color:var(--muted); font-size:16.5px; margin:0}
+
+  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 18px 17px; display:flex; gap:13px; align-items:flex-start}
+  .card .ic{flex:0 0 auto; width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:var(--grad-soft); color:var(--accent); border:1px solid var(--border)}
+  .card .ic svg{width:18px; height:18px; display:block}
+  .card h4{margin:0 0 4px; font-size:15.5px; font-weight:680; letter-spacing:-.005em}
+  .card p{margin:0; color:var(--muted); font-size:14px; line-height:1.55}
+  .card p b{color:var(--ink); font-weight:620}
+
+  .flow{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:22px}
+  .step{background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:15px 14px; position:relative}
+  .step .n{font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.06em}
+  .step h5{margin:7px 0 4px; font-size:14.5px; font-weight:680}
+  .step p{margin:0; font-size:12.8px; color:var(--muted); line-height:1.5}
+  .step:not(:last-child)::after{content:"\2192"; position:absolute; right:-10px; top:50%; transform:translateY(-50%); color:var(--faint); font-size:15px; z-index:2}
+
+  .close{border-top:1px solid var(--border); padding:56px 0 30px}
+  .close .big{font-size:clamp(24px,3.4vw,34px); font-weight:760; letter-spacing:-.02em; max-width:720px}
+  .close .big span{color:var(--muted); font-weight:760}
+  .close .link{display:inline-flex; align-items:center; gap:9px; margin-top:22px; font-family:var(--mono); font-size:14px; color:var(--ink); background:var(--surface); border:1px solid var(--border-2); border-radius:11px; padding:11px 16px; box-shadow:var(--shadow)}
+  .close .link b{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+  footer{padding:22px 0 60px; color:var(--faint); font-size:13px; font-family:var(--mono); letter-spacing:.03em; border-top:1px solid var(--border)}
+  footer a{color:var(--muted)} footer a:hover{color:var(--ink)}
+
+  .reveal{opacity:0; transform:translateY(14px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1; transform:none}
+  @media (prefers-reduced-motion:reduce){ .reveal{opacity:1; transform:none; transition:none} }
+
+  @media (max-width:860px){
+    .pillars{grid-template-columns:1fr}
+    .grid,.grid.three{grid-template-columns:1fr}
+    .flow{grid-template-columns:1fr 1fr}
+    .step:not(:last-child)::after{display:none}
+  }
+  @media (max-width:520px){ .wrap{padding:0 20px} .flow{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="home" href="/">&#8592;&nbsp; LabX Co</a>
+    <a class="cta" href="https://canvas.labxco.com">Open the app &#8594;</a>
+  </div>
+
+  <header class="hero">
+    <svg class="hero-node" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E6FEB"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+      <g stroke="url(#g)" stroke-width="1.4" fill="none" opacity=".55">
+        <path d="M760 120 C 860 120, 900 210, 1000 210"/><path d="M760 120 C 860 120, 900 60, 1000 60"/>
+        <path d="M1000 210 C 1090 210, 1090 330, 1000 330"/><path d="M760 300 C 880 300, 900 210, 1000 210"/>
+        <path d="M1000 60 C 1120 60, 1120 300, 1000 330"/><path d="M760 300 C 860 300, 900 420, 1000 420"/>
+      </g>
+      <g fill="url(#g)"><circle cx="760" cy="120" r="7"/><circle cx="760" cy="300" r="7"/><circle cx="1000" cy="60" r="7"/><circle cx="1000" cy="210" r="7"/><circle cx="1000" cy="330" r="7"/><circle cx="1000" cy="420" r="7"/></g>
+      <g fill="none" stroke="url(#g)" stroke-width="1.6" opacity=".9">
+        <rect x="726" y="92" width="68" height="56" rx="9"/><rect x="726" y="272" width="68" height="56" rx="9"/>
+        <rect x="966" y="32" width="68" height="56" rx="9"/><rect x="966" y="182" width="68" height="56" rx="9"/>
+        <rect x="966" y="302" width="68" height="56" rx="9"/><rect x="966" y="392" width="68" height="56" rx="9"/>
+      </g>
+    </svg>
+    <div class="hero-inner">
+      <div class="eyebrow">LabX Co &middot; canvas.labxco.com</div>
+      <h1 class="brand">LabX <span class="grad-text">Flow</span></h1>
+      <p class="lede">An AI-native creative studio. <b>Generate image, video, and audio</b> on an infinite node canvas, <b>design finished artwork</b> in a vector editor, and let <b>AI agents create alongside you</b> — all in one browser workspace.</p>
+      <div class="chips">
+        <span class="chip"><i></i>Image</span><span class="chip"><i></i>Video</span><span class="chip"><i></i>Audio</span><span class="chip"><i></i>Design</span><span class="chip"><i></i>Agents</span>
+      </div>
+    </div>
+  </header>
+
+  <section style="border-top:none; padding-top:24px">
+    <div class="sec-head reveal">
+      <div class="eyebrow">What it is</div>
+      <h2>Three tools most teams juggle separately — in one place.</h2>
+      <p>Prompt-to-media generation, a real design editor, and an API for AI assistants share one account, one asset library, and one credit balance. Create a shot, refine it, compose it into a finished deliverable, and share it — without leaving the tab.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal"><div class="pk">Generate</div><h3>The Canvas</h3><p>A node graph where each node turns a prompt, references, or upstream nodes into an image, video, or audio clip.</p></div>
+      <div class="pillar reveal"><div class="pk">Compose</div><h3>The Design studio</h3><p>A vector editor for turning generated assets into posters, ads, decks, and diagrams — export-ready.</p></div>
+      <div class="pillar reveal"><div class="pk">Automate</div><h3>Agent API</h3><p>A self-describing API so an AI assistant can generate media and author fully-editable designs on your behalf.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">The Canvas</div>
+      <h2>Action-first generation on an infinite node canvas.</h2>
+      <p>Every node walks the same short path — decide what you're making, how, with which model, then generate. Nodes wire together, so one output feeds the next.</p>
+    </div>
+    <div class="flow reveal">
+      <div class="step"><div class="n">01</div><h5>Type</h5><p>Image, video, or audio.</p></div>
+      <div class="step"><div class="n">02</div><h5>Function</h5><p>General, Edit, Animate, Transition&hellip;</p></div>
+      <div class="step"><div class="n">03</div><h5>Model</h5><p>Only models valid for that function.</p></div>
+      <div class="step"><div class="n">04</div><h5>Settings</h5><p>Aspect ratio, resolution, duration.</p></div>
+      <div class="step"><div class="n">05</div><h5>Generate</h5><p>Result lands on the node.</p></div>
+    </div>
+    <div class="grid reveal">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4"/><path d="M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z"/></svg></div><div><h4>Purpose-built functions</h4><p><b>General</b> (text&rarr;media), <b>Edit</b>, <b>Animate</b> (image&rarr;motion), <b>Transition</b> &amp; <b>Stitch</b> between frames, and <b>Act &amp; Speak</b> — a character that moves and lip-syncs.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 6H9M20 18H9M9 6v12"/></svg></div><div><h4>Nodes that connect</h4><p>An image node feeds a video node; a character feeds a talking clip. Outputs flow downstream, so a whole campaign lives on one board.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M9 4v14"/></svg></div><div><h4>Multi-step composers</h4><p><b>Showcase</b> (a product &rarr; a full ad set), <b>Storyboard</b> (a scene per beat), and <b>Carousel</b> (consistent slides) build sequences in one pass.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 22v-2M4 12H2M22 12h-2"/><rect x="4" y="4" width="11" height="11" rx="2"/><path d="M15 15l5 5"/></svg></div><div><h4>References &amp; keyframes</h4><p>Guide results with reference images, interpolate between a <b>start and end frame</b>, or use reference-to-video — the controls adapt to each model.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 7V5M12 7V5M18 7V5M6 17v2M12 17v2M18 17v2"/></svg></div><div><h4>Video timeline</h4><p>Layer overlays, captions, and transitions over a clip, then render — a lightweight editor built into the node.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg></div><div><h4>Explorable 3D worlds</h4><p>Turn a prompt or image into a walkable 3D environment and capture frames from it back onto the canvas.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">Media &amp; libraries</div>
+      <h2>A wide stable of models, plus assets you reuse.</h2>
+      <p>The model catalogue is configurable — leading image, video, and audio engines side by side — and your recurring people, products, and brands are saved once and reused everywhere.</p>
+    </div>
+    <div class="grid three reveal">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div><div><h4>Images</h4><p>Generate &amp; edit with reference images, masks, and custom aspect ratios.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></div><div><h4>Video</h4><p>Async jobs with live progress — plus talking avatars &amp; lip-sync from an image + audio.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4zM15 9a3 3 0 010 6M18 6a7 7 0 010 12"/></svg></div><div><h4>Audio &amp; voice</h4><p>Text-to-speech with a multi-voice screenplay syntax for scripted dialogue.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><div><h4>Characters</h4><p>Clone a person's <b>likeness + voice</b> from a photo and a short clip — reuse them across shots.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 8.4l-8-4.8a2 2 0 00-2 0l-8 4.8A2 2 0 002 10v4a2 2 0 001 1.7l8 4.8a2 2 0 002 0l8-4.8A2 2 0 0022 14v-4a2 2 0 00-1.4-1.6z"/><path d="M3 9l9 5 9-5M12 22V14"/></svg></div><div><h4>Products &amp; Brands</h4><p>Saved product shots and brand profiles — colours, fonts, tone — that steer every generation.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/></svg></div><div><h4>Utilities</h4><p>One-click background removal, upscaling, and logo extraction on any asset.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">Design studio</div>
+      <h2>A real vector editor to finish the job.</h2>
+      <p>Drop your generated assets onto artboards and build the actual deliverable — social posts, ads, posters, multi-slide decks, and diagrams — then export or share it.</p>
+    </div>
+    <div class="grid reveal">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><circle cx="17.5" cy="17.5" r="3.5"/></svg></div><div><h4>Artboards &amp; elements</h4><p>Shapes, text, images, gradients, shadows, and freeform <b>SVG paths</b> — with layers, grouping, snapping and isolate mode.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="15" y="14" width="6" height="6" rx="1.5"/><path d="M9 7h4a2 2 0 012 2v5"/></svg></div><div><h4>Decks &amp; diagrams</h4><p>Multi-slide presentations, flowcharts and org charts with <b>smart connectors</b> that stay attached, and data tables.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div><div><h4>Export anywhere</h4><p>Ship to <b>PNG, SVG, or PDF</b>, or present full-screen — pixel-accurate to what's on the artboard.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div><h4>Share &amp; collaborate</h4><p>Public view links, per-slide comments, and role-based collaboration — invite a client or a teammate to edit.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">AI agents</div>
+      <h2>An AI assistant that creates for you.</h2>
+      <p>A full REST API mirrors the app, so an agent authenticates with a key and does the work — generating media, wiring up projects, and authoring complete, editable designs. One call to a self-describing guide teaches it the whole system.</p>
+    </div>
+    <div class="grid reveal">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M8 21H5a2 2 0 01-2-2v-3M16 21h3a2 2 0 002-2v-3"/><circle cx="12" cy="12" r="3"/></svg></div><div><h4>Self-describing API</h4><p>The <b>agent guide</b> endpoint returns the whole system — endpoints, models, credits — so an agent learns it in one request.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v6H4zM4 14h10v6H4z"/><path d="M18 14h2v6h-2z"/></svg></div><div><h4>Designs from a brief</h4><p>The agent writes a compact layout spec — like HTML — that compiles into <b>real, editable vector layers</b>: generated imagery, uploads, brand fonts, multi-colour type.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v14H3z"/><path d="M8 21h8M12 17v4"/><path d="M7 10l3 3 6-6"/></svg></div><div><h4>Render, revise, deliver</h4><p>It renders a flat proof server-side to QC, <b>revises in place</b> (no duplicates), and hands back a public share link.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-8.5 8.4 8.5 8.5 0 01-4-1L3 20l1.1-5.4a8.4 8.4 0 01-1-4A8.5 8.5 0 0112.5 3 8.4 8.4 0 0121 11.5z"/></svg></div><div><h4>Command it anywhere</h4><p>Because the API is the interface, an agent can take a message — say, over WhatsApp — and return a finished, editable design.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal">
+      <div class="eyebrow">Platform</div>
+      <h2>Built to run in a browser, for a team.</h2>
+    </div>
+    <div class="grid three reveal">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 000 18M3 12h18M4 8h16M4 16h16"/></svg></div><div><h4>Web-based</h4><p>Nothing to install — runs in the browser, with a cloud backend and per-user auto-save.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><h4>Accounts &amp; credits</h4><p>Tiered access — unlimited internal use, or metered by a credit balance for members.</p></div></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h4>Configurable models</h4><p>An admin-driven catalogue &amp; pricing — new AI models are added without shipping code.</p></div></div>
+    </div>
+  </section>
+
+  <div class="close reveal">
+    <div class="eyebrow">In one line</div>
+    <p class="big" style="margin-top:14px">Prompt it, refine it, design it, and share it — <span>or hand the brief to an agent and get a finished, editable deliverable back.</span></p>
+    <a class="link" href="https://canvas.labxco.com">Open LabX Flow &nbsp;&middot;&nbsp; <b>canvas.labxco.com</b> &#8594;</a>
+  </div>
+
+  <footer>LabX Flow — a product of <a href="/">LabX Co</a> · AI generation on a node canvas + a vector Design studio + an agent API.</footer>
+</div>
+
+<script>
+  (function(){
+    var els = [].slice.call(document.querySelectorAll('.reveal'));
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion:reduce)').matches){
+      els.forEach(function(e){ e.classList.add('in'); }); return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold:.12, rootMargin:'0px 0px -8% 0px' });
+    els.forEach(function(e){ io.observe(e); });
+  })();
+</script>
+</body>
+</html>

@@ -86,8 +86,36 @@
   .lightbox img{max-width:88vw;max-height:82vh;border-radius:14px}
   @media(max-width:720px){ th.hide,td.hide{display:none} .wrap{padding:12px} }
 </style>
+<style>
+body.locked > *:not(#lockscreen){display:none !important}
+#lockscreen{display:none;position:fixed;inset:0;z-index:9999;background:#2a0a0d;
+  align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+body.locked #lockscreen{display:flex}
+.lockbox{width:min(340px,88vw);background:#3d0f14;border:1px solid rgba(233,196,119,.28);
+  border-radius:12px;padding:34px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.locklogo{font-size:21px;font-weight:700;letter-spacing:.12em;color:#f6ead0}
+.locklogo span{color:#e9c477}
+.locksub{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#b08d4f;margin:6px 0 26px}
+#lockpw{width:100%;padding:12px 14px;border-radius:8px;border:1px solid rgba(233,196,119,.3);
+  background:rgba(0,0,0,.28);color:#f6ead0;font-size:15px;outline:none;text-align:center}
+#lockpw:focus{border-color:#e9c477}
+#lockgo{width:100%;margin-top:12px;padding:12px;border:0;border-radius:8px;background:#e9c477;
+  color:#480a11;font-weight:700;font-size:15px;cursor:pointer}
+#lockgo:hover{background:#f0d08c}
+.lockerr{min-height:18px;margin-top:12px;font-size:13px;color:#e4705c}
+</style>
 </head>
-<body>
+<body class="locked">
+<div id="lockscreen">
+  <div class="lockbox">
+    <div class="locklogo">SEA &amp; <span>SPICE</span></div>
+    <div class="locksub">Menu Backend</div>
+    <input id="lockpw" type="password" placeholder="密码 Password" autocomplete="current-password">
+    <button id="lockgo">进入 Enter</button>
+    <div class="lockerr" id="lockerr"></div>
+  </div>
+</div>
+
 <header>
   <div class="logo">SEA &amp; <span>SPICE</span></div>
   <div class="sub">Menu Backend</div>
@@ -261,7 +289,40 @@ function exportMenu(){
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([js],{type:'text/javascript'})); a.download='menu-data.js'; a.click();
 }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.getElementById('lightbox').classList.remove('show'); closeModal(); } });
-render();
+/* ---- password gate ------------------------------------------------------
+   Stores only a SHA-256 hash — set it with:  node set-admin-password.js "..."
+   NOTE: this is a static page, so a determined visitor can read the source and
+   bypass the gate. It keeps the tool out of casual reach; it is not real
+   access control. The page only ever writes to this browser's localStorage. */
+const ADMIN_HASH = '6460662e217c7a9f899208dd70a2c28abdea42f128666a9b78e6c0c064846493';
+async function sha256(txt){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function tryUnlock(){
+  const err=document.getElementById('lockerr'), pw=document.getElementById('lockpw').value;
+  if(!ADMIN_HASH){ err.textContent='尚未设定密码 · No password configured'; return; }
+  if(await sha256(pw) === ADMIN_HASH){
+    try{ sessionStorage.setItem('seaspice_admin','1'); }catch(e){}
+    unlock();
+  } else {
+    err.textContent='密码错误 · Wrong password';
+    document.getElementById('lockpw').value='';
+  }
+}
+function unlock(){
+  document.body.classList.remove('locked');
+  render();
+  if(window.lucide) lucide.createIcons();
+}
+function initAdmin(){
+  let ok=false; try{ ok = sessionStorage.getItem('seaspice_admin')==='1'; }catch(e){}
+  if(ok) return unlock();
+  document.getElementById('lockgo').onclick=tryUnlock;
+  document.getElementById('lockpw').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
+  document.getElementById('lockpw').focus();
+}
+initAdmin();
 </script>
 </body>
 </html>

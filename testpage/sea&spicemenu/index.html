@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="menu-data.js?v=30"></script>
+<script src="menu-source.js?v=1"></script>
 <style>
   :root{
     --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
@@ -307,21 +308,23 @@
 <body>
 <div id="app"></div>
 <script>
-// menu source: localStorage overlay (edited in the backend admin) overrides menu-data.js, so backend changes reflect live
-const M = (function(){ try{ const o=JSON.parse(localStorage.getItem('seaspice_menu')); if(o && o.addons && o.addonCats && o.packages) return o; }catch(e){} return window.SEASPICE; })();
+// menu source: see menu-source.js — the single swap point for the ArmLoop POS API.
+// Bound synchronously here so the module-scope derivations below still work; boot()
+// at the bottom re-binds from MenuSource.load() before the first render.
+let M = MenuSource.resolveSync();
 const avail = x => x && x.avail!==false;   // 下架 items (avail:false) are hidden from the customer app
-const C = M.currency;
+let C = M.currency;
 const money = n => '$'+(Math.round(n*100)/100).toFixed(2);
 const halfP = p => Math.ceil(p*60)/100;           // 半份 = 60% of full, round up to cent
 const addonById = id => M.addons.find(a=>a.id===id);
 
-const FISH = M.fish, BROTHS = M.broths;
+let FISH = M.fish, BROTHS = M.broths;
 const DIRECT_UPGRADE = 5;  // 冷锅鱼/酸菜鱼: optional 升级鸳鸯锅 = +$5
 const DIRECT_BASE = 25;    // 冷锅鱼/酸菜鱼: base cold-pot 锅底 fee (always charged)
 // 鱼火锅(fhp): required inner broth (4 options, $30) · 冷锅鱼/酸菜鱼(direct): optional upgrade (原汤+番茄, +$5)
 function brothList(){ return S.order.mode==='direct' ? BROTHS.filter(b=>b.id==='orig'||b.id==='tom') : BROTHS; }
-const NUMB = [{k:'特麻',lv:3},{k:'中麻',lv:2,rec:1},{k:'微麻',lv:1}];
-const SPICY= [{k:'特辣',lv:3},{k:'中辣',lv:2,rec:1},{k:'微辣',lv:1}];
+const NUMB = [{k:'特麻',en:'Extra Numbing',lv:3},{k:'中麻',en:'Medium Numbing',lv:2,rec:1},{k:'微麻',en:'Mild Numbing',lv:1}];
+const SPICY= [{k:'特辣',en:'Extra Spicy',lv:3},{k:'中辣',en:'Medium Spicy',lv:2,rec:1},{k:'微辣',en:'Mild Spicy',lv:1}];
 const COOK = [
   {k:'全入辣锅',en:'All In Spicy',d:'全部鱼肉入辣锅，汤底更鲜浓',rec:1},
   {k:'半入辣锅',en:'Half In Spicy',d:'默认鱼肉全部放辣锅，如需留鱼到原汤请备注',rec:1},
@@ -339,6 +342,7 @@ const CHILI=`<img class="chili" src="assets/icons/chili.png" alt="">`;
 const chiliRow=n=>`<span class="chilis">${CHILI.repeat(n)}</span>`;
 
 const S = {
+  lang: (function(){ try{ return localStorage.getItem('seaspice_lang')||'cn'; }catch(e){ return 'cn'; } })(),
   pax:2, screen:'pax', tab:'menu', addonTab:M.addonCats[0],
   order:{fish:null,numb:1,spicy:1,cook:1,broth:0,dish:'鱼火锅',mode:'fhp'},
   addons:{},   // key `${id}|full|half` -> qty
@@ -352,6 +356,147 @@ const S = {
 };
 let _cid=0;
 
+/* ============================ 中 / EN language layer ============================
+   t('key')  -> UI string in the current language
+   nm(obj)   -> a data item's name (obj.cn / obj.en, or obj.k / obj.en for choices)
+   To add a language: add a third value to each L entry and extend LANGS.        */
+const LANGS = ['cn','en'];
+const L = {
+  /* nav + chrome */
+  nav_menu:{cn:'菜单',en:'Menu'}, nav_orders:{cn:'订单',en:'Orders'}, nav_me:{cn:'我的',en:'Me'},
+  table_no:{cn:'桌号 {0}',en:'Table {0}'},
+  /* welcome / pax */
+  welcome:{cn:'欢迎光临',en:'Welcome'},
+  pax_q:{cn:'今天几位用餐？',en:'How many guests today?'},
+  pax_note:{cn:'调料费 {0}/位 · 自动计入账单',en:'Condiments {0} per person · added automatically'},
+  pax_unit:{cn:'位',en:''},
+  pax_sub:{cn:'调料费小计',en:'Condiments subtotal'},
+  pax_calc:{cn:'· {0}位 × {1}',en:'· {0} × {1}'},
+  pax_cta:{cn:'开始点单 →',en:'Start ordering →'},
+  /* hub */
+  member_t:{cn:'会员查询 Member',en:'Member Lookup'},
+  member_s:{cn:'输入手机号查积分 · 余额',en:'Check points & balance by phone'},
+  pick_now:{cn:'立即选择 →',en:'Choose now →'},
+  view_pkg:{cn:'查看套餐 →',en:'View sets →'},
+  bdg_signature:{cn:'招牌特色',en:'Signature'}, bdg_original:{cn:'本店独创',en:'House Original'},
+  bdg_appetite:{cn:'开胃首选',en:'Appetising'}, bdg_multi:{cn:'多味锅底',en:'Multi-Broth'},
+  bdg_popular:{cn:'本店人气',en:'Most Popular'}, bdg_value:{cn:'超值套餐',en:'Value Sets'},
+  bdg_limited:{cn:'限定供应',en:'Limited'},
+  hero1_h:{cn:'冷锅鱼',en:'Cold Pot Fish'}, hero1_t:{cn:'红油翻滚 · 麻辣鲜香',en:'Chilli oil · numbing & fragrant'}, hero1_s:{cn:'鲜活鱼片 · 红油慢浸入味',en:'Live fish slices · slow-steeped in chilli oil'},
+  hero2_h:{cn:'酸菜鱼',en:'Pickled Cabbage Fish'}, hero2_t:{cn:'黄金酸汤 · 清爽开胃',en:'Golden sour broth · light & appetising'}, hero2_s:{cn:'鲜活鱼片 · 酸爽入味',en:'Live fish slices · tangy and full of flavour'},
+  hero3_h:{cn:'奔驰锅',en:'Three-Broth Pot'}, hero3_t:{cn:'三味一锅 · 一次满足',en:'Three broths in one pot'}, hero3_s:{cn:'三种锅底 · 自由搭配',en:'Three bases · mix as you like'},
+  hero4_h:{cn:'所有套餐',en:'All Set Menus'}, hero4_t:{cn:'周一至周四全天 · 单人午市',en:'Mon–Thu all day · solo lunch sets'}, hero4_s:{cn:'双人 / 四人 / 单人套餐',en:'Two / Four / Solo sets'},
+  sec_ala:{cn:'单点精选',en:'À La Carte'}, sec_ala_sm:{cn:'À LA CARTE',en:'CHOOSE YOUR DISH'},
+  sec_pkg:{cn:'超值套餐',en:'Set Packages'}, sec_pkg_sm:{cn:'SET PACKAGES · 已含调料',en:'SET PACKAGES · CONDIMENTS INCLUDED'},
+  card1_a:{cn:'红油翻滚·麻辣鲜香',en:'Chilli oil · numbing'}, card1_s:{cn:'鲈鱼·盲曹·星斑',en:'Perch · Grouper · Coral Trout'},
+  card2_a:{cn:'黄金酸汤·清爽开胃',en:'Golden sour · refreshing'},
+  card3_n:{cn:'单点火锅',en:'Build Your Hotpot'}, card3_a:{cn:'多种精选锅底',en:'Choice of broths'}, card3_s:{cn:'单锅·奔驰锅',en:'Single or three-broth'},
+  card4_n:{cn:'配菜加点',en:'Add-ons'}, card4_a:{cn:'自由加购',en:'Add anything'}, card4_s:{cn:'荤素·主食·饮料',en:'Meat · Veg · Staples · Drinks'},
+  pkg_lunch:{cn:'午市',en:'Lunch'}, pkg_pax:{cn:'{0} 人',en:'Serves {0}'}, pkg_save:{cn:'立省 ${0}',en:'Save ${0}'},
+  /* flow: fish -> spice -> cook -> broth */
+  tag_hot:{cn:'热销',en:'Popular'}, tag_pick:{cn:'精选',en:'Premium'}, tag_rec:{cn:'推荐',en:'Recommended'},
+  back:{cn:'← 返回',en:'← Back'},
+  fish_t:{cn:'{0} — 选鱼种',en:'{0} — Choose your fish'}, fish_s:{cn:'每日新鲜活鱼',en:'Fresh live fish daily'},
+  next_spice:{cn:'下一步：选麻辣度 →',en:'Next: spice level →'},
+  spice_t:{cn:'选择麻辣度',en:'Choose your spice'}, spice_s:{cn:'分别选择麻度和辣度',en:'Pick numbing and chilli separately'},
+  spice_tip:{cn:'初次尝试推荐 <b>中麻 + 中辣</b>，麻辣平衡',en:'First time? Try <b>Medium Numbing + Medium Spicy</b> — nicely balanced'},
+  lbl_numb:{cn:'麻度 Numbing Level',en:'Numbing Level'}, lbl_spicy:{cn:'辣度 Spicy Level',en:'Spicy Level'},
+  next_cook:{cn:'下一步：选下鱼方式 →',en:'Next: how to cook →'},
+  cook_t:{cn:'下鱼方式',en:'How to cook the fish'}, cook_s:{cn:'一份鱼适合 1-2 人',en:'One portion serves 1–2'},
+  next_upg:{cn:'下一步：升级鱼火锅 →',en:'Next: upgrade to hotpot →'},
+  next_broth:{cn:'下一步：选内圈锅底 →',en:'Next: choose inner broth →'},
+  upg_t:{cn:'升级鱼火锅？',en:'Upgrade to hotpot?'},
+  upg_s:{cn:'冷锅锅底 {0} · 加内圈锅底鱼吃完继续涮（升级 +{1}）',en:'Cold-pot base {0} · add an inner broth to keep cooking after the fish (+{1})'},
+  upg_badge:{cn:'升级 +{0}',en:'Upgrade +{0}'},
+  skip_upg:{cn:'不升级，纯享鱼 · {0} →',en:'No upgrade, just the fish · {0} →'},
+  broth_t:{cn:'选择内圈锅底',en:'Choose your inner broth'},
+  broth_s:{cn:'鱼吃完后继续涮 · 选 1 种 · 锅底费 {0}',en:'Keep cooking after the fish · pick 1 · pot fee {0}'},
+  next_addon:{cn:'下一步：加购配菜 →',en:'Next: add side dishes →'},
+  /* add-ons */
+  por_full:{cn:'整份',en:'Full'}, por_half:{cn:'半份',en:'Half'}, mkt_price:{cn:'时价',en:'Market price'},
+  pot_single:{cn:'单锅',en:'Single Broth'}, pot_benz:{cn:'奔驰锅',en:'Three-Broth Pot'},
+  pot_pick1:{cn:'选 1 种',en:'Pick 1'}, pot_pick3:{cn:'选 3 种',en:'Pick 3'},
+  addon_t:{cn:'加购配菜',en:'Add Side Dishes'}, addon_s:{cn:'荤菜素菜可选整份或半份',en:'Meat and vegetables come in full or half portions'},
+  cart_main:{cn:'主菜 + 加购',en:'Mains + sides'}, cart_sub:{cn:'加购小计',en:'Sides subtotal'},
+  go_confirm:{cn:'去确认 →',en:'Review order →'}, place_order:{cn:'确认下单 →',en:'Place order →'},
+  /* confirm */
+  conf_t:{cn:'确认订单',en:'Review Your Order'},
+  ch_main:{cn:'主菜详情',en:'Main dish'}, ch_addon:{cn:'加购配菜',en:'Side dishes'},
+  no_addon:{cn:'还没有加购',en:'No side dishes yet'},
+  l_spice:{cn:'麻 / 辣度',en:'Numbing / Spicy'}, l_cook:{cn:'下鱼方式',en:'Cooking method'},
+  l_coldbase:{cn:'冷锅锅底',en:'Cold-pot base'}, l_upg_inner:{cn:'升级内圈',en:'Inner broth added'},
+  l_upg_fee:{cn:'升级费',en:'Upgrade fee'}, l_inner_upg:{cn:'内圈升级',en:'Inner broth'},
+  v_no_upg:{cn:'不升级 · 纯享鱼',en:'No upgrade · fish only'},
+  l_inner:{cn:'内圈锅底',en:'Inner broth'}, l_potfee:{cn:'锅底费',en:'Pot fee'}, l_broth:{cn:'锅底',en:'Broth'},
+  l_cond:{cn:'调料费 ({0} 位 × {1})',en:'Condiments ({0} × {1})'},
+  half_suffix:{cn:'（半份）',en:' (half)'},
+  total:{cn:'合计',en:'Total'}, total_note:{cn:'{0} · 含调料费',en:'{0} · condiments included'},
+  add_cart:{cn:'加入购物车 →',en:'Add to cart →'},
+  diy_pot:{cn:'单点火锅 · {0}',en:'Build Your Hotpot · {0}'},
+  pkg_head:{cn:'{0} · {1}',en:'{0} · {1}'}, pkg_pick_n:{cn:'选 {0} 份',en:'Choose {0}'},
+  pkg_step:{cn:'第 {0} / {1} 步',en:'Step {0} of {1}'},
+  pkg_done:{cn:'完成 · 去确认 →',en:'Done · review →'}, next:{cn:'下一步 →',en:'Next →'},
+  pkg_includes:{cn:'套餐包含',en:'Set includes'}, pkg_choices:{cn:'套餐选择',en:'Your choices'},
+  drink_upg:{cn:'饮品升级',en:'Drink Upgrade'}, drink_opt:{cn:'OPTIONAL · 可选',en:'OPTIONAL'},
+  l_cond_simple:{cn:'调料',en:'Condiments'}, v_cond_incl:{cn:'套餐已含',en:'Included in set'},
+  l_service:{cn:'供应时间',en:'Served'}, total_note2:{cn:'{0} · 含调料',en:'{0} · condiments included'},
+  hp_t:{cn:'选择锅型与锅底',en:'Choose pot and broths'},
+  hp_s:{cn:'先选锅型，再选锅底 · 锅底费 {0}',en:'Pick the pot, then the broths · pot fee {0}'},
+  lbl_pot:{cn:'锅型 Pot Type',en:'Pot Type'},
+  lbl_broth_n:{cn:'锅底 Broth（选 {0} 种）',en:'Broth (choose {0})'},
+  hp_all:{cn:'· 已全选 (all included)',en:'· all included'}, hp_chosen:{cn:'· 已选 {0}/{1}',en:'· {0}/{1} chosen'},
+  me_t:{cn:'会员查询',en:'Member Lookup'}, me_s:{cn:'输入手机号查询积分与余额',en:'Enter a phone number to check points and balance'},
+  me_ph:{cn:'手机号 Phone',en:'Phone number'}, me_go:{cn:'查询 →',en:'Search →'},
+  me_err:{cn:'未找到该会员，请确认手机号',en:'No member found — please check the number'},
+  me_other:{cn:'查询其他号码',en:'Search another number'},
+  me_points:{cn:'积分 Points',en:'Points'}, me_balance:{cn:'余额 Balance',en:'Balance'},
+  me_rule:{cn:'消费 $1 积 1 分 · 每 100 积分抵扣 {0}',en:'1 point per $1 · 100 points = {0} off'},
+  me_sec:{cn:'我的会员',en:'My Membership'}, me_member:{cn:'会员',en:'Member'},
+  empty_orders:{cn:'暂无进行中的订单',en:'No orders in progress'},
+  empty_orders_s:{cn:'下单后可在这里查看订单状态',en:'Your order status will appear here'},
+  empty_cart:{cn:'还没有订单',en:'Nothing ordered yet'}, empty_cart_s:{cn:'先去菜单挑选喜欢的菜品',en:'Head to the menu and pick something'},
+  go_order:{cn:'去点单 →',en:'Browse menu →'},
+  sec_cart:{cn:'本次点单',en:'Your Order'}, sec_cart_sm:{cn:'CART · 桌号 {0}',en:'CART · TABLE {0}'},
+  sec_hist:{cn:'历史订单',en:'Order History'},
+  subtotal:{cn:'小计 Subtotal',en:'Subtotal'}, cond_fee:{cn:'调料费 ({0}位 × {1})',en:'Condiments ({0} × {1})'},
+  tbd:{cn:'含时价项目',en:'Includes market-price items'}, tbd_v:{cn:'结账时确认',en:'Confirmed at checkout'},
+  total_line:{cn:'合计 Total',en:'Total'}, place_total:{cn:'确认下单 · {0} {1}',en:'Place order · {0} {1}'},
+  status_prep:{cn:'备餐中 Preparing',en:'Preparing'},
+  toast_cart:{cn:'已加入购物车 ✓',en:'Added to cart ✓'}, toast_placed:{cn:'已下单 ✓ {0}',en:'Order placed ✓ {0}'},
+  sub_addon:{cn:'加购配菜',en:'Side dishes'}, sub_pkg:{cn:'套餐',en:'Set'},
+  cart_upg:{cn:'升级·{0}',en:'Upgrade · {0}'}, cart_plain:{cn:'纯享鱼·不升级',en:'Fish only'},
+  cart_inner:{cn:'内圈·{0}',en:'Inner · {0}'}, cart_broth:{cn:'锅底·{0}',en:'Broth · {0}'},
+  me_redeem:{cn:'≈ {0} 可抵扣',en:'≈ {0} redeemable'}, me_topup:{cn:'充值余额',en:'Stored balance'},
+  cond_line:{cn:'调料费',en:'Condiments'}, sub_upgrade:{cn:' · 升级{0}',en:' · upgrade {0}'},
+  ph_me:{cn:'我的',en:'Me'}, ph_me_s:{cn:'会员 / 历史订单将显示在这里',en:'Membership and past orders appear here'},
+};
+function t(k, ...a){
+  let v = L[k];
+  if (v == null) return k;                       // untranslated -> show the key, never blank
+  v = (typeof v === 'string') ? v : (v[S.lang] ?? v.cn ?? k);
+  return a.length ? v.replace(/\{(\d+)\}/g, (_,n)=>a[+n] ?? '') : v;
+}
+// name of a data item, falling back to Chinese when no translation exists
+function nm(o){
+  if (!o) return '';
+  const cn = o.cn ?? o.k ?? o.n ?? '';
+  return S.lang === 'en' ? (o.en || cn) : cn;
+}
+// the secondary line under a name (English under Chinese, nothing when already English)
+function sub(o){
+  if (!o) return '';
+  return S.lang === 'en' ? '' : (o.en || '');
+}
+window.setLang = function(l){
+  if (!LANGS.includes(l) || l === S.lang) return;
+  S.lang = l;
+  try{ localStorage.setItem('seaspice_lang', l); }catch(e){}
+  document.documentElement.lang = (l === 'en' ? 'en' : 'zh');
+  mountShell();   // the bottom nav is built once at boot, so rebuild it for the new language
+  render();
+};
+window.toggleLang = function(){ setLang(S.lang === 'cn' ? 'en' : 'cn'); };
+
 const app = document.getElementById('app');
 
 // ---- bottom nav (floating animated circle, our style) ----
@@ -360,11 +505,11 @@ const ICO = {
   orders:c=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M9 3.2h6V6H9z"/><path d="M8.6 11h6.8M8.6 15h4.4"/></svg>`,
   me:c=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>`,
 };
-const TABS=[{cn:'菜单',ico:'menu',screen:'hub'},{cn:'订单',ico:'orders',screen:'orders'},{cn:'我的',ico:'me',screen:'me'}];
+const TABS=[{cn:'菜单',en:'Menu',ico:'menu',screen:'hub'},{cn:'订单',en:'Orders',ico:'orders',screen:'orders'},{cn:'我的',en:'Me',ico:'me',screen:'me'}];
 const NAV_SCREENS=['hub','orders','me'];
 let screenEl,navEl,circleEl;
 function navHTML(){
-  const tabs=TABS.map((t,i)=>`<div class="navtab" data-i="${i}" onclick="switchTab(${i})"><span class="navico">${ICO[t.ico]('#e9c477')}</span>${t.cn}${i===1?'<span class="navbadge" id="navbadge"></span>':''}</div>`).join('');
+  const tabs=TABS.map((tb,i)=>`<div class="navtab" data-i="${i}" onclick="switchTab(${i})"><span class="navico">${ICO[tb.ico]('#e9c477')}</span>${nm(tb)}${i===1?'<span class="navbadge" id="navbadge"></span>':''}</div>`).join('');
   return `<div id="bottomnav" class="hide"><div class="navcircle" id="navcircle"></div>${tabs}</div>`;
 }
 function mountShell(){
@@ -390,7 +535,7 @@ function topbar(){
   return `<div class="topbar">
     <div class="brand"><span class="cn">Sea &amp; Spice</span></div>
     <div class="spacer"></div>
-    <span class="chip">桌号 ${M.table}</span><span class="chip lang">中 / EN</span></div>`;
+    <span class="chip">${t('table_no',M.table)}</span><span class="chip lang" onclick="toggleLang()">${S.lang==='cn'?'中 / <b>EN</b>':'<b>中</b> / EN'}</span></div>`;
 }
 
 function scrPax(){
@@ -398,24 +543,24 @@ function scrPax(){
   const presets=[1,2,3,4,5,6].map(n=>`<div class="preset ${S.pax===n?'on':''}" onclick="setPax(${n})">${n}</div>`).join('');
   return `<div class="screen pax-wrap">
     <div class="welcome">
-      <button class="langbtn">中文 ▾</button>
+      <button class="langbtn" onclick="toggleLang()">${S.lang==='cn'?'中文 ▾':'English ▾'}</button>
       <img class="wlogo" src="assets/logo.png" alt="Sea & Spice">
-      <div class="wtitle"><img class="orn" src="assets/ornament.png" alt=""><span class="txt">欢迎光临</span><img class="orn flip" src="assets/ornament.png" alt=""></div>
+      <div class="wtitle"><img class="orn" src="assets/ornament.png" alt=""><span class="txt">${t('welcome')}</span><img class="orn flip" src="assets/ornament.png" alt=""></div>
     </div>
     <div class="pax-body">
       <div class="pax-card">
-        <div class="pax-q">今天几位用餐？</div>
-        <div class="pax-note">调料费 ${money(cp)}/位 · 自动计入账单</div>
+        <div class="pax-q">${t('pax_q')}</div>
+        <div class="pax-note">${t('pax_note',money(cp))}</div>
         <div class="stepper">
           <button class="stepbtn" onclick="setPax(${Math.max(1,S.pax-1)})">−</button>
-          <div class="pax-numwrap"><span class="pax-num">${S.pax}</span><span class="pax-unit">位</span></div>
+          <div class="pax-numwrap"><span class="pax-num">${S.pax}</span><span class="pax-unit">${t('pax_unit')}</span></div>
           <button class="stepbtn" onclick="setPax(${S.pax+1})">+</button>
         </div>
         <div class="presets">${presets}</div>
-        <div class="pax-subline">调料费小计 <b>${money(sub)}</b>${C} <span class="calc">· ${S.pax}位 × ${money(cp)}</span></div>
+        <div class="pax-subline">${t('pax_sub')} <b>${money(sub)}</b>${C} <span class="calc">${t('pax_calc',S.pax,money(cp))}</span></div>
       </div>
     </div>
-    <div class="pax-foot"><button class="cta pax-cta" onclick="go('hub')">开始点单 →</button></div></div>`;
+    <div class="pax-foot"><button class="cta pax-cta" onclick="go('hub')">${t('pax_cta')}</button></div></div>`;
 }
 window.setPax=function(n){ S.pax=Math.max(1,n); render(); }
 
@@ -423,34 +568,34 @@ function scrHub(){
   return `<div class="screen scroll">${topbar()}
     <div class="memberbar" onclick="go('me')">
       <span class="mb-ico">${ICO.me('#e9c477')}</span>
-      <div class="mb-txt"><div class="mb-t">会员查询 Member</div><div class="mb-s">输入手机号查积分 · 余额</div></div>
+      <div class="mb-txt"><div class="mb-t">${t('member_t')}</div><div class="mb-s">${t('member_s')}</div></div>
       <span class="mb-arrow">→</span></div>
     <div class="heroslider"><div class="heroslides">
       <div class="hero"><div class="herobg" style="background-image:url('assets/hero.jpg')"></div><div class="heroveil"></div>
-        <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">本店独创</span></div>
-        <h1>冷锅鱼</h1><div class="tag">红油翻滚 · 麻辣鲜香</div><div class="sub">鲜活鱼片 · 红油慢浸入味</div>
-        <button class="pill" onclick="startFish('冷锅鱼','direct')">立即选择 →</button></div>
+        <div class="badges"><span class="bdg">${t('bdg_signature')}</span><span class="bdg">${t('bdg_original')}</span></div>
+        <h1>${t('hero1_h')}</h1><div class="tag">${t('hero1_t')}</div><div class="sub">${t('hero1_s')}</div>
+        <button class="pill" onclick="startFish('冷锅鱼','direct')">${t('pick_now')}</button></div>
       <div class="hero"><div class="herobg" style="background-image:url('assets/menu/0201.jpg')"></div><div class="heroveil"></div>
-        <div class="badges"><span class="bdg">招牌特色</span><span class="bdg">开胃首选</span></div>
-        <h1>酸菜鱼</h1><div class="tag">黄金酸汤 · 清爽开胃</div><div class="sub">鲜活鱼片 · 酸爽入味</div>
-        <button class="pill" onclick="startFish('酸菜鱼','direct')">立即选择 →</button></div>
+        <div class="badges"><span class="bdg">${t('bdg_signature')}</span><span class="bdg">${t('bdg_appetite')}</span></div>
+        <h1>${t('hero2_h')}</h1><div class="tag">${t('hero2_t')}</div><div class="sub">${t('hero2_s')}</div>
+        <button class="pill" onclick="startFish('酸菜鱼','direct')">${t('pick_now')}</button></div>
       <div class="hero"><div class="herobg" style="background-image:url('assets/menu/0112.jpg')"></div><div class="heroveil"></div>
-        <div class="badges"><span class="bdg">多味锅底</span><span class="bdg">本店人气</span></div>
-        <h1>奔驰锅</h1><div class="tag">三味一锅 · 一次满足</div><div class="sub">三种锅底 · 自由搭配</div>
-        <button class="pill" onclick="startHotpot()">立即选择 →</button></div>
+        <div class="badges"><span class="bdg">${t('bdg_multi')}</span><span class="bdg">${t('bdg_popular')}</span></div>
+        <h1>${t('hero3_h')}</h1><div class="tag">${t('hero3_t')}</div><div class="sub">${t('hero3_s')}</div>
+        <button class="pill" onclick="startHotpot()">${t('pick_now')}</button></div>
       <div class="hero" onclick="scrollToPkg()"><div class="herobg" style="background-image:url('${M.packages[0].img}')"></div><div class="heroveil"></div>
-        <div class="badges"><span class="bdg">超值套餐</span><span class="bdg">限定供应</span></div>
-        <h1>所有套餐</h1><div class="tag">周一至周四全天 · 单人午市</div><div class="sub">双人 / 四人 / 单人套餐</div>
-        <button class="pill">查看套餐 →</button></div>
+        <div class="badges"><span class="bdg">${t('bdg_value')}</span><span class="bdg">${t('bdg_limited')}</span></div>
+        <h1>${t('hero4_h')}</h1><div class="tag">${t('hero4_t')}</div><div class="sub">${t('hero4_s')}</div>
+        <button class="pill">${t('view_pkg')}</button></div>
     </div><div class="herodots"><span class="herodot on" onclick="heroDot(0)"></span><span class="herodot" onclick="heroDot(1)"></span><span class="herodot" onclick="heroDot(2)"></span><span class="herodot" onclick="heroDot(3)"></span></div></div>
-    <div class="seclbl2">单点精选 <small>À LA CARTE</small></div>
+    <div class="seclbl2">${t('sec_ala')} <small>${t('sec_ala_sm')}</small></div>
     <div class="cards">
-      ${hubCard('assets/menu/0101.jpg','冷锅鱼','Cold Pot Fish','红油翻滚·麻辣鲜香','鲈鱼·盲曹·星斑',"startFish('冷锅鱼','direct')")}
-      ${hubCard('assets/menu/0201.jpg','酸菜鱼','Pickled Fish','黄金酸汤·清爽开胃','鲈鱼·盲曹·星斑',"startFish('酸菜鱼','direct')")}
-      ${hubCard('assets/menu/0112.jpg','单点火锅','Hot Pot','多种精选锅底','单锅·奔驰锅',"startHotpot()")}
-      ${hubCard('assets/menu/0402.jpg','配菜加点','Add-ons','自由加购','荤素·主食·饮料',"startAddons()")}
+      ${hubCard('assets/menu/0101.jpg',t('hero1_h'),'Cold Pot Fish',t('card1_a'),t('card1_s'),"startFish('冷锅鱼','direct')")}
+      ${hubCard('assets/menu/0201.jpg',t('hero2_h'),'Pickled Fish',t('card2_a'),t('card1_s'),"startFish('酸菜鱼','direct')")}
+      ${hubCard('assets/menu/0112.jpg',t('card3_n'),'Hot Pot',t('card3_a'),t('card3_s'),"startHotpot()")}
+      ${hubCard('assets/menu/0402.jpg',t('card4_n'),'Add-ons',t('card4_a'),t('card4_s'),"startAddons()")}
     </div>
-    <div class="seclbl2" id="pkg-section" style="margin-top:6px">超值套餐 <small>SET PACKAGES · 已含调料</small></div>
+    <div class="seclbl2" id="pkg-section" style="margin-top:6px">${t('sec_pkg')} <small>${t('sec_pkg_sm')}</small></div>
     <div class="pkgrow">${M.packages.filter(avail).map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
@@ -471,18 +616,28 @@ window.scrollToPkg=function(){
 }
 function hubCard(img,cn,en,accent,sub,act){
   return `<div class="card" onclick="${act}"><div class="cimg-wrap"><img class="cimg" src="${img}" alt=""></div>
-    <div class="cbody"><div class="cn">${cn}</div><div class="en">${en}</div>
+    <div class="cbody"><div class="cn">${cn}</div>${S.lang==='cn'?`<div class="en">${en}</div>`:''}
     <div class="accent">${accent}</div><div class="csub">${sub}</div></div></div>`;
 }
 
 // ---- set packages (multi-step wizard) ----
 const pkgById = id => M.packages.find(p=>p.id===id);
+// p.time is Chinese-only in menu-data.js; map the two forms we use
+function pkgTime(p){
+  if(!p.time) return '';
+  if(S.lang!=='en') return p.time;
+  return p.time
+    .replace('午市 12:00–2:30 · 每日','Lunch 12:00–2:30 · Daily')
+    .replace('周一至周四 · 全天','Mon–Thu · All day')
+    .replace('周一至周四','Mon–Thu').replace('单人午市','Solo lunch')
+    .replace('午市','Lunch').replace('每日','Daily').replace('全天','All day');
+}
 function pkgCard(p){
-  const badge = p.save?`立省 $${p.save}`:(p.fixed?'午市':`${p.pax} 人`);
+  const badge = p.save?t('pkg_save',p.save):(p.fixed?t('pkg_lunch'):t('pkg_pax',p.pax));
   return `<div class="pkgcard" onclick="startPackage(${p.id})">
     <img class="pimg" src="${p.img}" alt=""><span class="pribbon">${badge}</span>
-    <div class="pb"><div class="pcn">${p.cn}</div><div class="pen">${p.en}</div>
-      ${p.time?`<div class="ptime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 1.7"/></svg>${p.time}</div>`:''}
+    <div class="pb"><div class="pcn">${nm(p)}</div>${sub(p)?`<div class="pen">${sub(p)}</div>`:''}
+      ${pkgTime(p)?`<div class="ptime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 1.7"/></svg>${pkgTime(p)}</div>`:''}
       <div class="prow"><span class="ppr">${money(p.price)}</span></div></div></div>`;
 }
 window.startPackage=function(id){ S.pkgId=id; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; go(pkgById(id).fixed?'pkgconfirm':'pkgstep'); }
@@ -492,7 +647,7 @@ function scrPkgStep(){
   const p=pkgById(S.pkgId), n=p.groups.length, g=p.groups[S.pkgStep], multi=g.pick>1;
   let body,enabled;
   const meta=o=>`${o.img?`<img class="thumb" src="${o.img}">`:`<div class="emoji">${PLACE_ICON}</div>`}
-    <div class="info"><div class="nm">${o.n}</div>${o.en?`<div class="en">${o.en}</div>`:''}${o.desc?`<div class="ds">${o.desc}</div>`:''}</div>`;
+    <div class="info"><div class="nm">${nm(o)}</div>${sub(o)?`<div class="en">${sub(o)}</div>`:''}${o.desc&&!/[一-鿿]/.test(o.desc)||S.lang==='cn'&&o.desc?`<div class="ds">${o.desc}</div>`:''}</div>`;
   if(multi){
     const sel=S.pkgSel[S.pkgStep]||{}, total=Object.values(sel).reduce((a,b)=>a+b,0);
     enabled=total===g.pick;
@@ -508,11 +663,11 @@ function scrPkgStep(){
   }
   const last=S.pkgStep===n-1;
   return `<div class="screen scroll">
-    <div class="backrow"><button class="back" onclick="pkgBack()">← 返回</button>
-      <div><div class="htitle">${p.cn} · ${g.label}</div><div class="hsub">${g.en} · 选 ${g.pick} 份</div></div></div>
-    <div class="pkgprog"><div class="bar"><i style="width:${(S.pkgStep+1)/n*100}%"></i></div><span class="txt">第 ${S.pkgStep+1} / ${n} 步</span></div>
+    <div class="backrow"><button class="back" onclick="pkgBack()">${t('back')}</button>
+      <div><div class="htitle">${nm(p)} · ${S.lang==='en'?(g.en||g.label):g.label}</div><div class="hsub">${S.lang==='cn'&&g.en?g.en+' · ':''}${t('pkg_pick_n',g.pick)}</div></div></div>
+    <div class="pkgprog"><div class="bar"><i style="width:${(S.pkgStep+1)/n*100}%"></i></div><span class="txt">${t('pkg_step',S.pkgStep+1,n)}</span></div>
     ${body}<div style="height:8px"></div>
-    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?'pkgNext()':''}">${last?'完成 · 去确认 →':'下一步 →'}</button></div>
+    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?'pkgNext()':''}">${last?t('pkg_done'):t('next')}</button></div>
   </div>`;
 }
 window.pkgPick=function(o){ S.pkgSel[S.pkgStep]=o; render(); }
@@ -529,44 +684,44 @@ function scrPkgConfirm(){
   const total = p.price + (up?p.drinkUp.price:0);
   let lines;
   if(p.fixed){
-    lines=`<div class="ch">套餐包含</div>`+p.includes.map(x=>`<div class="line"><span>${x}</span><span class="v">✓</span></div>`).join('');
+    lines=`<div class="ch">${t('pkg_includes')}</div>`+p.includes.map(x=>`<div class="line"><span>${x}</span><span class="v">✓</span></div>`).join('');
   } else {
-    lines=`<div class="ch">套餐选择</div>`+p.groups.map((g,i)=>{const sel=S.pkgSel[i];
-      const val=g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('、'):(sel||'—');
-      return `<div class="line"><span>${g.label}</span><span class="v">${val}</span></div>`;}).join('');
+    lines=`<div class="ch">${t('pkg_choices')}</div>`+p.groups.map((g,i)=>{const sel=S.pkgSel[i];
+      const val=g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join(S.lang==='en'?', ':'、'):(sel||'—');
+      return `<div class="line"><span>${S.lang==='en'?(g.en||g.label):g.label}</span><span class="v">${val}</span></div>`;}).join('');
   }
   const du=p.drinkUp;
   const upgSection = (p.fixed && du) ? `
-    <div class="seclbl2" style="padding:14px 18px 2px">饮品升级 <small>OPTIONAL · 可选</small></div>
+    <div class="seclbl2" style="padding:14px 18px 2px">${t('drink_upg')} <small>${t('drink_opt')}</small></div>
     <div class="upgcard ${up?'on':''}" onclick="togglePkgUp()">
       ${du.img?`<img class="upgimg" src="${du.img}" alt="">`:''}
-      <div class="upgmid"><div class="upgt">${du.cn}</div><div class="upge">${du.en} · 加 ${money(du.price)}</div></div>
+      <div class="upgmid"><div class="upgt">${nm(du)}</div><div class="upge">${S.lang==='cn'?du.en+' · 加 ':'+'}${money(du.price)}</div></div>
       <span class="upgtick ${up?'on':''}">${up?'✓':''}</span></div>` : '';
   return `<div class="screen scroll">
-    <div class="backrow"><button class="back" onclick="${p.fixed?"go('hub')":"pkgEditBack()"}">← 返回</button>
-      <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
-    <div class="conf"><div class="mainrow"><span class="nm">${p.cn}</span><span class="pr">${money(p.price)} ${C}</span></div>
-      ${lines}<div class="line"><span>调料</span><span class="v">套餐已含</span></div>
-      ${p.time?`<div class="line"><span>供应时间</span><span class="v">${p.time}</span></div>`:''}</div>
+    <div class="backrow"><button class="back" onclick="${p.fixed?"go('hub')":"pkgEditBack()"}">${t('back')}</button>
+      <div><div class="htitle">${t('conf_t')}</div><div class="hsub">${t('table_no',M.table)}</div></div></div>
+    <div class="conf"><div class="mainrow"><span class="nm">${nm(p)}</span><span class="pr">${money(p.price)} ${C}</span></div>
+      ${lines}<div class="line"><span>${t('l_cond_simple')}</span><span class="v">${t('v_cond_incl')}</span></div>
+      ${p.time?`<div class="line"><span>${t('l_service')}</span><span class="v">${pkgTime(p)}</span></div>`:''}</div>
     ${upgSection}
-    <div class="total"><div class="tl">合计</div><div class="tv">${money(total)}<small>${C} · 含调料</small></div></div>
-    <div class="footer"><button class="cta" onclick="addPkgToCart()">加入购物车 →</button></div>
+    <div class="total"><div class="tl">${t('total')}</div><div class="tv">${money(total)}<small>${t('total_note2',C)}</small></div></div>
+    <div class="footer"><button class="cta" onclick="addPkgToCart()">${t('add_cart')}</button></div>
   </div>`;
 }
 
 function scrFish(){
   const rows=FISH.map((f,i)=>{
     const sel=S.order.fish===i;
-    const tag=f.tag==='热销'?'<span class="hot">热销</span>':f.tag==='精选'?'<span class="pick">精选</span>':'';
+    const tag=f.tag==='热销'?`<span class="hot">${t('tag_hot')}</span>`:f.tag==='精选'?`<span class="pick">${t('tag_pick')}</span>`:'';
     return `<div class="opt ${sel?'sel':''}" onclick="pickFish(${i})">
       ${f.img?`<img class="thumb" src="${f.img}">`:`<div class="emoji">${PLACE_ICON}</div>`}
-      <div class="info"><div class="nm">${f.cn} ${tag}</div><div class="en">${f.en}</div>
-        ${f.desc?`<div class="ds">${f.desc}</div>`:''}${f.note?`<div class="feat">✦ ${f.note}</div>`:''}</div>
+      <div class="info"><div class="nm">${nm(f)} ${tag}</div>${sub(f)?`<div class="en">${sub(f)}</div>`:''}
+        ${S.lang==='cn'&&f.desc?`<div class="ds">${f.desc}</div>`:''}${S.lang==='cn'&&f.note?`<div class="feat">✦ ${f.note}</div>`:''}</div>
       <div class="pr">${money(f.price)}<small>${C}</small></div>
       <div class="radio ${sel?'check':''}">${sel?'✓':''}</div></div>`;
   }).join('');
-  return flowScreen(`${S.order.dish} — 选鱼种`,'每日新鲜活鱼',`<div class="list">${rows}</div>`,
-    S.order.fish!==null,'下一步：选麻辣度 →',"go('spice')");
+  return flowScreen(t('fish_t',dishName(S.order.dish)),t('fish_s'),`<div class="list">${rows}</div>`,
+    S.order.fish!==null,t('next_spice'),"go('spice')");
 }
 window.pickFish=function(i){ S.order.fish=i; render(); }
 window.startFish=function(dish,mode){ S.flow='fish'; S.addons={}; S.por={}; S.order={fish:null,numb:1,spicy:1,cook:1,broth:mode==='direct'?null:0,dish,mode}; go('fish'); }
@@ -574,24 +729,24 @@ window.startHotpot=function(){ S.flow='hotpot'; S.addons={}; S.por={}; S.hp={pot
 window.startAddons=function(){ S.flow=null; S.addons={}; S.por={}; go('addons'); }
 
 // ---- 单点火锅 DIY hotpot ----
-const POTS=[{id:'single',cn:'单锅',sub:'选 1 种',max:1},{id:'benz',cn:'奔驰锅',sub:'选 3 种',max:3}];
+const POTS=[{id:'single',cn:'单锅',en:'Single Broth',sub:'选 1 种',subEn:'Pick 1',max:1},{id:'benz',cn:'奔驰锅',en:'Three-Broth Pot',sub:'选 3 种',subEn:'Pick 3',max:3}];
 function potMax(){ const p=POTS.find(p=>p.id===S.hp.potType); return p?p.max:0; }
 function hpBroths(){ return BROTHS.filter(b=>b.id!=='mush'); }   // 单点火锅 broths (菌菇 removed)
 function scrHotpot(){
   const max=potMax(), all=max>=hpBroths().length;   // 奔驰锅 = all 3 -> auto-selected, no manual pick
   const ptCells=POTS.map(p=>`<div class="gcell ${S.hp.potType===p.id?'sel':''}" onclick="setPot('${p.id}')" style="padding:18px 8px">
-    <div class="gt">${p.cn}</div><div class="gsub">${p.sub}</div></div>`).join('');
+    <div class="gt">${nm(p)}</div><div class="gsub">${S.lang==='en'?p.subEn:p.sub}</div></div>`).join('');
   const brothCells=S.hp.potType?hpBroths().map(b=>{const on=S.hp.broths.includes(b.id);
     return `<div class="gcell ${on?'sel':''}" ${all?'style="padding:16px 10px 18px;cursor:default"':`onclick="toggleBroth('${b.id}')" style="padding:16px 10px 18px"`}>
-      <img class="brothimg" src="${b.img}" alt=""><div class="gt">${b.cn}</div><div class="gsub">${b.en}</div></div>`;}).join(''):'';
+      <img class="brothimg" src="${b.img}" alt=""><div class="gt">${nm(b)}</div>${sub(b)?`<div class="gsub">${sub(b)}</div>`:''}</div>`;}).join(''):'';
   const enabled=S.hp.potType&&S.hp.broths.length===max;
   return `<div class="screen scroll">
-    <div class="backrow"><button class="back" onclick="go('hub')">← 返回</button>
-      <div><div class="htitle">选择锅型与锅底</div><div class="hsub">先选锅型，再选锅底 · 锅底费 ${money(M.potFee)}</div></div></div>
-    <div class="seclbl">锅型 Pot Type</div><div class="grid2">${ptCells}</div>
-    ${S.hp.potType?`<div class="seclbl">锅底 Broth（选 ${max} 种）${all?'· 已全选 (all included)':`· 已选 ${S.hp.broths.length}/${max}`}</div><div class="grid2">${brothCells}</div>`:''}
+    <div class="backrow"><button class="back" onclick="go('hub')">${t('back')}</button>
+      <div><div class="htitle">${t('hp_t')}</div><div class="hsub">${t('hp_s',money(M.potFee))}</div></div></div>
+    <div class="seclbl">${t('lbl_pot')}</div><div class="grid2">${ptCells}</div>
+    ${S.hp.potType?`<div class="seclbl">${t('lbl_broth_n',max)}${all?t('hp_all'):t('hp_chosen',S.hp.broths.length,max)}</div><div class="grid2">${brothCells}</div>`:''}
     <div style="height:8px"></div>
-    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">下一步：加购配菜 →</button></div>
+    <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">${t('next_addon')}</button></div>
   </div>`;
 }
 window.setPot=function(id){ S.hp.potType=id; const m=potMax(), list=hpBroths();
@@ -603,79 +758,90 @@ window.toggleBroth=function(id){ const a=S.hp.broths, i=a.indexOf(id), m=potMax(
 
 function scrSpice(){
   const cell=(arr,key,i)=>`<div class="gcell ${S.order[key]===i?'sel':''}" onclick="setOrd('${key}',${i})">
-    <div class="ge">${chiliRow(arr[i].lv)}</div><div class="gt">${arr[i].k}</div>${arr[i].rec?'<div class="rec">推荐</div>':''}</div>`;
-  return flowScreen('选择麻辣度','分别选择麻度和辣度',
-    `<div class="tipbar" style="margin:10px 18px">初次尝试推荐 <b>中麻 + 中辣</b>，麻辣平衡</div>
-     <div class="seclbl">麻度 Numbing Level</div><div class="grid3">${NUMB.map((_,i)=>cell(NUMB,'numb',i)).join('')}</div>
-     <div class="seclbl">辣度 Spicy Level</div><div class="grid3">${SPICY.map((_,i)=>cell(SPICY,'spicy',i)).join('')}</div>`,
-    true,'下一步：选下鱼方式 →',"go('cook')");
+    <div class="ge">${chiliRow(arr[i].lv)}</div><div class="gt">${nm(arr[i])}</div>${arr[i].rec?`<div class="rec">${t('tag_rec')}</div>`:''}</div>`;
+  return flowScreen(t('spice_t'),t('spice_s'),
+    `<div class="tipbar" style="margin:10px 18px">${t('spice_tip')}</div>
+     <div class="seclbl">${t('lbl_numb')}</div><div class="grid3">${NUMB.map((_,i)=>cell(NUMB,'numb',i)).join('')}</div>
+     <div class="seclbl">${t('lbl_spicy')}</div><div class="grid3">${SPICY.map((_,i)=>cell(SPICY,'spicy',i)).join('')}</div>`,
+    true,t('next_cook'),"go('cook')");
 }
 window.setOrd=function(k,i){ S.order[k]=i; render(); }
 
+// COOK descriptions are Chinese-only in the data
+const COOK_DESC_EN={'全入辣锅':'All the fish goes into the spicy broth for a richer soup',
+  '半入辣锅':'Fish goes into the spicy broth by default — tell us if you want some kept aside',
+  '自行涮煮':'Fish is served raw so you cook it yourself'};
+function cookDesc(c){ return S.lang==='en' ? (COOK_DESC_EN[c.k]||c.d) : c.d; }
 function scrCook(){
   const rows=COOK.map((c,i)=>{const sel=S.order.cook===i;
     return `<div class="opt ${sel?'sel':''}" onclick="setOrd('cook',${i})"><div class="emoji">${COOK_ICON[i]}</div>
-      <div class="info"><div class="nm">${c.k} ${c.rec?'<span class="pick">推荐</span>':''}</div><div class="en">${c.en}</div><div class="ds">${c.d}</div></div>
+      <div class="info"><div class="nm">${nm(c)} ${c.rec?`<span class="pick">${t('tag_rec')}</span>`:''}</div>${sub(c)?`<div class="en">${sub(c)}</div>`:''}<div class="ds">${cookDesc(c)}</div></div>
       <div class="radio ${sel?'check':''}">${sel?'✓':''}</div></div>`;}).join('');
-  return flowScreen('下鱼方式','一份鱼适合 1-2 人',`<div class="list">${rows}</div>`,true,S.order.mode==='direct'?'下一步：升级鱼火锅 →':'下一步：选内圈锅底 →',"go('broth')");
+  return flowScreen(t('cook_t'),t('cook_s'),`<div class="list">${rows}</div>`,true,S.order.mode==='direct'?t('next_upg'):t('next_broth'),"go('broth')");
 }
 
 function scrBroth(){
   const direct=S.order.mode==='direct', list=brothList();
   const cells=list.map((b,i)=>{const sel=S.order.broth===i;
     return `<div class="gcell ${sel?'sel':''}" onclick="setOrd('broth',${i})" style="padding:16px 10px 18px">
-      <img class="brothimg" src="${b.img}" alt=""><div class="gt">${b.cn}</div><div class="gsub">${b.en}</div>
-      ${direct?`<div class="rec" style="margin-top:6px;background:rgba(0,0,0,.3);color:var(--gold)">升级 +${money(DIRECT_UPGRADE)}</div>`:''}</div>`;}).join('');
+      <img class="brothimg" src="${b.img}" alt=""><div class="gt">${nm(b)}</div>${sub(b)?`<div class="gsub">${sub(b)}</div>`:''}
+      ${direct?`<div class="rec" style="margin-top:6px;background:rgba(0,0,0,.3);color:var(--gold)">${t('upg_badge',money(DIRECT_UPGRADE))}</div>`:''}</div>`;}).join('');
   if(direct){
     const enabled=S.order.broth!=null;
     return `<div class="screen scroll">
-      <div class="backrow"><button class="back" onclick="go('cook')">← 返回</button>
-        <div><div class="htitle">升级鱼火锅？</div><div class="hsub">冷锅锅底 ${money(DIRECT_BASE)} · 加内圈锅底鱼吃完继续涮（升级 +${money(DIRECT_UPGRADE)}）</div></div></div>
+      <div class="backrow"><button class="back" onclick="go('cook')">${t('back')}</button>
+        <div><div class="htitle">${t('upg_t')}</div><div class="hsub">${t('upg_s',money(DIRECT_BASE),money(DIRECT_UPGRADE))}</div></div></div>
       <div class="grid2">${cells}</div><div style="height:8px"></div>
       <div class="footer">
-        <button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">下一步：加购配菜 →</button>
-        <button class="skiplink" onclick="skipUpgrade()">不升级，纯享鱼 · ${money(DIRECT_BASE)} →</button>
+        <button class="cta ${enabled?'':'disabled'}" onclick="${enabled?"go('addons')":''}">${t('next_addon')}</button>
+        <button class="skiplink" onclick="skipUpgrade()">${t('skip_upg',money(DIRECT_BASE))}</button>
       </div></div>`;
   }
-  return flowScreen('选择内圈锅底',`鱼吃完后继续涮 · 选 1 种 · 锅底费 ${money(M.potFee)}`,
-    `<div class="grid2">${cells}</div>`,true,'下一步：加购配菜 →',"go('addons')");
+  return flowScreen(t('broth_t'),t('broth_s',money(M.potFee)),
+    `<div class="grid2">${cells}</div>`,true,t('next_addon'),"go('addons')");
 }
 window.skipUpgrade=function(){ S.order.broth=null; go('addons'); }
 
 // ---- add-ons ----
+const CAT_EN = {'热销首选':'Most Popular','加鱼':'Extra Fish','荤菜':'Meat','素菜':'Vegetables',
+  '主食和小吃':'Staples & Snacks','饮料':'Drinks','酒类':'Alcohol','儿童套餐':'Kids'};
+const catName = c => S.lang==='en' ? (CAT_EN[c]||c) : c;
+// dish names used as flow titles
+const DISH_EN = {'冷锅鱼':'Cold Pot Fish','酸菜鱼':'Pickled Cabbage Fish','鱼火锅':'Fish Hotpot'};
+const dishName = d => S.lang==='en' ? (DISH_EN[d]||d) : d;
 const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食和小吃':'cat_base.png','饮料':'cat_drink.svg','酒类':'cat_wine.svg','儿童套餐':'cat_kids.svg'};
 function key(id,por){ return id+'|'+por; }
 function catItems(c){ return (c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c)).filter(avail); }
 function addonCard(it){
   const por=S.por[it.id]||'full';
-  const seg=it.half?`<div class="seg"><button class="${por==='full'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','full')">整份</button>
-      <button class="${por==='half'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','half')">半份</button></div>`:'';
+  const seg=it.half?`<div class="seg"><button class="${por==='full'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','full')">${t('por_full')}</button>
+      <button class="${por==='half'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','half')">${t('por_half')}</button></div>`:'';
   let priceHtml, q=S.addons[key(it.id,por)]||0;
-  if(it.price==null) priceHtml='<span class="ap mk">时价</span>';
+  if(it.price==null) priceHtml=`<span class="ap mk">${t('mkt_price')}</span>`;
   else { const p=por==='half'?halfP(it.price):it.price; priceHtml=`<span class="ap">${money(p)}<small> ${C}</small></span>`; }
   const ctrl=q>0
     ? `<div class="qtyctl"><button onclick="addQty('${it.id}','${por}',-1)">−</button><span class="qn">${q}</span><button onclick="addQty('${it.id}','${por}',1)">+</button></div>`
     : `<button class="addbtn" onclick="addQty('${it.id}','${por}',1)">+</button>`;
   return `<div class="acard">${it.img?`<img class="ai" src="${it.img}">`:`<div class="aemoji">${PLACE_ICON}</div>`}
-    <div class="an">${it.cn} ${it.hot?'<span class="hot">热销</span>':''}</div><div class="ae">${it.en||''}</div>
-    ${it.desc?`<div class="ad">${it.desc}</div>`:''}${seg}<div class="arow">${priceHtml}${ctrl}</div></div>`;
+    <div class="an">${nm(it)} ${it.hot?`<span class="hot">${t('tag_hot')}</span>`:''}</div><div class="ae">${sub(it)}</div>
+    ${S.lang==='cn'&&it.desc?`<div class="ad">${it.desc}</div>`:''}${seg}<div class="arow">${priceHtml}${ctrl}</div></div>`;
 }
 function scrAddons(){
   const fromFlow=(S.flow==='fish'&&S.order.fish!==null)||S.flow==='hotpot';
   const backTo=S.flow==='hotpot'?'hotpot':(S.flow==='fish'?'broth':'hub');
-  const tabs=M.addonCats.map((c,i)=>`<div class="ctab ${S.addonTab===c?'on':''}" data-i="${i}" onclick="scrollToCat(${i})"><span class="cic"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}?v=2" alt=""></span><span class="clbl">${c}</span></div>`).join('');
+  const tabs=M.addonCats.map((c,i)=>`<div class="ctab ${S.addonTab===c?'on':''}" data-i="${i}" onclick="scrollToCat(${i})"><span class="cic"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}?v=2" alt=""></span><span class="clbl">${catName(c)}</span></div>`).join('');
   const sections=M.addonCats.map((c,i)=>`<div class="acat" id="cat-${i}">
-    <div class="acat-h"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}?v=2" alt=""><span>${c}</span></div>
+    <div class="acat-h"><img src="assets/icons/${CAT_ICON[c]||'cat_pkg.png'}?v=2" alt=""><span>${catName(c)}</span></div>
     <div class="agrid">${catItems(c).map(addonCard).join('')}</div></div>`).join('');
   return `<div class="screen scroll">
     <div class="addon-head">
-      <div class="backrow"><button class="back" onclick="go('${backTo}')">← 返回</button>
-        <div><div class="htitle">加购配菜</div><div class="hsub">荤菜素菜可选整份或半份</div></div></div>
+      <div class="backrow"><button class="back" onclick="go('${backTo}')">${t('back')}</button>
+        <div><div class="htitle">${t('addon_t')}</div><div class="hsub">${t('addon_s')}</div></div></div>
       <div class="ctabs">${tabs}</div>
     </div>
     ${sections}<div class="addon-spacer" style="height:16px"></div>
-    <div class="cartbar"><div class="ci"><div class="cl">${fromFlow?'主菜 + 加购':'加购小计'}</div><div class="cv">${money(orderTotal())}</div></div>
-      <button class="cta" style="width:auto;padding:15px 26px" onclick="go('confirm')">${fromFlow?'去确认 →':'确认下单 →'}</button></div>
+    <div class="cartbar"><div class="ci"><div class="cl">${fromFlow?t('cart_main'):t('cart_sub')}</div><div class="cv">${money(orderTotal())}</div></div>
+      <button class="cta" style="width:auto;padding:15px 26px" onclick="go('confirm')">${fromFlow?t('go_confirm'):t('place_order')}</button></div>
   </div>`;
 }
 let _lastCat=-1;
@@ -733,65 +899,65 @@ function orderTotal(){
 
 function confirmShell(title,detailHtml){
   return `<div class="screen scroll">
-    <div class="backrow"><button class="back" onclick="go('addons')">← 返回</button>
-      <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
+    <div class="backrow"><button class="back" onclick="go('addons')">${t('back')}</button>
+      <div><div class="htitle">${t('conf_t')}</div><div class="hsub">${t('table_no',M.table)}</div></div></div>
     <div class="conf">${detailHtml}</div>
-    <div class="total"><div class="tl">合计</div><div class="tv">${money(orderTotal())}<small>${C} · 含调料费</small></div></div>
-    <div class="footer"><button class="cta" onclick="addOrderToCart()">加入购物车 →</button></div></div>`;
+    <div class="total"><div class="tl">${t('total')}</div><div class="tv">${money(orderTotal())}<small>${t('total_note',C)}</small></div></div>
+    <div class="footer"><button class="cta" onclick="addOrderToCart()">${t('add_cart')}</button></div></div>`;
 }
 function addonConfLines(){
-  return addonLineItems().map(l=>`<div class="line"><span>${l.it.cn}${l.por==='half'?'（半份）':''} ×${l.qty}</span>
-    <span class="v">${l.unit==null?'时价':money(l.amount)+' '+C}</span></div>`).join('');
+  return addonLineItems().map(l=>`<div class="line"><span>${nm(l.it)}${l.por==='half'?t('half_suffix'):''} ×${l.qty}</span>
+    <span class="v">${l.unit==null?t('mkt_price'):money(l.amount)+' '+C}</span></div>`).join('');
 }
 function scrConfirm(){
   if(S.flow==='hotpot') return scrHotpotConfirm();
   if(S.flow!=='fish') {   // standalone 配菜加点
     const lines=addonConfLines();
-    return confirmShell('','<div class="ch">加购配菜</div>'+(lines||'<div class="line"><span>还没有加购</span></div>'));
+    return confirmShell('',`<div class="ch">${t('ch_addon')}</div>`+(lines||`<div class="line"><span>${t('no_addon')}</span></div>`));
   }
   const f=FISH[S.order.fish], cp=M.condiment.price, cond=S.pax*cp;
   const direct=S.order.mode==='direct';
   const b=S.order.broth!=null?brothList()[S.order.broth]:null;
   const brothLines = direct
-    ? `<div class="line"><span>冷锅锅底</span><span class="v">${money(DIRECT_BASE)} ${C}</span></div>`
-      + (b ? `<div class="line"><span>升级内圈</span><span class="v">${b.cn}</span></div>
-            <div class="line"><span>升级费</span><span class="v">${money(DIRECT_UPGRADE)} ${C}</span></div>`
-         : `<div class="line"><span>内圈升级</span><span class="v">不升级 · 纯享鱼</span></div>`)
-    : `<div class="line"><span>内圈锅底</span><span class="v">${b.cn}</span></div>
-       <div class="line"><span>锅底费</span><span class="v">${money(M.potFee)} ${C}</span></div>`;
-  const lines=addonLineItems().map(l=>`<div class="line"><span>${l.it.cn}${l.por==='half'?'（半份）':''} ×${l.qty}</span>
-    <span class="v">${l.unit==null?'时价':money(l.amount)+' '+C}</span></div>`).join('');
+    ? `<div class="line"><span>${t('l_coldbase')}</span><span class="v">${money(DIRECT_BASE)} ${C}</span></div>`
+      + (b ? `<div class="line"><span>${t('l_upg_inner')}</span><span class="v">${nm(b)}</span></div>
+            <div class="line"><span>${t('l_upg_fee')}</span><span class="v">${money(DIRECT_UPGRADE)} ${C}</span></div>`
+         : `<div class="line"><span>${t('l_inner_upg')}</span><span class="v">${t('v_no_upg')}</span></div>`)
+    : `<div class="line"><span>${t('l_inner')}</span><span class="v">${nm(b)}</span></div>
+       <div class="line"><span>${t('l_potfee')}</span><span class="v">${money(M.potFee)} ${C}</span></div>`;
+  const lines=addonLineItems().map(l=>`<div class="line"><span>${nm(l.it)}${l.por==='half'?t('half_suffix'):''} ×${l.qty}</span>
+    <span class="v">${l.unit==null?t('mkt_price'):money(l.amount)+' '+C}</span></div>`).join('');
   return `<div class="screen scroll">
-    <div class="backrow"><button class="back" onclick="go('addons')">← 返回</button>
-      <div><div class="htitle">确认订单</div><div class="hsub">桌号 ${M.table}</div></div></div>
-    <div class="conf"><div class="ch">主菜详情</div>
-      <div class="mainrow"><span class="nm">${S.order.dish} · ${f.cn}</span><span class="pr">${money(f.price)} ${C}</span></div>
-      <div class="line"><span>麻 / 辣度</span><span class="v">${NUMB[S.order.numb].k} · ${SPICY[S.order.spicy].k}</span></div>
-      <div class="line"><span>下鱼方式</span><span class="v">${COOK[S.order.cook].k}</span></div>
+    <div class="backrow"><button class="back" onclick="go('addons')">${t('back')}</button>
+      <div><div class="htitle">${t('conf_t')}</div><div class="hsub">${t('table_no',M.table)}</div></div></div>
+    <div class="conf"><div class="ch">${t('ch_main')}</div>
+      <div class="mainrow"><span class="nm">${dishName(S.order.dish)} · ${nm(f)}</span><span class="pr">${money(f.price)} ${C}</span></div>
+      <div class="line"><span>${t('l_spice')}</span><span class="v">${nm(NUMB[S.order.numb])} · ${nm(SPICY[S.order.spicy])}</span></div>
+      <div class="line"><span>${t('l_cook')}</span><span class="v">${nm(COOK[S.order.cook])}</span></div>
       ${brothLines}
-      <div class="line"><span>调料费 (${S.pax} 位 × ${money(cp)})</span><span class="v">${money(cond)} ${C}</span></div>
-      ${lines?`<div class="ch" style="margin-top:14px">加购配菜</div>${lines}`:''}</div>
-    <div class="total"><div class="tl">合计</div><div class="tv">${money(orderTotal())}<small>${C} · 含调料费</small></div></div>
-    <div class="footer"><button class="cta" onclick="addOrderToCart()">加入购物车 →</button></div></div>`;
+      <div class="line"><span>${t('l_cond',S.pax,money(cp))}</span><span class="v">${money(cond)} ${C}</span></div>
+      ${lines?`<div class="ch" style="margin-top:14px">${t('ch_addon')}</div>${lines}`:''}</div>
+    <div class="total"><div class="tl">${t('total')}</div><div class="tv">${money(orderTotal())}<small>${t('total_note',C)}</small></div></div>
+    <div class="footer"><button class="cta" onclick="addOrderToCart()">${t('add_cart')}</button></div></div>`;
 }
 function scrHotpotConfirm(){
   const pot=POTS.find(p=>p.id===S.hp.potType), cp=M.condiment.price, cond=S.pax*cp;
-  const broths=S.hp.broths.map(id=>(BROTHS.find(b=>b.id===id)||{}).cn).join('、');
+  const broths=S.hp.broths.map(id=>nm(BROTHS.find(b=>b.id===id))).join(S.lang==='en'?', ':'、');
   const lines=addonConfLines();
-  const detail=`<div class="ch">主菜详情</div>
-    <div class="mainrow"><span class="nm">单点火锅 · ${pot?pot.cn:''}</span><span class="pr">${money(M.potFee)} ${C}</span></div>
-    <div class="line"><span>锅底</span><span class="v">${broths}</span></div>
-    <div class="line"><span>锅底费</span><span class="v">${money(M.potFee)} ${C}</span></div>
-    <div class="line"><span>调料费 (${S.pax} 位 × ${money(cp)})</span><span class="v">${money(cond)} ${C}</span></div>
-    ${lines?`<div class="ch" style="margin-top:14px">加购配菜</div>${lines}`:''}`;
+  const detail=`<div class="ch">${t('ch_main')}</div>
+    <div class="mainrow"><span class="nm">${t('diy_pot',pot?nm(pot):'')}</span><span class="pr">${money(M.potFee)} ${C}</span></div>
+    <div class="line"><span>${t('l_broth')}</span><span class="v">${broths}</span></div>
+    <div class="line"><span>${t('l_potfee')}</span><span class="v">${money(M.potFee)} ${C}</span></div>
+    <div class="line"><span>${t('l_cond',S.pax,money(cp))}</span><span class="v">${money(cond)} ${C}</span></div>
+    ${lines?`<div class="ch" style="margin-top:14px">${t('ch_addon')}</div>${lines}`:''}`;
   return confirmShell('',detail);
 }
 
 function scrTab(tab){
-  const map={orders:[ICO.orders('#cda968'),'暂无进行中的订单','下单后可在这里查看订单状态'],me:[ICO.me('#cda968'),'我的','会员 / 历史订单将显示在这里']};
-  const [e,t,s]=map[tab];
+  const map={orders:[ICO.orders('#cda968'),t('empty_orders'),t('empty_orders_s')],me:[ICO.me('#cda968'),t('ph_me'),t('ph_me_s')]};
+  const [e,ttl,sb]=map[tab];
   return `<div class="screen scroll">${topbar()}<div class="placeholder"><div class="pe">${e}</div>
-    <div style="font-size:18px;color:var(--gold2)">${t}</div><div>${s}</div></div></div>`;
+    <div style="font-size:18px;color:var(--gold2)">${ttl}</div><div>${sb}</div></div></div>`;
 }
 
 // ---- 会员查询 Member lookup (READ-ONLY) ----
@@ -800,22 +966,22 @@ function scrMe(){
   if(m&&m.data){
     const redeem=m.data.points/100*3.5;
     body=`<div class="mcard">
-      <div class="top"><div class="nm">${m.data.name||'会员'}</div><div class="ph">${m.phone}</div></div>
+      <div class="top"><div class="nm">${m.data.name||t('me_member')}</div><div class="ph">${m.phone}</div></div>
       <div class="stats">
-        <div class="st"><div class="lab">积分 Points</div><div class="val">${m.data.points}</div><div class="vs">≈ ${money(redeem)} 可抵扣</div></div>
-        <div class="st"><div class="lab">余额 Balance</div><div class="val">${money(m.data.balance)}</div><div class="vs">充值余额</div></div>
+        <div class="st"><div class="lab">${t('me_points')}</div><div class="val">${m.data.points}</div><div class="vs">${t('me_redeem',money(redeem))}</div></div>
+        <div class="st"><div class="lab">${t('me_balance')}</div><div class="val">${money(m.data.balance)}</div><div class="vs">${t('me_topup')}</div></div>
       </div>
-      <div class="note">消费 $1 积 1 分 · 每 100 积分抵扣 ${money(3.5)}</div></div>
-    <button class="cta" onclick="resetMember()">查询其他号码</button>`;
+      <div class="note">${t('me_rule',money(3.5))}</div></div>
+    <button class="cta" onclick="resetMember()">${t('me_other')}</button>`;
   } else {
     body=`<div class="mlook">
-      <div class="t">会员查询</div><div class="s">输入手机号查询积分与余额</div>
-      <input id="m_phone" type="tel" inputmode="numeric" placeholder="手机号 Phone" value="${(m&&m.phone)||''}">
-      <button class="cta" onclick="doLookup()">查询 →</button>
-      ${m&&m.notFound?'<div class="err">未找到该会员，请确认手机号</div>':''}</div>`;
+      <div class="t">${t('me_t')}</div><div class="s">${t('me_s')}</div>
+      <input id="m_phone" type="tel" inputmode="numeric" placeholder="${t('me_ph')}" value="${(m&&m.phone)||''}">
+      <button class="cta" onclick="doLookup()">${t('me_go')}</button>
+      ${m&&m.notFound?`<div class="err">${t('me_err')}</div>`:''}</div>`;
   }
   return `<div class="screen scroll">${topbar()}
-    <div class="seclbl2" style="padding:10px 18px 0">我的会员 <small>MEMBER</small></div>
+    <div class="seclbl2" style="padding:10px 18px 0">${t('me_sec')} <small>MEMBER</small></div>
     <div class="member-wrap">${body}</div></div>`;
 }
 window.doLookup=function(){
@@ -828,7 +994,7 @@ window.resetMember=function(){ S.member=null; render(); }  // back to the lookup
 // TODO: replace this stub with the live POS member API (lookup by phone -> {name, points, balance}); return null if not found.
 function lookupMember(phone){
   let h=0; for(const c of phone) h=(h*31+c.charCodeAt(0))>>>0;   // demo data until POS is connected
-  return { name:'会员 ·'+phone.slice(-4), points: 80+(h%1920), balance: (h%46)*10 };
+  return { name:t('me_member')+' ·'+phone.slice(-4), points: 80+(h%1920), balance: (h%46)*10 };
 }
 
 // ---- 购物车 Cart (shown on 订单 tab) ----
@@ -842,26 +1008,26 @@ window.addOrderToCart=function(){
     const f=FISH[S.order.fish], direct=S.order.mode==='direct';
     const b=S.order.broth!=null?brothList()[S.order.broth]:null;
     const unit=f.price + (direct?(DIRECT_BASE + (b?DIRECT_UPGRADE:0)):M.potFee);
-    const brothTxt = direct ? (b?`升级·${b.cn}`:'纯享鱼·不升级') : `内圈·${b.cn}`;
-    const sub=`${NUMB[S.order.numb].k}·${SPICY[S.order.spicy].k} · ${COOK[S.order.cook].k} · ${brothTxt}`;
-    pushCart({type:'fish',title:`${S.order.dish} · ${f.cn}`,sub,img:f.img,qty:1,unit,needsCondiment:true});
+    const brothTxt = direct ? (b?t('cart_upg',nm(b)):t('cart_plain')) : t('cart_inner',nm(b));
+    const sub=`${nm(NUMB[S.order.numb])}·${nm(SPICY[S.order.spicy])} · ${nm(COOK[S.order.cook])} · ${brothTxt}`;
+    pushCart({type:'fish',title:`${dishName(S.order.dish)} · ${nm(f)}`,sub,img:f.img,qty:1,unit,needsCondiment:true});
   } else if(S.flow==='hotpot' && S.hp.potType){
     const pot=POTS.find(p=>p.id===S.hp.potType);
-    const broths=S.hp.broths.map(id=>(BROTHS.find(b=>b.id===id)||{}).cn).join('、');
-    pushCart({type:'hotpot',title:`单点火锅 · ${pot?pot.cn:''}`,sub:`锅底·${broths}`,img:'assets/menu/0112.jpg',qty:1,unit:M.potFee,needsCondiment:true});
+    const broths=S.hp.broths.map(id=>nm(BROTHS.find(b=>b.id===id))).join(S.lang==='en'?', ':'、');
+    pushCart({type:'hotpot',title:t('diy_pot',pot?nm(pot):''),sub:t('cart_broth',broths),img:'assets/menu/0112.jpg',qty:1,unit:M.potFee,needsCondiment:true});
   }
   addonLineItems().forEach(l=>pushCart({type:'addon',key:`addon|${l.it.id}|${l.por}`,
-    title:l.it.cn+(l.por==='half'?'（半份）':''),sub:'加购配菜',img:l.it.img,qty:l.qty,unit:l.unit,needsCondiment:false}));
-  resetOrder(); toast('已加入购物车 ✓'); go('orders');
+    title:nm(l.it)+(l.por==='half'?t('half_suffix'):''),sub:t('sub_addon'),img:l.it.img,qty:l.qty,unit:l.unit,needsCondiment:false}));
+  resetOrder(); toast(t('toast_cart')); go('orders');
 }
 window.addPkgToCart=function(){
   const p=pkgById(S.pkgId);
   const up = !!(p.fixed && p.drinkUp && S.pkgUp);
   const unit = p.price + (up?p.drinkUp.price:0);
-  const sub = p.fixed ? ('套餐'+(up?' · 升级'+p.drinkUp.cn:''))
+  const sub = p.fixed ? (t('sub_pkg')+(up?t('sub_upgrade',nm(p.drinkUp)):''))
     : p.groups.map((g,i)=>{const sel=S.pkgSel[i]; return g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('+'):(sel||'—');}).join(' · ');
   pushCart({type:'package',title:p.cn,sub,img:p.img,qty:1,unit,needsCondiment:false});
-  S.pkgId=null; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; toast('已加入购物车 ✓'); go('orders');
+  S.pkgId=null; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; toast(t('toast_cart')); go('orders');
 }
 window.cartQty=function(cid,d){ const c=S.cart.find(x=>x.cid===cid); if(!c)return; c.qty+=d; if(c.qty<=0)S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
 window.cartRemove=function(cid){ S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
@@ -870,20 +1036,20 @@ window.placeOrder=function(){
   const cond=cartCondiment(), total=cartItemsTotal()+cond;
   const d=new Date(), p2=n=>String(n).padStart(2,'0');
   const no='#'+String(S.orders.length+1).padStart(3,'0');
-  S.orders.unshift({ no, time:p2(d.getHours())+':'+p2(d.getMinutes()), status:'备餐中 Preparing',
+  S.orders.unshift({ no, time:p2(d.getHours())+':'+p2(d.getMinutes()), status:t('status_prep'),
     items:S.cart.map(c=>({title:c.title,qty:c.qty,unit:c.unit})), condiment:cond, total });
-  S.cart=[]; toast('已下单 ✓ '+no); go('orders');
+  S.cart=[]; toast(t('toast_placed',no)); go('orders');
 }
 function orderCard(o){
-  const lines=o.items.map(it=>`<div class="oline"><span>${it.title}${it.qty>1?` ×${it.qty}`:''}</span><span>${it.unit==null?'时价':money(it.unit*it.qty)+' '+C}</span></div>`).join('')
-    + (o.condiment>0?`<div class="oline sub"><span>调料费</span><span>${money(o.condiment)} ${C}</span></div>`:'');
+  const lines=o.items.map(it=>`<div class="oline"><span>${it.title}${it.qty>1?` ×${it.qty}`:''}</span><span>${it.unit==null?t('mkt_price'):money(it.unit*it.qty)+' '+C}</span></div>`).join('')
+    + (o.condiment>0?`<div class="oline sub"><span>${t('cond_line')}</span><span>${money(o.condiment)} ${C}</span></div>`:'');
   return `<div class="ocard"><div class="ohead"><span class="ono">${o.no}</span><span class="ostatus">${o.status}</span><span class="otime">${o.time}</span></div>
-    ${lines}<div class="ofoot"><span class="ol">合计 Total</span><span class="otot">${money(o.total)} ${C}</span></div></div>`;
+    ${lines}<div class="ofoot"><span class="ol">${t('total_line')}</span><span class="otot">${money(o.total)} ${C}</span></div></div>`;
 }
 function cartItemsTotal(){ return S.cart.reduce((s,c)=>s+(c.unit||0)*c.qty,0); }
 function cartCondiment(){ return S.cart.some(c=>c.needsCondiment)? S.pax*M.condiment.price : 0; }
 function cartRow(c){
-  const price=c.unit==null?'时价':money(c.unit*c.qty)+' '+C;
+  const price=c.unit==null?t('mkt_price'):money(c.unit*c.qty)+' '+C;
   return `<div class="crow">
     ${c.img?`<img class="cthumb" src="${c.img}" alt="">`:`<div class="cthumb ph">${PLACE_ICON}</div>`}
     <div class="cmid"><div class="ctitle">${c.title}</div>${c.sub?`<div class="csub">${c.sub}</div>`:''}
@@ -896,22 +1062,22 @@ function scrOrders(){
   const hasCart=S.cart.length>0, hasHist=S.orders.length>0;
   if(!hasCart && !hasHist){
     return `<div class="screen scroll">${topbar()}<div class="placeholder"><div class="pe">${ICO.orders('#cda968')}</div>
-      <div style="font-size:18px;color:var(--gold2)">还没有订单</div><div>先去菜单挑选喜欢的菜品</div>
-      <button class="cta" style="width:auto;padding:12px 28px;margin-top:6px" onclick="go('hub')">去点单 →</button></div></div>`;
+      <div style="font-size:18px;color:var(--gold2)">${t('empty_cart')}</div><div>${t('empty_cart_s')}</div>
+      <button class="cta" style="width:auto;padding:12px 28px;margin-top:6px" onclick="go('hub')">${t('go_order')}</button></div></div>`;
   }
   const cp=M.condiment.price, items=cartItemsTotal(), cond=cartCondiment(), total=items+cond;
   const hasTBD=S.cart.some(c=>c.unit==null);
   const cartSection = hasCart ? `
-    <div class="seclbl2" style="padding:10px 18px 0">本次点单 <small>CART · 桌号 ${M.table}</small></div>
+    <div class="seclbl2" style="padding:10px 18px 0">${t('sec_cart')} <small>${t('sec_cart_sm',M.table)}</small></div>
     <div class="cartlist">${S.cart.map(cartRow).join('')}</div>
     <div class="cartsum">
-      <div class="srow"><span>小计 Subtotal</span><span>${money(items)} ${C}</span></div>
-      ${cond>0?`<div class="srow"><span>调料费 (${S.pax}位 × ${money(cp)})</span><span>${money(cond)} ${C}</span></div>`:''}
-      ${hasTBD?`<div class="srow tbd"><span>含时价项目</span><span>结账时确认</span></div>`:''}
-      <div class="srow tot"><span>合计 Total</span><span>${money(total)} ${C}</span></div></div>
-    <div class="cartcta"><button class="cta" onclick="placeOrder()">确认下单 · ${money(total)} ${C}</button></div>` : '';
+      <div class="srow"><span>${t('subtotal')}</span><span>${money(items)} ${C}</span></div>
+      ${cond>0?`<div class="srow"><span>${t('cond_fee',S.pax,money(cp))}</span><span>${money(cond)} ${C}</span></div>`:''}
+      ${hasTBD?`<div class="srow tbd"><span>${t('tbd')}</span><span>${t('tbd_v')}</span></div>`:''}
+      <div class="srow tot"><span>${t('total_line')}</span><span>${money(total)} ${C}</span></div></div>
+    <div class="cartcta"><button class="cta" onclick="placeOrder()">${t('place_total',money(total),C)}</button></div>` : '';
   const histSection = hasHist ? `
-    <div class="seclbl2" style="padding:${hasCart?'20':'10'}px 18px 0">历史订单 <small>ORDER HISTORY · ${S.orders.length}</small></div>
+    <div class="seclbl2" style="padding:${hasCart?'20':'10'}px 18px 0">${t('sec_hist')} <small>ORDER HISTORY · ${S.orders.length}</small></div>
     <div class="histlist">${S.orders.map(orderCard).join('')}</div>` : '';
   return `<div class="screen scroll">${topbar()}${cartSection}${histSection}</div>`;
 }
@@ -922,7 +1088,7 @@ function toast(msg){
 
 function flowScreen(title,sub,content,enabled,ctaLabel,ctaAct){
   return `<div class="screen scroll">
-    <div class="backrow"><button class="back" onclick="flowBack()">← 返回</button>
+    <div class="backrow"><button class="back" onclick="flowBack()">${t('back')}</button>
       <div><div class="htitle">${title}</div><div class="hsub">${sub}</div></div></div>
     ${content}<div style="height:8px"></div>
     <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?ctaAct:''}">${ctaLabel}</button></div></div>`;
@@ -946,8 +1112,19 @@ function render(){
   if(S.screen==='hub') attachHero();
   if(S.screen==='addons') attachAddonScroll();
 }
-mountShell();
-render();
+// ---- boot ----
+// Menu resolves through MenuSource (menu-source.js). With the static snapshot this
+// settles immediately; with ArmLoop it awaits the API, then re-binds the values
+// derived from M at module scope before the first paint.
+function boot(menu){
+  M = menu;
+  C = M.currency;
+  FISH = M.fish; BROTHS = M.broths;
+  S.addonTab = M.addonCats[0];
+  mountShell();
+  render();
+}
+MenuSource.load().then(boot);
 </script>
 </body>
 </html>

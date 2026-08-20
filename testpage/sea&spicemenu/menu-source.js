@@ -108,7 +108,7 @@
        1. POST /api/open/v1/shop/categories
           { lang, menuGroupNo, showType, catType: 3 }
        2. POST /api/open/v1/shop/category/plus   (once per category)
-          { catId, lang, page: 1, pageSize: -1, pluType: 0, showType,
+          { catId, lang, page: 1, pageSize: 10000, pluType: 0, showType,
             virtualCategory }   <- virtualCategory = 1 when the category's
                                    beingVirtual is 1, else 0
      Items with subMenu === 1 additionally need
@@ -125,7 +125,9 @@
     }).then(function (cats) {
       return Promise.all(cats.map(function (c) {
         return api('/api/open/v1/shop/category/plus', {
-          catId: c.catId, lang: ARMLOOP.lang, page: 1, pageSize: -1,
+          // NOTE: the docs say pageSize -1 means "no paging", but -1 makes the
+          // server return code:null with no data. 10000 works. Verified 2026-08-20.
+          catId: c.catId, lang: ARMLOOP.lang, page: 1, pageSize: 10000,
           pluType: 0, showType: ARMLOOP.showType,
           virtualCategory: c.beingVirtual === 1 ? 1 : 0,
         }).then(function (d) {

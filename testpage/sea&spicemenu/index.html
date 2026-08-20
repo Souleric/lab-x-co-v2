@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="menu-data.js?v=30"></script>
 <script src="menu-source.js?v=1"></script>
+<script src="menu-test.js?v=1"></script>  <!-- POS 结构验证用；只在 ?test=1 时载入到菜单 -->
 <style>
   :root{
     --bg:#480a11; --bg2:#5a0f12; --panel:#6a1018; --panel2:#5a0f12;
@@ -130,6 +131,15 @@
   .pkgcard .pen{font-family:var(--cor);font-size:11px;color:var(--muted2);letter-spacing:.5px}
   .pkgcard .prow{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
   .pkgcard .ppr{font-family:var(--cor);font-size:23px;font-weight:700;color:var(--gold2)}
+  /* --- POS 结构验证专用（?test=1）；正式上线前连同 menu-test.js 一起移除 --- */
+  .pkgcard.pkgtest{background:linear-gradient(180deg,rgba(60,90,110,.94),rgba(38,58,72,.86));
+    border:1px dashed rgba(159,186,205,.7)}
+  .pkgcard.pkgtest .pribbon{background:#3C5A6E;color:#fff}
+  .testbar{position:fixed;left:0;right:0;top:0;z-index:9999;background:#3C5A6E;color:#fff;
+    font-size:12px;letter-spacing:.04em;text-align:center;padding:5px 12px;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  .testbar a{color:#fff;opacity:.75;margin-left:10px}
+  body.testmode #app{padding-top:26px}
   .pkgcard .pribbon{position:absolute;top:15px;left:-37px;width:132px;text-align:center;transform:rotate(-45deg);
     background:linear-gradient(180deg,#f7da88,#e2b552);color:#5a0f12;
     font-size:10.5px;font-weight:700;letter-spacing:.5px;padding:4px 0;
@@ -312,6 +322,8 @@
 // Bound synchronously here so the module-scope derivations below still work; boot()
 // at the bottom re-binds from MenuSource.load() before the first render.
 let M = MenuSource.resolveSync();
+// ?test=1 shows the POS structure-check package (menu-test.js). Off for normal customers.
+const TESTMODE = /[?&]test=1/.test(location.search);
 const avail = x => x && x.avail!==false;   // 下架 items (avail:false) are hidden from the customer app
 let C = M.currency;
 const money = n => '$'+(Math.round(n*100)/100).toFixed(2);
@@ -596,7 +608,7 @@ function scrHub(){
       ${hubCard('assets/menu/0402.jpg',t('card4_n'),'Add-ons',t('card4_a'),t('card4_s'),"startAddons()")}
     </div>
     <div class="seclbl2" id="pkg-section" style="margin-top:6px">${t('sec_pkg')} <small>${t('sec_pkg_sm')}</small></div>
-    <div class="pkgrow">${M.packages.filter(avail).map(pkgCard).join('')}</div>
+    <div class="pkgrow">${M.packages.filter(avail).filter(p=>TESTMODE||!p.test).map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
 // ---- hero auto-slider ----
@@ -633,8 +645,9 @@ function pkgTime(p){
     .replace('午市','Lunch').replace('每日','Daily').replace('全天','All day');
 }
 function pkgCard(p){
-  const badge = p.save?t('pkg_save',p.save):(p.fixed?t('pkg_lunch'):t('pkg_pax',p.pax));
-  return `<div class="pkgcard" onclick="startPackage(${p.id})">
+  const badge = p.test?(S.lang==='en'?'TEST ONLY':'测试专用')
+    :p.save?t('pkg_save',p.save):(p.fixed?t('pkg_lunch'):t('pkg_pax',p.pax));
+  return `<div class="pkgcard${p.test?' pkgtest':''}" onclick="startPackage(${p.id})">
     <img class="pimg" src="${p.img}" alt=""><span class="pribbon">${badge}</span>
     <div class="pb"><div class="pcn">${nm(p)}</div>${sub(p)?`<div class="pen">${sub(p)}</div>`:''}
       ${pkgTime(p)?`<div class="ptime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 1.7"/></svg>${pkgTime(p)}</div>`:''}
@@ -1118,6 +1131,14 @@ function render(){
 // derived from M at module scope before the first paint.
 function boot(menu){
   M = menu;
+  // append the structure-check package only when ?test=1 — concat, never mutate the source
+  if (TESTMODE && window.SEASPICE_TEST) M.packages = M.packages.concat(window.SEASPICE_TEST);
+  if (TESTMODE){
+    document.body.classList.add('testmode');
+    const b=document.createElement('div'); b.className='testbar';
+    b.innerHTML='测试模式 · POS 结构验证中，非正式菜单 <a href="?">退出</a>';
+    document.body.appendChild(b);
+  }
   C = M.currency;
   FISH = M.fish; BROTHS = M.broths;
   S.addonTab = M.addonCats[0];

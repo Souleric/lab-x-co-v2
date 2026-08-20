@@ -89,9 +89,11 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-si
  .wrap{max-width:none;padding:0}
  @page{margin:16mm 13mm}
 
- /* tables flow across pages; the header repeats, a row never splits */
- .tablewrap{overflow:visible;border:1px solid var(--rule)}
- table{min-width:0;width:100%;break-inside:auto;font-size:9.8pt}
+ /* short tables stay whole; only long ones flow across pages */
+ .tablewrap{overflow:visible;border:0}
+ table{min-width:0;width:100%;font-size:9.8pt;border:1px solid var(--rule)}
+ .tablewrap.short,.tablewrap.short table{break-inside:avoid}
+ .tablewrap.long table{break-inside:auto}
  thead{display:table-header-group}
  tr{break-inside:avoid}
  th,td{padding:6px 10px}
@@ -160,7 +162,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-si
   <p>App 的价格已与店家确认过，麻烦以 App 为准更新 POS。若有任何一项不方便调整，请告诉我们。</p>
 </div>
 
-<div class="tablewrap"><table>
+<div class="tablewrap long"><table>
 <thead><tr>
 <th rowspan="2">编码</th><th rowspan="2">菜名</th>
 <th colspan="2" style="text-align:center;border-left:1px solid var(--rule)">线上菜单</th>
@@ -225,7 +227,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-si
 
 <h2><span class="n">2</span>4 项整份价格不一致</h2>
 <p class="lede">这几项线上菜单与 POS 的价格不同，麻烦以线上菜单为准，在 POS 更新。</p>
-<div class="tablewrap"><table>
+<div class="tablewrap short"><table>
 <thead><tr><th>编码</th><th>菜名</th><th>线上菜单</th><th>ArmLoop POS</th></tr></thead>
 <tbody>
 <tr class="hl"><td><code>0308</code></td><td>老虎虾</td><td><b>$18.80</b></td><td><b>$19.80</b></td></tr><tr class="hl"><td><code>0429</code></td><td>阳春面</td><td><b>$9.80</b></td><td><b>$5.80</b></td></tr><tr class="hl"><td><code>0433</code></td><td>年糕</td><td><b>$8.80</b></td><td><b>$6.80</b></td></tr><tr class="hl"><td><code>0716</code></td><td>酸角汁</td><td><b>$4.80</b></td><td><b>$5.80</b></td></tr>
@@ -234,7 +236,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-si
 <h2><span class="n">3</span>3 项线上菜单有、POS 没有</h2>
 <p class="lede">这几项目前在线上菜单上客人点得到，但 POS 里查不到对应商品。
 麻烦在 POS 新增，价格以线上菜单为准。</p>
-<div class="tablewrap"><table>
+<div class="tablewrap short"><table>
 <thead><tr><th>编码</th><th>菜名</th><th>线上菜单价格</th></tr></thead>
 <tbody>
 <tr class="hl"><td><code>0513</code></td><td>老成都清汤杂酱面</td><td>$7.80</td></tr><tr class="hl"><td><code>0516</code></td><td>老成都素椒杂酱面(辣)</td><td>$12.80</td></tr><tr class="hl"><td><code>0511</code></td><td>儿童套餐(面)</td><td>$7.80</td></tr>
@@ -245,7 +247,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-si
   <p>多数应该只是写法不同（例如加上重量、或加上锅底全名），但麻烦快速确认一下是同一项商品。</p>
   <p>其中 <code>0512</code> 比较需要留意：线上菜单是<b>儿童套餐(米饭)</b>，POS 显示<b>儿童套餐（鱼丸汤）</b>，
   看起来是两道不同的餐。若确实不同，麻烦以线上菜单为准调整，或告知正确编码。</p>
-  <div class="tablewrap" style="margin-bottom:0"><table>
+  <div class="tablewrap short" style="margin-bottom:0"><table>
   <thead><tr><th>编码</th><th>线上菜单</th><th>ArmLoop POS</th></tr></thead>
   <tbody><tr><td><code>0101</code></td><td>牛油（全辣）</td><td>全辣冷锅鱼锅底（七夕限定，七夕快乐）</td></tr><tr><td><code>1003</code></td><td>银鲈整鱼</td><td>银鲈鱼700g</td></tr><tr><td><code>1001</code></td><td>东星斑</td><td>游水星斑一条(1.2kg-1.3kg)</td></tr><tr><td><code>0306</code></td><td>四头澳洲青边鲍</td><td>鲍鱼片(青边）</td></tr><tr><td><code>0712</code></td><td>东方树叶小茉莉花茶</td><td>东方树叶茉莉花茶</td></tr><tr><td><code>0512</code></td><td>儿童套餐(米饭)</td><td>儿童套餐（鱼丸汤）</td></tr></tbody>
   </table></div>
@@ -279,7 +281,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-si
 
 <h2><span class="n">5</span>名称差异（16 项，不影响功能）</h2>
 <p class="lede">这些只是写法不同，商品应该是同一个，列出来让双方确认没有对错商品。</p>
-<div class="tablewrap"><table>
+<div class="tablewrap short"><table>
 <thead><tr><th>编码</th><th>线上菜单</th><th>POS 名称</th></tr></thead>
 <tbody>
 <tr><td><code>1003</code></td><td>银鲈鱼</td><td>银鲈鱼700g</td></tr><tr><td><code>1002</code></td><td>盲曹</td><td>盲曹700g</td></tr><tr><td><code>1001</code></td><td>游水星斑</td><td>游水星斑一条(1.2kg-1.3kg)</td></tr><tr><td><code>0101</code></td><td>牛油（全辣）</td><td>全辣冷锅鱼锅底（七夕限定，七夕快乐）</td></tr><tr><td><code>0201</code></td><td>原汤</td><td>原汤锅底（七夕限定，七夕快乐）</td></tr><tr><td><code>1003</code></td><td>银鲈整鱼</td><td>银鲈鱼700g</td></tr><tr><td><code>1002</code></td><td>盲曹整鱼</td><td>盲曹700g</td></tr><tr><td><code>1001</code></td><td>东星斑</td><td>游水星斑一条(1.2kg-1.3kg)</td></tr><tr><td><code>0306</code></td><td>四头澳洲青边鲍</td><td>鲍鱼片(青边）</td></tr><tr><td><code>0305</code></td><td>M9+ 和牛</td><td>M9+和牛</td></tr><tr><td><code>0308</code></td><td>老虎虾</td><td>虎虾</td></tr><tr><td><code>0327</code></td><td>鲜盲曹鱼肚(限量)</td><td>鲜盲曹鱼肚（每日限量）</td></tr>

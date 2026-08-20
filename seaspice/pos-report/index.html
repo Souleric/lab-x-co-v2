@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Sea &amp; Spice · 菜单比对报告 | LabX Co</title>
+<style>
+:root{--paper:#FBF7F0;--paper-2:#F3EBDD;--card:#FFFDF9;--ink:#2A1B18;--ink-2:#6B564E;--ink-3:#9A857B;
+ --lacquer:#6A1018;--deep:#480A11;--gold:#B08D4F;--gold-soft:#E4D2AC;
+ --rule:rgba(106,16,24,.16);--rule-soft:rgba(106,16,24,.08);
+ --warn:#B4541E;--warn-bg:rgba(180,84,30,.09);--ok:#4A6B4F;--ok-bg:rgba(74,107,79,.09);
+ --serif:Georgia,"Songti SC","Noto Serif SC",serif;
+ --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Helvetica,sans-serif;
+ --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+@media (prefers-color-scheme:dark){:root{--paper:#17100F;--paper-2:#1F1615;--card:#221817;
+ --ink:#F2E6D8;--ink-2:#C0AA9C;--ink-3:#8E7A6E;--lacquer:#E9C477;--deep:#F2E6D8;--gold:#E9C477;--gold-soft:#5A4526;
+ --rule:rgba(233,196,119,.22);--rule-soft:rgba(233,196,119,.10);
+ --warn:#E08A4E;--warn-bg:rgba(224,138,78,.12);--ok:#8FB894;--ok-bg:rgba(143,184,148,.12);}}
+:root[data-theme="dark"]{--paper:#17100F;--paper-2:#1F1615;--card:#221817;
+ --ink:#F2E6D8;--ink-2:#C0AA9C;--ink-3:#8E7A6E;--lacquer:#E9C477;--deep:#F2E6D8;--gold:#E9C477;--gold-soft:#5A4526;
+ --rule:rgba(233,196,119,.22);--rule-soft:rgba(233,196,119,.10);
+ --warn:#E08A4E;--warn-bg:rgba(224,138,78,.12);--ok:#8FB894;--ok-bg:rgba(143,184,148,.12);}
+:root[data-theme="light"]{--paper:#FBF7F0;--paper-2:#F3EBDD;--card:#FFFDF9;--ink:#2A1B18;--ink-2:#6B564E;--ink-3:#9A857B;
+ --lacquer:#6A1018;--deep:#480A11;--gold:#B08D4F;--gold-soft:#E4D2AC;
+ --rule:rgba(106,16,24,.16);--rule-soft:rgba(106,16,24,.08);
+ --warn:#B4541E;--warn-bg:rgba(180,84,30,.09);--ok:#4A6B4F;--ok-bg:rgba(74,107,79,.09);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.8}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px 90px}
+code{font-family:var(--mono);background:var(--gold-soft);color:var(--deep);padding:1px 6px;border-radius:2px;font-size:.87em}
+.mast{padding:58px 0 28px;border-bottom:2px solid var(--lacquer)}
+.eyebrow{font-size:12px;letter-spacing:.2em;color:var(--gold);font-weight:600;margin:0 0 13px}
+.mast h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:0;color:var(--deep);font-weight:600}
+.mast .sub{font-size:16.5px;color:var(--ink-2);margin:12px 0 0}
+.mast .meta{margin:20px 0 0;font-size:13px;color:var(--ink-3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:1px;background:var(--rule);
+ border:1px solid var(--rule);margin:26px 0 0}
+.stat{background:var(--card);padding:14px 16px}
+.stat b{display:block;font-family:var(--serif);font-size:25px;line-height:1.1;color:var(--deep)}
+.stat span{font-size:11.5px;color:var(--ink-3)}
+.stat.g b{color:var(--ok)} .stat.r b{color:var(--warn)}
+h2{font-family:var(--serif);font-size:23px;color:var(--deep);margin:52px 0 6px;font-weight:600}
+h2 .n{font-family:var(--mono);font-size:13px;color:var(--gold);margin-right:10px}
+.lede{color:var(--ink-2);margin:0 0 20px}
+.box{border:1px solid var(--rule);border-left:4px solid var(--gold);background:var(--card);padding:17px 21px;margin:18px 0}
+.box.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.box.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+.box h4{margin:0 0 8px;font-family:var(--serif);font-size:17px;color:var(--deep);font-weight:600}
+.box p{margin:0 0 8px}.box p:last-child{margin:0}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);background:var(--card);margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:460px}
+th{text-align:left;font-size:11.5px;color:var(--ink-3);font-weight:600;padding:10px 14px;
+ border-bottom:1px solid var(--rule);background:var(--paper-2);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+td:nth-child(n+3){font-variant-numeric:tabular-nums}
+tr.hl td{background:var(--warn-bg)}
+pre{background:var(--paper-2);border-left:3px solid var(--gold);padding:14px 18px;margin:14px 0;
+ font-family:var(--mono);font-size:13px;overflow-x:auto;line-height:1.7}
+.stage{display:grid;grid-template-columns:34px 1fr;gap:16px;position:relative;padding-bottom:22px}
+.stage::before{content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;background:var(--rule)}
+.stage:last-child::before{display:none}
+.snum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ font-family:var(--mono);font-size:13px;font-weight:600;position:relative;z-index:1;
+ background:var(--paper-2);color:var(--ink-3);border:2px solid var(--rule)}
+.stage.done .snum{background:var(--ok);color:#fff;border-color:var(--ok)}
+.stage.now .snum{background:var(--gold);color:#3a2a10;border-color:var(--gold)}
+.sbody{padding-top:3px}
+.shead{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;margin-bottom:5px}
+.shead h4{margin:0;font-family:var(--serif);font-size:17.5px;color:var(--deep);font-weight:600}
+.pill{font-size:10.5px;letter-spacing:.06em;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.pill.done{background:var(--ok);color:#fff}
+.pill.now{background:var(--gold);color:#3a2a10}
+.pill.wait{background:var(--paper-2);color:var(--ink-3);border:1px solid var(--rule)}
+.who{font-size:12px;color:var(--ink-3);margin-left:auto}
+.sbody p{margin:0 0 6px;font-size:14.5px;color:var(--ink-2)}
+.need{background:var(--paper-2);border-left:3px solid var(--gold);padding:9px 14px;margin:8px 0 0;font-size:14px}
+.need b{color:var(--deep)}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-3)}
+@media print{body{background:#fff}table,.box{break-inside:avoid}h2{break-after:avoid}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="mast">
+  <p class="eyebrow">菜单比对报告</p>
+  <h1>Sea &amp; Spice 手机点餐<br>与 ArmLoop POS 实际资料比对结果</h1>
+  <p class="sub">已成功连上贵店的 POS 菜单，以下是我们逐项比对后发现的差异，<br>麻烦以线上点餐 App 为准，在 POS 端调整。</p>
+  <p class="meta">LabX Co　·　2026年8月20日　·　资料来源：ArmLoop 接口即时读取</p>
+  <div class="stats">
+    <div class="stat"><b>121</b><span>POS 商品总数</span></div>
+    <div class="stat"><b>9</b><span>目录</span></div>
+    <div class="stat g"><b>89/92</b><span>编码比对成功</span></div>
+    <div class="stat r"><b>4</b><span>价格不一致</span></div>
+    <div class="stat r"><b>23</b><span>半份价格不一致</span></div>
+  </div>
+</header>
+
+<div class="box">
+  <h4>一个前提</h4>
+  <p><b>线上点餐 App 的价格与流程，是这次对接的主要依据。</b>
+  App 的菜单价格与点餐流程都已经与店家确认过，所以以下列出的差异，
+  麻烦以 App 为准，在 POS 端调整。</p>
+  <p>如果有哪一项 POS 系统上做不到，请告诉我们，我们再一起想办法。</p>
+</div>
+
+<div class="box ok">
+  <h4>先说好消息</h4>
+  <p>这次的 apiKey 完全正常，已经读到贵店的完整菜单：<b>9 个目录、121 项商品</b>
+  （香海鱼火锅、加鱼、荤菜、素菜、小吃、饮料、酒、调料/位、鱼种介绍）。</p>
+  <p>线上菜单里的 92 个编码，有 <b>89 个</b>在 POS 里都找得到，比对结果相当好。
+  以下列出的是需要调整的部分。</p>
+</div>
+
+<h2><span class="n">1</span>半份价格不一致 ← 最优先处理</h2>
+<p class="lede">以下是线上菜单上的实际售价，与 POS 系统里目前的设定对照。
+整份价格两边几乎都相同，但<b>半份价格全部不一样</b>。<br>麻烦以线上菜单的价格为准，在 POS 更新这 23 项的半份价格。</p>
+
+<div class="box warn">
+  <h4>为什么这项要先处理</h4>
+  <p>客人在手机上看到的金额，会和柜台账单不一样。例如秘制鱼丸半份，手机显示
+  <b>$11.28</b>，POS 收
+  <b>$9.50</b>。</p>
+  <p>App 的价格已与店家确认过，麻烦以 App 为准更新 POS。若有任何一项不方便调整，请告诉我们。</p>
+</div>
+
+<div class="tablewrap"><table>
+<thead><tr>
+<th rowspan="2">编码</th><th rowspan="2">菜名</th>
+<th colspan="2" style="text-align:center;border-left:1px solid var(--rule)">线上菜单</th>
+<th colspan="2" style="text-align:center;border-left:1px solid var(--rule)">ArmLoop POS</th></tr>
+<tr><th style="border-left:1px solid var(--rule)">整份</th><th>半份</th>
+<th style="border-left:1px solid var(--rule)">整份</th><th>半份</th></tr></thead>
+<tbody>
+<tr class="hl"><td><code>0301</code></td><td>秘制鱼丸</td>
+<td style="border-left:1px solid var(--rule)">$18.80</td><td><b>$11.28</b></td>
+<td style="border-left:1px solid var(--rule)">$18.80</td><td><b>$9.50</b></td></tr><tr class="hl"><td><code>0306</code></td><td>四头澳洲青边鲍</td>
+<td style="border-left:1px solid var(--rule)">$145.00</td><td><b>$87.00</b></td>
+<td style="border-left:1px solid var(--rule)">$145.00</td><td><b>$73.00</b></td></tr><tr class="hl"><td><code>0305</code></td><td>M9+ 和牛</td>
+<td style="border-left:1px solid var(--rule)">$88.00</td><td><b>$52.80</b></td>
+<td style="border-left:1px solid var(--rule)">$88.00</td><td><b>$45.00</b></td></tr><tr class="hl"><td><code>0326</code></td><td>豹参</td>
+<td style="border-left:1px solid var(--rule)">$29.80</td><td><b>$17.88</b></td>
+<td style="border-left:1px solid var(--rule)">$29.80</td><td><b>$14.90</b></td></tr><tr class="hl"><td><code>0308</code></td><td>老虎虾</td>
+<td style="border-left:1px solid var(--rule)">$18.80</td><td><b>$11.28</b></td>
+<td style="border-left:1px solid var(--rule)">$19.80</td><td><b>$9.90</b></td></tr><tr class="hl"><td><code>0323</code></td><td>手切鲜羊肉</td>
+<td style="border-left:1px solid var(--rule)">$14.50</td><td><b>$8.70</b></td>
+<td style="border-left:1px solid var(--rule)">$14.50</td><td><b>$7.50</b></td></tr><tr class="hl"><td><code>0324</code></td><td>手切和牛三花趾</td>
+<td style="border-left:1px solid var(--rule)">$14.50</td><td><b>$8.70</b></td>
+<td style="border-left:1px solid var(--rule)">$14.50</td><td><b>$7.50</b></td></tr><tr class="hl"><td><code>0304</code></td><td>羊肉卷</td>
+<td style="border-left:1px solid var(--rule)">$12.80</td><td><b>$7.68</b></td>
+<td style="border-left:1px solid var(--rule)">$12.80</td><td><b>$6.50</b></td></tr><tr class="hl"><td><code>0303</code></td><td>肥牛卷</td>
+<td style="border-left:1px solid var(--rule)">$12.80</td><td><b>$7.68</b></td>
+<td style="border-left:1px solid var(--rule)">$12.80</td><td><b>$6.50</b></td></tr><tr class="hl"><td><code>0312</code></td><td>现切千层肚</td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$10.08</b></td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$8.50</b></td></tr><tr class="hl"><td><code>0320</code></td><td>黑毛肚</td>
+<td style="border-left:1px solid var(--rule)">$19.80</td><td><b>$11.88</b></td>
+<td style="border-left:1px solid var(--rule)">$19.80</td><td><b>$9.90</b></td></tr><tr class="hl"><td><code>0311</code></td><td>黄喉</td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$10.08</b></td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$8.50</b></td></tr><tr class="hl"><td><code>0310</code></td><td>鸭舌</td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$10.08</b></td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$8.50</b></td></tr><tr class="hl"><td><code>0322</code></td><td>牛百叶</td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$10.08</b></td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$8.50</b></td></tr><tr class="hl"><td><code>0309</code></td><td>鸭掌</td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$10.08</b></td>
+<td style="border-left:1px solid var(--rule)">$16.80</td><td><b>$8.50</b></td></tr><tr class="hl"><td><code>0317</code></td><td>午餐肉</td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$5.88</b></td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$4.90</b></td></tr><tr class="hl"><td><code>0319</code></td><td>迷你广式香肠</td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$5.88</b></td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$4.90</b></td></tr><tr class="hl"><td><code>0316</code></td><td>蟹肉棒</td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$5.88</b></td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$4.90</b></td></tr><tr class="hl"><td><code>0313</code></td><td>花枝丸</td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$5.88</b></td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$4.90</b></td></tr><tr class="hl"><td><code>0325</code></td><td>鱼包蛋</td>
+<td style="border-left:1px solid var(--rule)">$12.80</td><td><b>$7.68</b></td>
+<td style="border-left:1px solid var(--rule)">$12.80</td><td><b>$6.50</b></td></tr><tr class="hl"><td><code>0314</code></td><td>鱼豆腐</td>
+<td style="border-left:1px solid var(--rule)">$8.80</td><td><b>$5.28</b></td>
+<td style="border-left:1px solid var(--rule)">$8.80</td><td><b>$4.50</b></td></tr><tr class="hl"><td><code>0315</code></td><td>鹌鹑蛋</td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$5.88</b></td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$4.90</b></td></tr><tr class="hl"><td><code>0318</code></td><td>鸭血</td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$5.88</b></td>
+<td style="border-left:1px solid var(--rule)">$9.80</td><td><b>$4.90</b></td></tr>
+</tbody></table></div>
+
+<div class="box">
+  <p>另外，线上菜单有 <b>51 道菜</b>可点半份，
+  POS 目前设了半份价格的是 <b>28 道</b>。
+  其中 <b>27 道</b>我们有开放半份、但 POS 尚未设定多价格，客人选了半份会没有对应价格。</p>
+</div>
+
+<h2><span class="n">2</span>4 项整份价格不一致</h2>
+<p class="lede">这几项线上菜单与 POS 的价格不同，麻烦以线上菜单为准，在 POS 更新。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>编码</th><th>菜名</th><th>线上菜单</th><th>ArmLoop POS</th></tr></thead>
+<tbody>
+<tr class="hl"><td><code>0308</code></td><td>老虎虾</td><td><b>$18.80</b></td><td><b>$19.80</b></td></tr><tr class="hl"><td><code>0429</code></td><td>阳春面</td><td><b>$9.80</b></td><td><b>$5.80</b></td></tr><tr class="hl"><td><code>0433</code></td><td>年糕</td><td><b>$8.80</b></td><td><b>$6.80</b></td></tr><tr class="hl"><td><code>0716</code></td><td>酸角汁</td><td><b>$4.80</b></td><td><b>$5.80</b></td></tr>
+</tbody></table></div>
+
+<h2><span class="n">3</span>3 项线上菜单有、POS 没有</h2>
+<p class="lede">这几项目前在线上菜单上客人点得到，但 POS 里查不到对应商品。
+麻烦在 POS 新增，价格以线上菜单为准。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>编码</th><th>菜名</th><th>线上菜单价格</th></tr></thead>
+<tbody>
+<tr class="hl"><td><code>0513</code></td><td>老成都清汤杂酱面</td><td>$7.80</td></tr><tr class="hl"><td><code>0516</code></td><td>老成都素椒杂酱面(辣)</td><td>$12.80</td></tr><tr class="hl"><td><code>0511</code></td><td>儿童套餐(面)</td><td>$7.80</td></tr>
+</tbody></table></div>
+
+<div class="box warn">
+  <h4>另外，有 6 个编码两边名称差异较大</h4>
+  <p>多数应该只是写法不同（例如加上重量、或加上锅底全名），但麻烦快速确认一下是同一项商品。</p>
+  <p>其中 <code>0512</code> 比较需要留意：线上菜单是<b>儿童套餐(米饭)</b>，POS 显示<b>儿童套餐（鱼丸汤）</b>，
+  看起来是两道不同的餐。若确实不同，麻烦以线上菜单为准调整，或告知正确编码。</p>
+  <div class="tablewrap" style="margin-bottom:0"><table>
+  <thead><tr><th>编码</th><th>线上菜单</th><th>ArmLoop POS</th></tr></thead>
+  <tbody><tr><td><code>0101</code></td><td>牛油（全辣）</td><td>全辣冷锅鱼锅底（七夕限定，七夕快乐）</td></tr><tr><td><code>1003</code></td><td>银鲈整鱼</td><td>银鲈鱼700g</td></tr><tr><td><code>1001</code></td><td>东星斑</td><td>游水星斑一条(1.2kg-1.3kg)</td></tr><tr><td><code>0306</code></td><td>四头澳洲青边鲍</td><td>鲍鱼片(青边）</td></tr><tr><td><code>0712</code></td><td>东方树叶小茉莉花茶</td><td>东方树叶茉莉花茶</td></tr><tr><td><code>0512</code></td><td>儿童套餐(米饭)</td><td>儿童套餐（鱼丸汤）</td></tr></tbody>
+  </table></div>
+</div>
+
+<h2><span class="n">4</span>火锅的结构：两边做法不同</h2>
+<p class="lede">这一项不是错误，是双方设计方式不同，需要对齐。</p>
+<pre>ArmLoop POS 的做法              我们线上菜单的做法
+──────────────────────         ──────────────────────
+锅底 = 商品                     鱼 = 商品（$59）
+  0101 全辣冷锅鱼锅底             ＋ 锅底费（$30）
+  └ 子选项「Fish Option」        ＝ 合计 $89
+      99908 银鲈鱼(一份) $59
+      99801 东星斑      $145</pre>
+<div class="box">
+  <p>也就是说，POS 里<b>锅底才是商品，鱼是锅底底下的子选项</b>；线上菜单则是<b>鱼是商品，锅底费另计</b>。</p>
+  <p><b>客人的点餐流程会维持 App 现在的做法</b>（先选鱼，再选锅底，锅底费另计），
+  这个流程已经与店家确认过，不会更动。</p>
+  <p>想请 ArmLoop 协助的是：这样的一笔订单，<b>要怎么送进 POS，才能让金额与厨房单都正确？</b>
+  如果需要照 POS 的「锅底 + 子选项」结构来组，请告诉我们组法，我们照做；
+  金额则请以 App 的定价为准。</p>
+</div>
+
+<div class="box warn">
+  <h4>另外提醒：目前锅底显示的是节庆促销价</h4>
+  <p>三个锅底商品目前的名称是「…（七夕限定，七夕快乐）」，价格是 <b>$5.20</b>。
+  我们理解这是七夕的促销价（520），并非平常售价。</p>
+  <p>因为我们要用这些资料来对齐金额，想确认：<b>促销结束后锅底会恢复成什么价格？</b>
+  我们会以平常售价为准，不会把促销价写进系统。</p>
+</div>
+
+<h2><span class="n">5</span>名称差异（16 项，不影响功能）</h2>
+<p class="lede">这些只是写法不同，商品应该是同一个，列出来让双方确认没有对错商品。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>编码</th><th>线上菜单</th><th>POS 名称</th></tr></thead>
+<tbody>
+<tr><td><code>1003</code></td><td>银鲈鱼</td><td>银鲈鱼700g</td></tr><tr><td><code>1002</code></td><td>盲曹</td><td>盲曹700g</td></tr><tr><td><code>1001</code></td><td>游水星斑</td><td>游水星斑一条(1.2kg-1.3kg)</td></tr><tr><td><code>0101</code></td><td>牛油（全辣）</td><td>全辣冷锅鱼锅底（七夕限定，七夕快乐）</td></tr><tr><td><code>0201</code></td><td>原汤</td><td>原汤锅底（七夕限定，七夕快乐）</td></tr><tr><td><code>1003</code></td><td>银鲈整鱼</td><td>银鲈鱼700g</td></tr><tr><td><code>1002</code></td><td>盲曹整鱼</td><td>盲曹700g</td></tr><tr><td><code>1001</code></td><td>东星斑</td><td>游水星斑一条(1.2kg-1.3kg)</td></tr><tr><td><code>0306</code></td><td>四头澳洲青边鲍</td><td>鲍鱼片(青边）</td></tr><tr><td><code>0305</code></td><td>M9+ 和牛</td><td>M9+和牛</td></tr><tr><td><code>0308</code></td><td>老虎虾</td><td>虎虾</td></tr><tr><td><code>0327</code></td><td>鲜盲曹鱼肚(限量)</td><td>鲜盲曹鱼肚（每日限量）</td></tr>
+</tbody></table></div>
+<p class="lede" style="margin-top:8px">…另有 4 项，完整清单可另外提供。</p>
+
+<h2><span class="n">6</span>接口的一个小问题</h2>
+<div class="box">
+  <p>接口文档中「获取目录下的单品集合」写到 <code>pageSize</code> 传 <b>-1</b> 代表不分页。</p>
+  <p>但实测传 <code>-1</code> 时，服务器回传 <code>code: null</code> 且没有资料；改传 <code>10000</code> 就正常。
+  提供给贵司参考，文档或许可以修正一下。</p>
+</div>
+
+<h2><span class="n">7</span>接下来的步骤</h2>
+<p class="lede">从现在到正式上线，大致会经过以下几个阶段。目前卡在第 2 阶段。</p>
+
+<div class="stage done">
+  <div class="snum">✓</div>
+  <div class="sbody">
+    <div class="shead"><h4>连线与菜单比对</h4><span class="pill done">已完成</span><span class="who">双方</span></div>
+    <p>apiKey 已可正常连线，已读到 121 项商品，并与线上菜单逐项比对完成（就是这份报告）。</p>
+  </div>
+</div>
+
+<div class="stage now">
+  <div class="snum">2</div>
+  <div class="sbody">
+    <div class="shead"><h4>菜单资料对齐</h4><span class="pill now">进行中 · 目前卡这里</span><span class="who">ArmLoop</span></div>
+    <p>把 POS 的商品与价格调整到与线上菜单一致，订单金额才不会对不上。</p>
+    <div class="need"><b>需要 ArmLoop：</b>更新 23 项半份价格、4 项整份价格；
+    新增 3 项 POS 没有的商品；确认 <code>0512</code> 等名称差异较大的项目。</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="snum">3</div>
+  <div class="sbody">
+    <div class="shead"><h4>菜单改由 POS 供应</h4><span class="pill wait">待开始</span><span class="who">LabX</span></div>
+    <p>把 App 的菜单来源从目前的静态档，改成即时读取 ArmLoop 接口。这样店里改价格、停售，客人手机上会自动跟着变。</p>
+    <div class="need"><b>需要 ArmLoop：</b><code>imageServer</code>（菜品图片网址），否则菜单会没有图片。</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="snum">4</div>
+  <div class="sbody">
+    <div class="shead"><h4>开发送单功能</h4><span class="pill wait">待开始</span><span class="who">LabX</span></div>
+    <p>目前 App 按下「确认下单」只会在手机上显示订单，<b>还没有真的送进 POS</b>。这部分需要重新开发。</p>
+    <div class="need"><b>需要 ArmLoop：</b>店铺代号（<code>shopId</code>、<code>siteId</code>、<code>spotId</code>、<code>terminalId</code>）、
+    桌号设定，以及一份 <code>payOrder</code> 的完整请求范例。另外也想确认：麻辣度、鱼肉做法这些选择，
+    要怎么带进订单才能印在厨房单上。</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="snum">5</div>
+  <div class="sbody">
+    <div class="shead"><h4>测试下单</h4><span class="pill wait">待开始</span><span class="who">双方</span></div>
+    <p>用测试桌号实际送几笔单，确认：订单有进 POS、挂对桌号、厨房单印出客人的口味选择、金额与手机一致。</p>
+    <div class="need"><b>需要 ArmLoop：</b>一张<b>测试用桌号</b>，让我们测试时不会送单到真正的厨房。</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="snum">6</div>
+  <div class="sbody">
+    <div class="shead"><h4>正式上线</h4><span class="pill wait">待开始</span><span class="who">双方</span></div>
+    <p>切换到正式环境，实际开放给客人使用。</p>
+    <div class="need"><b>需要 ArmLoop：</b>正式环境的网址与 apiKey（目前用的是测试环境）。</div>
+  </div>
+</div>
+
+<div class="box ok" style="margin-top:26px">
+  <h4>最快能推进的三件事</h4>
+  <p>1. 第 2 阶段的<b>价格与商品调整</b>（半份价格最优先）</p>
+  <p>2. 提供 <code>imageServer</code>，我们就能开始第 3 阶段</p>
+  <p>3. 提供<b>店铺代号、桌号设定、payOrder 范例</b>，我们就能开始第 4 阶段</p>
+  <p style="margin-top:10px">第 3、4 阶段可以和第 2 阶段同时进行，不用等价格全部调整完。</p>
+</div>
+
+<footer>LabX Co　·　Sea &amp; Spice 手机点餐系统　·　本报告由系统自动比对产生，资料读取时间 2026-08-20</footer>
+</div>
+</body>
+</html>

@@ -131,6 +131,20 @@
   .pkgcard .pen{font-family:var(--cor);font-size:11px;color:var(--muted2);letter-spacing:.5px}
   .pkgcard .prow{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
   .pkgcard .ppr{font-family:var(--cor);font-size:23px;font-weight:700;color:var(--gold2)}
+  .testblk{margin:10px 18px 4px;border:1px dashed rgba(159,186,205,.75);border-radius:14px;
+    background:linear-gradient(180deg,rgba(60,90,110,.94),rgba(38,58,72,.86));cursor:pointer;overflow:hidden}
+  .testblk:active{opacity:.85}
+  .tbhead{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;
+    background:rgba(0,0,0,.22);font-size:10.5px;letter-spacing:.14em;color:#CFE0EC;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  .tbhead span{background:#3C5A6E;color:#fff;border-radius:3px;padding:2px 7px;letter-spacing:.08em}
+  .tbbody{display:flex;align-items:center;gap:12px;padding:11px 13px}
+  .tbimg{width:58px;height:58px;border-radius:10px;object-fit:cover;flex:none}
+  .tbtxt{flex:1;min-width:0}
+  .tbt{font-size:15px;color:#F2E6D8;font-weight:600}
+  .tbs{font-size:11.5px;color:#A9C0CF;margin-top:2px}
+  .tbp{font-size:14px;color:#E9C477;margin-top:3px}
+  .tbgo{color:#CFE0EC;font-size:19px;flex:none}
   /* --- POS 结构验证专用（?test=1）；正式上线前连同 menu-test.js 一起移除 --- */
   .pkgcard.pkgtest{background:linear-gradient(180deg,rgba(60,90,110,.94),rgba(38,58,72,.86));
     border:1px dashed rgba(159,186,205,.7)}
@@ -578,6 +592,7 @@ window.setPax=function(n){ S.pax=Math.max(1,n); render(); }
 
 function scrHub(){
   return `<div class="screen scroll">${topbar()}
+    ${testBlock()}
     <div class="memberbar" onclick="go('me')">
       <span class="mb-ico">${ICO.me('#e9c477')}</span>
       <div class="mb-txt"><div class="mb-t">${t('member_t')}</div><div class="mb-s">${t('member_s')}</div></div>
@@ -608,7 +623,7 @@ function scrHub(){
       ${hubCard('assets/menu/0402.jpg',t('card4_n'),'Add-ons',t('card4_a'),t('card4_s'),"startAddons()")}
     </div>
     <div class="seclbl2" id="pkg-section" style="margin-top:6px">${t('sec_pkg')} <small>${t('sec_pkg_sm')}</small></div>
-    <div class="pkgrow">${M.packages.filter(avail).filter(p=>TESTMODE||!p.test).map(pkgCard).join('')}</div>
+    <div class="pkgrow">${M.packages.filter(avail).filter(p=>!p.test).map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
 // ---- hero auto-slider ----
@@ -652,6 +667,26 @@ function pkgCard(p){
     <div class="pb"><div class="pcn">${nm(p)}</div>${sub(p)?`<div class="pen">${sub(p)}</div>`:''}
       ${pkgTime(p)?`<div class="ptime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 1.7"/></svg>${pkgTime(p)}</div>`:''}
       <div class="prow"><span class="ppr">${money(p.price)}</span></div></div></div>`;
+}
+// POS 结构验证专用区块（?test=1）。正式上线前连同 menu-test.js 一起移除。
+function testBlock(){
+  if(!TESTMODE) return '';
+  const p = M.packages.find(x=>x.test);
+  if(!p) return '';
+  const en = S.lang==='en';
+  const grp = p.groups.length, opt = p.groups.reduce((a,g)=>a+g.opts.length,0);
+  return `<div class="testblk" onclick="startPackage(${p.id})">
+    <div class="tbhead">${en?'POS STRUCTURE CHECK':'POS 结构验证'}<span>${en?'TEST ONLY':'测试专用'}</span></div>
+    <div class="tbbody">
+      <img class="tbimg" src="${p.img}" alt="">
+      <div class="tbtxt">
+        <div class="tbt">${nm(p)}</div>
+        <div class="tbs">${en?`${grp} option groups · ${opt} options · all existing POS items`
+                            :`${grp} 个选项组 · ${opt} 个选项 · 全部为 POS 现有商品`}</div>
+        <div class="tbp">${money(p.price)}</div>
+      </div>
+      <span class="tbgo">→</span>
+    </div></div>`;
 }
 window.startPackage=function(id){ S.pkgId=id; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; go(pkgById(id).fixed?'pkgconfirm':'pkgstep'); }
 window.togglePkgUp=function(){ S.pkgUp=!S.pkgUp; render(); }

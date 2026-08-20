@@ -79,19 +79,39 @@ pre{background:var(--paper-2);border-left:3px solid var(--gold);padding:14px 18p
 .need b{color:var(--deep)}
 footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-3)}
 @media print{
- /* force the light palette — otherwise printing from a dark-mode browser
-    gives pale text on white paper */
- :root{--paper:#fff;--paper-2:#F3EBDD;--card:#fff;--ink:#2A1B18;--ink-2:#5A483F;--ink-3:#7d6a5f;
-  --lacquer:#6A1018;--deep:#480A11;--gold:#8a6c37;--gold-soft:#EDE0C4;
-  --rule:rgba(106,16,24,.28);--rule-soft:rgba(106,16,24,.14);
-  --warn:#9c4718;--warn-bg:#FBEFE8;--ok:#3d5a42;--ok-bg:#EDF2EE}
- body{background:#fff;font-size:11pt}
+ /* force the light palette — printing from a dark-mode browser would
+    otherwise give pale text on white paper */
+ :root{--paper:#fff;--paper-2:#F5EEE2;--card:#fff;--ink:#241713;--ink-2:#54433B;--ink-3:#786558;
+  --lacquer:#6A1018;--deep:#480A11;--gold:#7f6231;--gold-soft:#EFE3C9;
+  --rule:rgba(106,16,24,.30);--rule-soft:rgba(106,16,24,.15);
+  --warn:#934215;--warn-bg:#FBEFE8;--ok:#3a5540;--ok-bg:#EDF2EE}
+ body{background:#fff;font-size:10.5pt;line-height:1.62}
  .wrap{max-width:none;padding:0}
- table,.box,.stage,tr{break-inside:avoid}
- h2{break-after:avoid;margin-top:26px}
- .mast{padding-top:0}
+ @page{margin:16mm 13mm}
+
+ /* tables flow across pages; the header repeats, a row never splits */
+ .tablewrap{overflow:visible;border:1px solid var(--rule)}
+ table{min-width:0;width:100%;break-inside:auto;font-size:9.8pt}
+ thead{display:table-header-group}
+ tr{break-inside:avoid}
+ th,td{padding:6px 10px}
+
+ /* a section title never gets stranded at the foot of a page —
+    it stays with its lede and the start of its content */
+ h2{break-after:avoid;break-inside:avoid;margin:22px 0 4px}
+ .lede{break-after:avoid;break-inside:avoid;margin-bottom:12px}
+ .tablewrap,.box,.stage,pre{break-before:avoid}
+
+ /* small blocks stay whole */
+ .box,.stage,pre,.need{break-inside:avoid}
+ .box{margin:12px 0;padding:13px 17px}
+ .stage{padding-bottom:16px}
+ p{orphans:3;widows:3}
+
+ .mast{padding:0 0 18px}
+ .stats{margin-top:18px}
+ footer{margin-top:26px}
  a{color:inherit;text-decoration:none}
- @page{margin:14mm 12mm}
 }
 </style>
 </head>

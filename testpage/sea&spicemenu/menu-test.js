@@ -212,7 +212,7 @@ window.SEASPICE_TEST = {
           "img": "assets/menu/0331.jpg",
           "desc": "",
           "plu": "0331",
-          "_src": "live"
+          "_src": "same"
         }
       ]
     },
@@ -227,7 +227,7 @@ window.SEASPICE_TEST = {
           "img": "assets/menu/0330.jpg",
           "desc": "",
           "plu": "0330",
-          "_src": "live"
+          "_src": "same"
         },
         {
           "n": "鱼豆腐",

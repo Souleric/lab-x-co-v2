@@ -7,7 +7,7 @@
 
    对应文件：试点规格-超值四人套餐.html
    本档由 build-test-package.js 自动产生，请勿手改。
-   选项：保留 38 项 · 剔除 3 项（POS 尚未建立）
+   选项：保留 40 项 · 剔除 1 项（POS 尚未建立）
    ============================================================================ */
 window.SEASPICE_TEST = {
   "id": 99,
@@ -33,6 +33,14 @@ window.SEASPICE_TEST = {
           "desc": "Choose soup base first, then choose fish. One serving of fish is suitable for 1-2 people.",
           "plu": "0101",
           "_src": "alias:牛油（全辣）"
+        },
+        {
+          "n": "鸳鸯",
+          "en": "Spicy & Mild Broths",
+          "img": "assets/menu/0112.jpg",
+          "desc": "Choose soup base first, then choose fish. One serving of fish is suitable for 1-2 people. Fish goes to the spicy broth by default. Please note if you’d like to keep some for non-spicy broth.",
+          "plu": "0112",
+          "_src": "live"
         },
         {
           "n": "原汤",
@@ -87,6 +95,14 @@ window.SEASPICE_TEST = {
           "desc": "Handmade fresh fish balls, tender and bouncy.",
           "plu": "0301",
           "_src": "same"
+        },
+        {
+          "n": "双拼鱼丸虾滑",
+          "en": "Fresh Fish Balls and Prawn Balls",
+          "img": "assets/menu/0329.jpg",
+          "desc": "",
+          "plu": "0329",
+          "_src": "live"
         },
         {
           "n": "手切鲜羊肉",

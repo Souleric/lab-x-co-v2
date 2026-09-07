@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="menu-data.js?v=30"></script>
-<script src="menu-source.js?v=1"></script>
+<script src="menu-data.js?v=32"></script>
+<script src="menu-source.js?v=4"></script>
 <script src="menu-test.js?v=1"></script>  <!-- POS 结构验证用；只在 ?test=1 时载入到菜单 -->
 <style>
   :root{
@@ -185,6 +185,22 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 18px}
   .gcell{background:linear-gradient(180deg,rgba(106,16,24,.8),rgba(74,10,17,.6));border:1px solid var(--line);border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;position:relative}
   .gcell.sel{border-color:var(--gold);background:linear-gradient(180deg,#a8312a,#7a1414);box-shadow:0 0 0 1px var(--gold)}
+  /* 暂时售完 — POS available:0, or absent from the POS channel feed */
+  .so{position:relative;opacity:.42;filter:grayscale(.75)}
+  .so,.so *{cursor:not-allowed!important}
+  .so .addbtn,.so .qtyctl,.so .seg{pointer-events:none;opacity:.5}
+  .sobadge{position:absolute;top:8px;left:8px;z-index:2;background:rgba(0,0,0,.82);color:#fff;
+    font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:3px;
+    border:1px solid rgba(255,255,255,.28);white-space:nowrap;filter:none}
+  .acard.so .sobadge{top:6px;left:6px}
+  .sobanner{margin:12px 14px 0;border:1px solid #a8312a;background:rgba(168,49,42,.14);
+    border-radius:8px;padding:12px 14px}
+  .sobanner .sbt{font-weight:700;font-size:14px;color:#ffd9d6;margin-bottom:3px}
+  .sobanner .sbs{font-size:12px;opacity:.8;margin-bottom:9px;line-height:1.45}
+  .sobanner .sbrow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:7px 0;border-top:1px solid rgba(255,255,255,.13);font-size:13px}
+  .sobanner .sbrow button{background:#a8312a;color:#fff;border:0;border-radius:5px;
+    padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer}
   .gcell .ge{font-size:26px}
   .gcell .chilis{display:inline-flex;gap:4px;align-items:flex-end;justify-content:center}
   .gcell .chili{height:36px;width:auto;filter:drop-shadow(0 2px 5px rgba(201,127,31,.45))}
@@ -338,10 +354,18 @@
 let M = MenuSource.resolveSync();
 // ?test=1 shows the POS structure-check package (menu-test.js). Off for normal customers.
 const TESTMODE = /[?&]test=1/.test(location.search);
-const avail = x => x && x.avail!==false;   // 下架 items (avail:false) are hidden from the customer app
+const avail = x => x && x.avail!==false;   // POS available:0, or gone from the channel feed
+// Sold-out items stay on the menu but cannot be selected — hiding a card the
+// customer was just looking at reads as a broken menu. See AVAILABILITY-PLAN.md §4.
+const soBadge = it => avail(it) ? '' : `<div class="sobadge">${t('soldout')}</div>`;
+const soCls   = it => avail(it) ? '' : ' so';
 let C = M.currency;
 const money = n => '$'+(Math.round(n*100)/100).toFixed(2);
-const halfP = p => Math.ceil(p*60)/100;           // 半份 = 60% of full, round up to cent
+const halfP = p => Math.ceil(p*60)/100;           // fallback only — POS does NOT use 60%
+// 半份 price. When the ArmLoop link is on, POS supplies halfPrice per item and that
+// wins: prices are never recalculated client-side. halfP() is only for items POS has
+// no half price for (28 vegetable items as of 2026-09-05) and for the offline demo.
+const halfOf = it => (typeof it.halfPrice === 'number' ? it.halfPrice : halfP(it.price));
 const addonById = id => M.addons.find(a=>a.id===id);
 
 let FISH = M.fish, BROTHS = M.broths;
@@ -440,6 +464,12 @@ const L = {
   next_addon:{cn:'下一步：加购配菜 →',en:'Next: add side dishes →'},
   /* add-ons */
   por_full:{cn:'整份',en:'Full'}, por_half:{cn:'半份',en:'Half'}, mkt_price:{cn:'时价',en:'Market price'},
+  soldout:{cn:'暂时售完',en:'Sold out'},
+  so_gone:{cn:'{0} 刚刚售完，已为您取消选择',en:'{0} just sold out and has been deselected'},
+  so_cart_t:{cn:'部分餐点已售完',en:'Some items just sold out'},
+  so_cart_s:{cn:'以下餐点在您点单期间售完了，请先移除再结账',en:'These sold out while you were ordering — remove them to continue'},
+  so_remove:{cn:'移除',en:'Remove'},
+  so_checking:{cn:'确认库存中…',en:'Checking availability…'},
   pot_single:{cn:'单锅',en:'Single Broth'}, pot_benz:{cn:'奔驰锅',en:'Three-Broth Pot'},
   pot_pick1:{cn:'选 1 种',en:'Pick 1'}, pot_pick3:{cn:'选 3 种',en:'Pick 3'},
   addon_t:{cn:'加购配菜',en:'Add Side Dishes'}, addon_s:{cn:'荤菜素菜可选整份或半份',en:'Meat and vegetables come in full or half portions'},
@@ -555,7 +585,8 @@ function updateNav(){
 }
 function updateCartBadge(){ const b=document.getElementById('navbadge'); if(!b)return; const n=S.cart.reduce((s,c)=>s+c.qty,0); b.textContent=n>99?'99+':n; b.classList.toggle('show',n>0); }
 window.switchTab=function(i){ go(TABS[i].screen); }
-function go(s){ S.screen=s; render(); const sc=screenEl.querySelector('.scroll'); if(sc)sc.scrollTop=0; }
+function go(s){ S.screen=s; render(); const sc=screenEl.querySelector('.scroll'); if(sc)sc.scrollTop=0;
+  if(s==='orders') refreshMenu('cart'); }
 
 function topbar(){
   return `<div class="topbar">
@@ -623,7 +654,7 @@ function scrHub(){
       ${hubCard('assets/menu/0402.jpg',t('card4_n'),'Add-ons',t('card4_a'),t('card4_s'),"startAddons()")}
     </div>
     <div class="seclbl2" id="pkg-section" style="margin-top:6px">${t('sec_pkg')} <small>${t('sec_pkg_sm')}</small></div>
-    <div class="pkgrow">${M.packages.filter(avail).filter(p=>!p.test).map(pkgCard).join('')}</div>
+    <div class="pkgrow">${M.packages.filter(p=>!p.test).map(pkgCard).join('')}</div>
     <div style="height:8px"></div></div>`;
 }
 // ---- hero auto-slider ----
@@ -662,8 +693,9 @@ function pkgTime(p){
 function pkgCard(p){
   const badge = p.test?(S.lang==='en'?'TEST ONLY':'测试专用')
     :p.save?t('pkg_save',p.save):(p.fixed?t('pkg_lunch'):t('pkg_pax',p.pax));
-  return `<div class="pkgcard${p.test?' pkgtest':''}" onclick="startPackage(${p.id})">
-    <img class="pimg" src="${p.img}" alt=""><span class="pribbon">${badge}</span>
+  const so=!avail(p);
+  return `<div class="pkgcard${p.test?' pkgtest':''}${soCls(p)}" ${so?'':`onclick="startPackage(${p.id})"`}>
+    ${soBadge(p)}<img class="pimg" src="${p.img}" alt=""><span class="pribbon">${badge}</span>
     <div class="pb"><div class="pcn">${nm(p)}</div>${sub(p)?`<div class="pen">${sub(p)}</div>`:''}
       ${pkgTime(p)?`<div class="ptime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 1.7"/></svg>${pkgTime(p)}</div>`:''}
       <div class="prow"><span class="ppr">${money(p.price)}</span></div></div></div>`;
@@ -699,14 +731,16 @@ function scrPkgStep(){
   if(multi){
     const sel=S.pkgSel[S.pkgStep]||{}, total=Object.values(sel).reduce((a,b)=>a+b,0);
     enabled=total===g.pick;
-    body=`<div class="list">`+g.opts.map(o=>{const q=sel[o.n]||0;
-      return `<div class="opt ${q>0?'sel':''}">${meta(o)}
-        <div class="qtyctl"><button onclick="pkgQty('${o.n}',-1)" ${q<=0?'disabled':''}>−</button><span class="qn">${q}</span><button onclick="pkgQty('${o.n}',1)" ${total>=g.pick?'disabled':''}>+</button></div></div>`;
+    body=`<div class="list">`+g.opts.map(o=>{const q=sel[o.n]||0, so=o.avail===false;
+      return `<div class="opt ${q>0?'sel':''}${so?' so':''}">${so?`<div class="sobadge">${t('soldout')}</div>`:''}${meta(o)}
+        <div class="qtyctl"><button onclick="pkgQty('${o.n}',-1)" ${q<=0?'disabled':''}>−</button><span class="qn">${q}</span><button onclick="pkgQty('${o.n}',1)" ${(total>=g.pick||so)?'disabled':''}>+</button></div></div>`;
     }).join('')+`</div>`;
   } else {
     const sel=S.pkgSel[S.pkgStep]; enabled=sel!=null;
-    body=`<div class="list">`+g.opts.map(o=>{const on=sel===o.n;
-      return `<div class="opt ${on?'sel':''}" onclick="pkgPick('${o.n}')">${meta(o)}<div class="radio ${on?'check':''}">${on?'✓':''}</div></div>`;
+    body=`<div class="list">`+g.opts.map(o=>{const on=sel===o.n, so=o.avail===false;
+      return `<div class="opt ${on?'sel':''}${so?' so':''}" ${so?'':`onclick="pkgPick('${o.n}')"`}>
+        ${so?`<div class="sobadge">${t('soldout')}</div>`:''}${meta(o)}
+        <div class="radio ${on?'check':''}">${on?'✓':''}</div></div>`;
     }).join('')+`</div>`;
   }
   const last=S.pkgStep===n-1;
@@ -718,10 +752,25 @@ function scrPkgStep(){
     <div class="footer"><button class="cta ${enabled?'':'disabled'}" onclick="${enabled?'pkgNext()':''}">${last?t('pkg_done'):t('next')}</button></div>
   </div>`;
 }
-window.pkgPick=function(o){ S.pkgSel[S.pkgStep]=o; render(); }
+window.pkgPick=function(o){
+  const g=pkgById(S.pkgId).groups[S.pkgStep], opt=g.opts.find(x=>x.n===o);
+  if(opt && opt.avail===false) return;
+  S.pkgSel[S.pkgStep]=o; render(); }
 window.pkgQty=function(o,d){ const g=pkgById(S.pkgId).groups[S.pkgStep], sel=S.pkgSel[S.pkgStep]||{};
+  const opt=g.opts.find(x=>x.n===o); if(d>0&&opt&&opt.avail===false) return;
   const total=Object.values(sel).reduce((a,b)=>a+b,0); if(d>0&&total>=g.pick) return;
   const q=(sel[o]||0)+d; if(q<=0)delete sel[o]; else sel[o]=q; S.pkgSel[S.pkgStep]=sel; render(); }
+// If a refresh sells out something already picked in the wizard, drop it so the
+// customer re-picks rather than carrying a dead option through to the cart.
+function reconcilePkgSel(){
+  const p=S.pkgId!=null?pkgById(S.pkgId):null; if(!p||!p.groups) return;
+  p.groups.forEach((g,i)=>{
+    const sel=S.pkgSel[i]; if(sel==null) return;
+    const dead=n=>{const x=g.opts.find(y=>y.n===n); return x&&x.avail===false;};
+    if(typeof sel==='string'){ if(dead(sel)) delete S.pkgSel[i]; }
+    else Object.keys(sel).forEach(n=>{ if(dead(n)) delete sel[n]; });
+  });
+}
 window.pkgNext=function(){ if(S.pkgStep>=pkgById(S.pkgId).groups.length-1) go('pkgconfirm'); else {S.pkgStep++; render();} }
 window.pkgBack=function(){ if(S.pkgStep<=0) go('hub'); else {S.pkgStep--; render();} }
 window.pkgEditBack=function(){ S.pkgStep=pkgById(S.pkgId).groups.length-1; go('pkgstep'); }
@@ -761,7 +810,9 @@ function scrFish(){
   const rows=FISH.map((f,i)=>{
     const sel=S.order.fish===i;
     const tag=f.tag==='热销'?`<span class="hot">${t('tag_hot')}</span>`:f.tag==='精选'?`<span class="pick">${t('tag_pick')}</span>`:'';
-    return `<div class="opt ${sel?'sel':''}" onclick="pickFish(${i})">
+    const so=!avail(f);
+    return `<div class="opt ${sel?'sel':''}${soCls(f)}" ${so?'':`onclick="pickFish(${i})"`}>
+      ${soBadge(f)}
       ${f.img?`<img class="thumb" src="${f.img}">`:`<div class="emoji">${PLACE_ICON}</div>`}
       <div class="info"><div class="nm">${nm(f)} ${tag}</div>${sub(f)?`<div class="en">${sub(f)}</div>`:''}
         ${S.lang==='cn'&&f.desc?`<div class="ds">${f.desc}</div>`:''}${S.lang==='cn'&&f.note?`<div class="feat">✦ ${f.note}</div>`:''}</div>
@@ -771,10 +822,12 @@ function scrFish(){
   return flowScreen(t('fish_t',dishName(S.order.dish)),t('fish_s'),`<div class="list">${rows}</div>`,
     S.order.fish!==null,t('next_spice'),"go('spice')");
 }
-window.pickFish=function(i){ S.order.fish=i; render(); }
+// Layer 2 of AVAILABILITY-PLAN.md §2 — the markup already drops the handler for
+// sold-out items, but guard the mutators too in case a render is stale.
+window.pickFish=function(i){ if(!avail(FISH[i])) return; S.order.fish=i; render(); }
 window.startFish=function(dish,mode){ S.flow='fish'; S.addons={}; S.por={}; S.order={fish:null,numb:1,spicy:1,cook:1,broth:mode==='direct'?null:0,dish,mode}; go('fish'); }
 window.startHotpot=function(){ S.flow='hotpot'; S.addons={}; S.por={}; S.hp={potType:null,broths:[]}; go('hotpot'); }
-window.startAddons=function(){ S.flow=null; S.addons={}; S.por={}; go('addons'); }
+window.startAddons=function(){ S.flow=null; S.addons={}; S.por={}; go('addons'); refreshMenu('addons'); }
 
 // ---- 单点火锅 DIY hotpot ----
 const POTS=[{id:'single',cn:'单锅',en:'Single Broth',sub:'选 1 种',subEn:'Pick 1',max:1},{id:'benz',cn:'奔驰锅',en:'Three-Broth Pot',sub:'选 3 种',subEn:'Pick 3',max:3}];
@@ -784,8 +837,9 @@ function scrHotpot(){
   const max=potMax(), all=max>=hpBroths().length;   // 奔驰锅 = all 3 -> auto-selected, no manual pick
   const ptCells=POTS.map(p=>`<div class="gcell ${S.hp.potType===p.id?'sel':''}" onclick="setPot('${p.id}')" style="padding:18px 8px">
     <div class="gt">${nm(p)}</div><div class="gsub">${S.lang==='en'?p.subEn:p.sub}</div></div>`).join('');
-  const brothCells=S.hp.potType?hpBroths().map(b=>{const on=S.hp.broths.includes(b.id);
-    return `<div class="gcell ${on?'sel':''}" ${all?'style="padding:16px 10px 18px;cursor:default"':`onclick="toggleBroth('${b.id}')" style="padding:16px 10px 18px"`}>
+  const brothCells=S.hp.potType?hpBroths().map(b=>{const on=S.hp.broths.includes(b.id), so=!avail(b);
+    return `<div class="gcell ${on?'sel':''}${soCls(b)}" ${(all||so)?'style="padding:16px 10px 18px;cursor:default"':`onclick="toggleBroth('${b.id}')" style="padding:16px 10px 18px"`}>
+      ${soBadge(b)}
       <img class="brothimg" src="${b.img}" alt=""><div class="gt">${nm(b)}</div>${sub(b)?`<div class="gsub">${sub(b)}</div>`:''}</div>`;}).join(''):'';
   const enabled=S.hp.potType&&S.hp.broths.length===max;
   return `<div class="screen scroll">
@@ -801,7 +855,8 @@ window.setPot=function(id){ S.hp.potType=id; const m=potMax(), list=hpBroths();
   if(m>=list.length) S.hp.broths=list.map(b=>b.id);                 // auto-select all (奔驰锅 = 3/3)
   else if(S.hp.broths.length>m) S.hp.broths=S.hp.broths.slice(0,m); // trim if switching to smaller pot
   render(); }
-window.toggleBroth=function(id){ const a=S.hp.broths, i=a.indexOf(id), m=potMax();
+window.toggleBroth=function(id){ if(!avail(BROTHS.find(b=>b.id===id))) return;
+  const a=S.hp.broths, i=a.indexOf(id), m=potMax();
   if(i>=0) a.splice(i,1); else { if(a.length>=m) a.shift(); a.push(id); } render(); }
 
 function scrSpice(){
@@ -813,7 +868,7 @@ function scrSpice(){
      <div class="seclbl">${t('lbl_spicy')}</div><div class="grid3">${SPICY.map((_,i)=>cell(SPICY,'spicy',i)).join('')}</div>`,
     true,t('next_cook'),"go('cook')");
 }
-window.setOrd=function(k,i){ S.order[k]=i; render(); }
+window.setOrd=function(k,i){ if(k==='broth'&&!avail(brothList()[i])) return; S.order[k]=i; render(); }
 
 // COOK descriptions are Chinese-only in the data
 const COOK_DESC_EN={'全入辣锅':'All the fish goes into the spicy broth for a richer soup',
@@ -830,8 +885,9 @@ function scrCook(){
 
 function scrBroth(){
   const direct=S.order.mode==='direct', list=brothList();
-  const cells=list.map((b,i)=>{const sel=S.order.broth===i;
-    return `<div class="gcell ${sel?'sel':''}" onclick="setOrd('broth',${i})" style="padding:16px 10px 18px">
+  const cells=list.map((b,i)=>{const sel=S.order.broth===i, so=!avail(b);
+    return `<div class="gcell ${sel?'sel':''}${soCls(b)}" ${so?'':`onclick="setOrd('broth',${i})"`} style="padding:16px 10px 18px">
+      ${soBadge(b)}
       <img class="brothimg" src="${b.img}" alt=""><div class="gt">${nm(b)}</div>${sub(b)?`<div class="gsub">${sub(b)}</div>`:''}
       ${direct?`<div class="rec" style="margin-top:6px;background:rgba(0,0,0,.3);color:var(--gold)">${t('upg_badge',money(DIRECT_UPGRADE))}</div>`:''}</div>`;}).join('');
   if(direct){
@@ -859,18 +915,19 @@ const DISH_EN = {'冷锅鱼':'Cold Pot Fish','酸菜鱼':'Pickled Cabbage Fish',
 const dishName = d => S.lang==='en' ? (DISH_EN[d]||d) : d;
 const CAT_ICON = {'热销首选':'cat_pkg.png','加鱼':'cat_fish.png','荤菜':'cat_meat.png','素菜':'cat_veg.png','主食和小吃':'cat_base.png','饮料':'cat_drink.svg','酒类':'cat_wine.svg','儿童套餐':'cat_kids.svg'};
 function key(id,por){ return id+'|'+por; }
-function catItems(c){ return (c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c)).filter(avail); }
+// Sold-out add-ons stay listed but greyed; they are no longer filtered out.
+function catItems(c){ return c==='热销首选'?M.addons.filter(a=>a.hot):M.addons.filter(a=>a.cat===c); }
 function addonCard(it){
   const por=S.por[it.id]||'full';
   const seg=it.half?`<div class="seg"><button class="${por==='full'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','full')">${t('por_full')}</button>
       <button class="${por==='half'?'on':''}" onclick="event.stopPropagation();setPor('${it.id}','half')">${t('por_half')}</button></div>`:'';
   let priceHtml, q=S.addons[key(it.id,por)]||0;
   if(it.price==null) priceHtml=`<span class="ap mk">${t('mkt_price')}</span>`;
-  else { const p=por==='half'?halfP(it.price):it.price; priceHtml=`<span class="ap">${money(p)}<small> ${C}</small></span>`; }
+  else { const p=por==='half'?halfOf(it):it.price; priceHtml=`<span class="ap">${money(p)}<small> ${C}</small></span>`; }
   const ctrl=q>0
     ? `<div class="qtyctl"><button onclick="addQty('${it.id}','${por}',-1)">−</button><span class="qn">${q}</span><button onclick="addQty('${it.id}','${por}',1)">+</button></div>`
     : `<button class="addbtn" onclick="addQty('${it.id}','${por}',1)">+</button>`;
-  return `<div class="acard">${it.img?`<img class="ai" src="${it.img}">`:`<div class="aemoji">${PLACE_ICON}</div>`}
+  return `<div class="acard${soCls(it)}">${soBadge(it)}${it.img?`<img class="ai" src="${it.img}">`:`<div class="aemoji">${PLACE_ICON}</div>`}
     <div class="an">${nm(it)} ${it.hot?`<span class="hot">${t('tag_hot')}</span>`:''}</div><div class="ae">${sub(it)}</div>
     ${S.lang==='cn'&&it.desc?`<div class="ad">${it.desc}</div>`:''}${seg}<div class="arow">${priceHtml}${ctrl}</div></div>`;
 }
@@ -926,11 +983,75 @@ window.scrollToCat=function(i){
   sc.scrollTo({top,behavior:'smooth'});
 }
 window.setPor=function(id,por){ S.por[id]=por; render(); }
-window.addQty=function(id,por,d){ const k=key(id,por),q=(S.addons[k]||0)+d; if(q<=0)delete S.addons[k]; else S.addons[k]=q; render(); }
+window.addQty=function(id,por,d){ if(d>0&&!avail(addonById(id))) return;
+  const k=key(id,por),q=(S.addons[k]||0)+d; if(q<=0)delete S.addons[k]; else S.addons[k]=q; render(); }
+
+// After a live menu refresh an item the customer already picked may have sold
+// out. Clear flow selections so the CTA can't advance on a dead choice.
+// Cart quantities are deliberately NOT dropped here — see AVAILABILITY-PLAN.md §4:
+// the customer is told, they decide. reconcileSelections() returns what went away.
+function reconcileSelections(){
+  const gone=[];
+  if(S.order.fish!=null && !avail(FISH[S.order.fish])){ gone.push(nm(FISH[S.order.fish])); S.order.fish=null; }
+  if(S.order.broth!=null){ const b=brothList()[S.order.broth];
+    if(!avail(b)){ gone.push(nm(b)); S.order.broth=null; } }
+  if(S.hp && S.hp.broths.length){
+    S.hp.broths.filter(id=>!avail(BROTHS.find(x=>x.id===id)))
+      .forEach(id=>{ const b=BROTHS.find(x=>x.id===id); gone.push(nm(b));
+        S.hp.broths.splice(S.hp.broths.indexOf(id),1); });
+  }
+  reconcilePkgSel();
+  return gone;
+}
+// Cart rows that have since sold out. Reported, never removed — the customer
+// decides. Rows carry a `ref` so availability can be re-checked after a refresh.
+function soldOutInCart(){
+  return S.cart.filter(c=>{
+    if(!c.ref) return false;
+    if(c.ref.kind==='addon')   return !avail(addonById(c.ref.id));
+    if(c.ref.kind==='fish')    return !avail(M.fish.find(f=>f.id===c.ref.id));
+    if(c.ref.kind==='package') return !avail(pkgById(c.ref.id));
+    if(c.ref.kind==='hotpot')  return (c.ref.broths||[]).some(id=>!avail(BROTHS.find(b=>b.id===id)));
+    return false;
+  });
+}
+
+/* ---------------------------------------------------------------------------
+   LIVE REFRESH — AVAILABILITY-PLAN.md §3.
+   A full pull is ~2.9s / 0.67MB, so we refresh on the moments that matter
+   rather than on a tight timer. Checkout is the one that must not be skipped.
+   --------------------------------------------------------------------------- */
+let _refreshing=null, _lastRefresh=0;
+const REFRESH_MIN_GAP = 20*1000;      // don't re-pull more often than this
+const REFRESH_IDLE    = 4*60*1000;    // background heartbeat while the app is open
+
+function refreshMenu(reason,force){
+  if(!MenuSource.live()) return Promise.resolve(null);           // static demo: nothing to do
+  if(_refreshing) return _refreshing;                            // coalesce concurrent calls
+  if(!force && Date.now()-_lastRefresh < REFRESH_MIN_GAP) return Promise.resolve(null);
+  _refreshing = MenuSource.load().then(menu=>{
+    if(TESTMODE && window.SEASPICE_TEST) menu.packages = menu.packages.concat(window.SEASPICE_TEST);
+    M=menu; C=M.currency; FISH=M.fish; BROTHS=M.broths;
+    if(M.addonCats.indexOf(S.addonTab)<0) S.addonTab=M.addonCats[0];
+    const gone=reconcileSelections();
+    _lastRefresh=Date.now();
+    render();
+    if(gone.length) toast(t('so_gone',gone.join('、')));
+    return menu;
+  }).catch(e=>{ console.warn('[refresh] '+reason+' failed:',e); return null; })
+    .then(r=>{ _refreshing=null; return r; });
+  return _refreshing;
+}
+
+// Triggers. Cheap ones are fire-and-forget; checkout awaits.
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible') refreshMenu('refocus');
+});
+setInterval(()=>{ if(document.visibilityState==='visible') refreshMenu('idle'); }, REFRESH_IDLE);
 
 function addonLineItems(){
   return Object.entries(S.addons).map(([k,q])=>{const [id,por]=k.split('|');const it=addonById(id);
-    const unit=it.price==null?null:(por==='half'?halfP(it.price):it.price);
+    const unit=it.price==null?null:(por==='half'?halfOf(it):it.price);
     return {it,por,qty:q,unit,amount:unit==null?0:unit*q};});
 }
 function addonsTotal(){ return addonLineItems().reduce((s,l)=>s+l.amount,0); }
@@ -1058,14 +1179,17 @@ window.addOrderToCart=function(){
     const unit=f.price + (direct?(DIRECT_BASE + (b?DIRECT_UPGRADE:0)):M.potFee);
     const brothTxt = direct ? (b?t('cart_upg',nm(b)):t('cart_plain')) : t('cart_inner',nm(b));
     const sub=`${nm(NUMB[S.order.numb])}·${nm(SPICY[S.order.spicy])} · ${nm(COOK[S.order.cook])} · ${brothTxt}`;
-    pushCart({type:'fish',title:`${dishName(S.order.dish)} · ${nm(f)}`,sub,img:f.img,qty:1,unit,needsCondiment:true});
+    pushCart({type:'fish',title:`${dishName(S.order.dish)} · ${nm(f)}`,sub,img:f.img,qty:1,unit,needsCondiment:true,
+      ref:{kind:'fish',id:f.id}});
   } else if(S.flow==='hotpot' && S.hp.potType){
     const pot=POTS.find(p=>p.id===S.hp.potType);
     const broths=S.hp.broths.map(id=>nm(BROTHS.find(b=>b.id===id))).join(S.lang==='en'?', ':'、');
-    pushCart({type:'hotpot',title:t('diy_pot',pot?nm(pot):''),sub:t('cart_broth',broths),img:'assets/menu/0112.jpg',qty:1,unit:M.potFee,needsCondiment:true});
+    pushCart({type:'hotpot',title:t('diy_pot',pot?nm(pot):''),sub:t('cart_broth',broths),img:'assets/menu/0112.jpg',qty:1,unit:M.potFee,needsCondiment:true,
+      ref:{kind:'hotpot',broths:S.hp.broths.slice()}});
   }
   addonLineItems().forEach(l=>pushCart({type:'addon',key:`addon|${l.it.id}|${l.por}`,
-    title:nm(l.it)+(l.por==='half'?t('half_suffix'):''),sub:t('sub_addon'),img:l.it.img,qty:l.qty,unit:l.unit,needsCondiment:false}));
+    title:nm(l.it)+(l.por==='half'?t('half_suffix'):''),sub:t('sub_addon'),img:l.it.img,qty:l.qty,unit:l.unit,needsCondiment:false,
+    ref:{kind:'addon',id:l.it.id}}));
   resetOrder(); toast(t('toast_cart')); go('orders');
 }
 window.addPkgToCart=function(){
@@ -1074,13 +1198,20 @@ window.addPkgToCart=function(){
   const unit = p.price + (up?p.drinkUp.price:0);
   const sub = p.fixed ? (t('sub_pkg')+(up?t('sub_upgrade',nm(p.drinkUp)):''))
     : p.groups.map((g,i)=>{const sel=S.pkgSel[i]; return g.pick>1?Object.entries(sel||{}).map(([o,q])=>`${o}×${q}`).join('+'):(sel||'—');}).join(' · ');
-  pushCart({type:'package',title:p.cn,sub,img:p.img,qty:1,unit,needsCondiment:false});
+  pushCart({type:'package',title:p.cn,sub,img:p.img,qty:1,unit,needsCondiment:false,ref:{kind:'package',id:p.id}});
   S.pkgId=null; S.pkgSel={}; S.pkgStep=0; S.pkgUp=false; toast(t('toast_cart')); go('orders');
 }
 window.cartQty=function(cid,d){ const c=S.cart.find(x=>x.cid===cid); if(!c)return; c.qty+=d; if(c.qty<=0)S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
 window.cartRemove=function(cid){ S.cart=S.cart.filter(x=>x.cid!==cid); render(); }
-window.placeOrder=function(){
+window.placeOrder=async function(){
   if(!S.cart.length)return;
+  // Checkout is the one refresh that is mandatory, not best-effort — this is the
+  // last chance to catch something that sold out mid-order. AVAILABILITY-PLAN §3.
+  if(MenuSource.live()){
+    toast(t('so_checking'));
+    await refreshMenu('checkout',true);
+    if(soldOutInCart().length){ render(); return; }   // banner now explains why
+  }
   const cond=cartCondiment(), total=cartItemsTotal()+cond;
   const d=new Date(), p2=n=>String(n).padStart(2,'0');
   const no='#'+String(S.orders.length+1).padStart(3,'0');
@@ -1115,7 +1246,16 @@ function scrOrders(){
   }
   const cp=M.condiment.price, items=cartItemsTotal(), cond=cartCondiment(), total=items+cond;
   const hasTBD=S.cart.some(c=>c.unit==null);
+  // Items that sold out while the customer was ordering. Never auto-removed —
+  // they are shown with a Remove action and checkout is blocked until resolved.
+  const sold=soldOutInCart();
+  const soldBanner = sold.length ? `<div class="sobanner">
+    <div class="sbt">${t('so_cart_t')}</div><div class="sbs">${t('so_cart_s')}</div>
+    ${sold.map(c=>`<div class="sbrow"><span>${c.title}</span>
+      <button onclick="cartRemove(${c.cid})">${t('so_remove')}</button></div>`).join('')}
+  </div>` : '';
   const cartSection = hasCart ? `
+    ${soldBanner}
     <div class="seclbl2" style="padding:10px 18px 0">${t('sec_cart')} <small>${t('sec_cart_sm',M.table)}</small></div>
     <div class="cartlist">${S.cart.map(cartRow).join('')}</div>
     <div class="cartsum">
@@ -1123,7 +1263,7 @@ function scrOrders(){
       ${cond>0?`<div class="srow"><span>${t('cond_fee',S.pax,money(cp))}</span><span>${money(cond)} ${C}</span></div>`:''}
       ${hasTBD?`<div class="srow tbd"><span>${t('tbd')}</span><span>${t('tbd_v')}</span></div>`:''}
       <div class="srow tot"><span>${t('total_line')}</span><span>${money(total)} ${C}</span></div></div>
-    <div class="cartcta"><button class="cta" onclick="placeOrder()">${t('place_total',money(total),C)}</button></div>` : '';
+    <div class="cartcta"><button class="cta ${sold.length?'disabled':''}" onclick="${sold.length?'':'placeOrder()'}">${t('place_total',money(total),C)}</button></div>` : '';
   const histSection = hasHist ? `
     <div class="seclbl2" style="padding:${hasCart?'20':'10'}px 18px 0">${t('sec_hist')} <small>ORDER HISTORY · ${S.orders.length}</small></div>
     <div class="histlist">${S.orders.map(orderCard).join('')}</div>` : '';
@@ -1177,6 +1317,7 @@ function boot(menu){
   C = M.currency;
   FISH = M.fish; BROTHS = M.broths;
   S.addonTab = M.addonCats[0];
+  reconcileSelections();
   mountShell();
   render();
 }

@@ -5,7 +5,8 @@ window.SEASPICE = {
  "condiment": {
   "cn": "调料（每位）",
   "en": "Condiments per Person",
-  "price": 3.5
+  "price": 3.5,
+  "plu": "0105"
  },
  "fish": [
   {
@@ -48,28 +49,28 @@ window.SEASPICE = {
    "cn": "牛油（全辣）",
    "en": "Spicy Butter",
    "img": "assets/icons/broth-spicy.png",
-   "plu": "0101"
+   "plu": "0120"
   },
   {
    "id": "orig",
    "cn": "原汤",
    "en": "Original Broth",
    "img": "assets/icons/broth-original.png",
-   "plu": "0201"
+   "plu": "0121"
   },
   {
    "id": "mush",
    "cn": "菌菇",
    "en": "Mushroom Broth",
    "img": "assets/icons/broth-mushroom.png",
-   "plu": ""
+   "plu": "1101"
   },
   {
    "id": "tom",
    "cn": "番茄",
    "en": "Tomato Broth",
    "img": "assets/icons/broth-tomato.png",
-   "plu": ""
+   "plu": "1102"
   }
  ],
  "addons": [
@@ -115,7 +116,7 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "assets/menu/1003.jpg",
-   "plu": ""
+   "plu": "1004"
   },
   {
    "id": "fp2",
@@ -126,7 +127,7 @@ window.SEASPICE = {
    "hot": true,
    "desc": "",
    "img": "assets/menu/1002.jpg",
-   "plu": ""
+   "plu": "1005"
   },
   {
    "id": "h1",
@@ -149,7 +150,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "手打新鲜鱼丸",
    "img": "assets/menu/0301.jpg",
-   "plu": "0301"
+   "plu": "0301",
+   "halfPrice": 9.5
   },
   {
    "id": "h3",
@@ -161,7 +163,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "野生黑边鲍",
    "img": "assets/menu/0306.jpg",
-   "plu": "0306"
+   "plu": "0306",
+   "halfPrice": 73
   },
   {
    "id": "h4",
@@ -173,7 +176,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "顶级和牛",
    "img": "assets/menu/0305.jpg",
-   "plu": "0305"
+   "plu": "0305",
+   "halfPrice": 45
   },
   {
    "id": "h5",
@@ -185,7 +189,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0326.jpg",
-   "plu": "0326"
+   "plu": "0326",
+   "halfPrice": 14.9
   },
   {
    "id": "h6",
@@ -197,7 +202,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0308.jpg",
-   "plu": "0308"
+   "plu": "0308",
+   "halfPrice": 9.9
   },
   {
    "id": "h7",
@@ -209,7 +215,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "鱼汤涮羊肉",
    "img": "assets/menu/0323.jpg",
-   "plu": "0323"
+   "plu": "0323",
+   "halfPrice": 7.5
   },
   {
    "id": "h8",
@@ -221,7 +228,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0324.jpg",
-   "plu": "0324"
+   "plu": "0324",
+   "halfPrice": 7.5
   },
   {
    "id": "h9",
@@ -233,7 +241,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0304.jpg",
-   "plu": "0304"
+   "plu": "0304",
+   "halfPrice": 6.5
   },
   {
    "id": "h10",
@@ -245,7 +254,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0303.jpg",
-   "plu": "0303"
+   "plu": "0303",
+   "halfPrice": 6.5
   },
   {
    "id": "h11",
@@ -257,7 +267,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0312.jpg",
-   "plu": "0312"
+   "plu": "0312",
+   "halfPrice": 8.5
   },
   {
    "id": "h12",
@@ -269,7 +280,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0320.jpg",
-   "plu": "0320"
+   "plu": "0320",
+   "halfPrice": 9.9
   },
   {
    "id": "h13",
@@ -281,7 +293,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0311.jpg",
-   "plu": "0311"
+   "plu": "0311",
+   "halfPrice": 8.5
   },
   {
    "id": "h14",
@@ -293,7 +306,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0310.jpg",
-   "plu": "0310"
+   "plu": "0310",
+   "halfPrice": 8.5
   },
   {
    "id": "h15",
@@ -305,7 +319,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0322.jpg",
-   "plu": "0322"
+   "plu": "0322",
+   "halfPrice": 8.5
   },
   {
    "id": "h16",
@@ -317,7 +332,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0309.jpg",
-   "plu": "0309"
+   "plu": "0309",
+   "halfPrice": 8.5
   },
   {
    "id": "h17",
@@ -329,7 +345,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0317.jpg",
-   "plu": "0317"
+   "plu": "0317",
+   "halfPrice": 4.9
   },
   {
    "id": "h18",
@@ -341,7 +358,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0319.jpg",
-   "plu": "0319"
+   "plu": "0319",
+   "halfPrice": 4.9
   },
   {
    "id": "h19",
@@ -353,7 +371,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0316.jpg",
-   "plu": "0316"
+   "plu": "0316",
+   "halfPrice": 4.9
   },
   {
    "id": "h20",
@@ -365,7 +384,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0313.jpg",
-   "plu": "0313"
+   "plu": "0313",
+   "halfPrice": 4.9
   },
   {
    "id": "h21",
@@ -374,7 +394,6 @@ window.SEASPICE = {
    "price": 9.8,
    "cat": "荤菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "plu": ""
   },
@@ -388,7 +407,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0325.jpg",
-   "plu": "0325"
+   "plu": "0325",
+   "halfPrice": 6.5
   },
   {
    "id": "h23",
@@ -400,7 +420,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0314.jpg",
-   "plu": "0314"
+   "plu": "0314",
+   "halfPrice": 4.5
   },
   {
    "id": "h24",
@@ -412,7 +433,8 @@ window.SEASPICE = {
    "half": true,
    "desc": "",
    "img": "assets/menu/0315.jpg",
-   "plu": "0315"
+   "plu": "0315",
+   "halfPrice": 4.9
   },
   {
    "id": "h25",
@@ -421,7 +443,6 @@ window.SEASPICE = {
    "price": 9.8,
    "cat": "荤菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0318.jpg",
    "plu": "0318"
@@ -433,7 +454,6 @@ window.SEASPICE = {
    "price": 9.8,
    "cat": "荤菜",
    "hot": false,
-   "half": true,
    "desc": "富含胶原蛋白",
    "img": "assets/menu/0327.jpg",
    "plu": "0327"
@@ -447,7 +467,9 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "assets/menu/0335.jpg",
-   "plu": "0335"
+   "plu": "0335",
+   "half": true,
+   "halfPrice": 13.5
   },
   {
    "id": "h28",
@@ -458,7 +480,9 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "assets/menu/0338.jpg",
-   "plu": "0338"
+   "plu": "0338",
+   "half": true,
+   "halfPrice": 4.9
   },
   {
    "id": "h29",
@@ -469,7 +493,9 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "assets/menu/0337.jpg",
-   "plu": "0337"
+   "plu": "0337",
+   "half": true,
+   "halfPrice": 7
   },
   {
    "id": "h30",
@@ -480,7 +506,9 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "assets/menu/0336.jpg",
-   "plu": "0336"
+   "plu": "0336",
+   "half": true,
+   "halfPrice": 6.5
   },
   {
    "id": "h31",
@@ -511,7 +539,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": true,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0404.jpg",
    "plu": "0404"
@@ -523,7 +550,6 @@ window.SEASPICE = {
    "price": 7.8,
    "cat": "素菜",
    "hot": true,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0403.jpg",
    "plu": "0403"
@@ -535,7 +561,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0434.jpg",
    "plu": "0434"
@@ -547,7 +572,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0402.jpg",
    "plu": "0402"
@@ -559,7 +583,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0401.jpg",
    "plu": "0401"
@@ -571,7 +594,6 @@ window.SEASPICE = {
    "price": 4.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0405.jpg",
    "plu": "0405"
@@ -583,7 +605,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0406.jpg",
    "plu": "0406"
@@ -595,7 +616,6 @@ window.SEASPICE = {
    "price": 9.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0407.jpg",
    "plu": "0407"
@@ -607,7 +627,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0409.jpg",
    "plu": "0409"
@@ -619,7 +638,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0410.jpg",
    "plu": "0410"
@@ -631,7 +649,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0411.jpg",
    "plu": "0411"
@@ -643,7 +660,6 @@ window.SEASPICE = {
    "price": 5.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0412.jpg",
    "plu": "0412"
@@ -655,7 +671,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0413.jpg",
    "plu": "0413"
@@ -667,7 +682,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0414.jpg",
    "plu": "0414"
@@ -679,7 +693,6 @@ window.SEASPICE = {
    "price": 4.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0415.jpg",
    "plu": "0415"
@@ -691,7 +704,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0408.jpg",
    "plu": "0408"
@@ -703,7 +715,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0422.jpg",
    "plu": "0422"
@@ -715,7 +726,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0419.jpg",
    "plu": "0419"
@@ -727,7 +737,6 @@ window.SEASPICE = {
    "price": 5.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0420.jpg",
    "plu": "0420"
@@ -739,7 +748,6 @@ window.SEASPICE = {
    "price": 5.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0417.jpg",
    "plu": "0417"
@@ -751,7 +759,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0435.jpg",
    "plu": "0435"
@@ -763,7 +770,6 @@ window.SEASPICE = {
    "price": 6.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0423.jpg",
    "plu": "0423"
@@ -775,7 +781,6 @@ window.SEASPICE = {
    "price": 7.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0424.jpg",
    "plu": "0424"
@@ -787,7 +792,6 @@ window.SEASPICE = {
    "price": 7.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0425.jpg",
    "plu": "0425"
@@ -799,7 +803,6 @@ window.SEASPICE = {
    "price": 8.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0426.jpg",
    "plu": "0426"
@@ -811,7 +814,6 @@ window.SEASPICE = {
    "price": 7.8,
    "cat": "素菜",
    "hot": false,
-   "half": true,
    "desc": "",
    "img": "assets/menu/0427.jpg",
    "plu": "0427"
@@ -820,7 +822,7 @@ window.SEASPICE = {
    "id": "s3",
    "cn": "阳春面",
    "en": "Yangchun Noodles",
-   "price": 9.8,
+   "price": 5.8,
    "cat": "素菜",
    "hot": false,
    "half": false,
@@ -831,7 +833,7 @@ window.SEASPICE = {
    "id": "s4",
    "cn": "年糕",
    "en": "Rice Cake",
-   "price": 8.8,
+   "price": 6.8,
    "cat": "素菜",
    "hot": false,
    "half": false,
@@ -848,7 +850,7 @@ window.SEASPICE = {
    "hot": false,
    "half": false,
    "desc": "",
-   "plu": ""
+   "plu": "0443"
   },
   {
    "id": "v27",
@@ -1255,7 +1257,7 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "",
-   "plu": ""
+   "plu": "0601"
   },
   {
    "id": "al2",
@@ -1266,7 +1268,7 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "",
-   "plu": ""
+   "plu": "0602"
   },
   {
    "id": "al3",
@@ -1277,7 +1279,7 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "",
-   "plu": ""
+   "plu": "0603"
   },
   {
    "id": "al4",
@@ -1288,7 +1290,7 @@ window.SEASPICE = {
    "hot": false,
    "desc": "",
    "img": "",
-   "plu": ""
+   "plu": "0604"
   },
   {
    "id": "k1",
@@ -1544,7 +1546,7 @@ window.SEASPICE = {
     }
    ],
    "time": "周一至周四 · 全天",
-   "plu": ""
+   "plu": "A02"
   },
   {
    "id": 2,
@@ -1866,7 +1868,7 @@ window.SEASPICE = {
     }
    ],
    "time": "周一至周四 · 全天",
-   "plu": ""
+   "plu": "A01"
   },
   {
    "id": 3,
@@ -1893,7 +1895,7 @@ window.SEASPICE = {
     "img": "assets/menu/0707.jpg"
    },
    "time": "午市 12:00–2:30 · 每日",
-   "plu": ""
+   "plu": "A03"
   },
   {
    "id": 4,
@@ -1920,7 +1922,7 @@ window.SEASPICE = {
     "img": "assets/menu/0707.jpg"
    },
    "time": "午市 12:00–2:30 · 每日",
-   "plu": ""
+   "plu": "A04"
   }
  ]
 };

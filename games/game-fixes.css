@@ -1,0 +1,14 @@
+/* Layout and accessibility fixes shared by the LabX Co demo games
+   (kept separate from each game's own look). */
+.bb-reveal{background:none;border:0;border-bottom:1px solid currentColor;color:#536072;font:500 13px/1.5 Inter,Arial,sans-serif;padding:8px 0;margin-top:4px;cursor:pointer}
+.bb-demo :focus-visible{outline:3px solid #2279b7;outline-offset:4px}
+.bb-standard input{font-size:16px}
+.bb-standard .stage{max-width:100%}
+.bb-standard .modal{position:relative;max-height:calc(100dvh - 40px);overflow:auto}
+.bb-catch .card,.bb-arcade .card{max-height:100%;overflow:auto}
+@media (max-width:400px){
+  body.bb-standard{padding-inline:12px}
+  .bb-standard .game{padding:25px 16px!important}
+  .bb-standard h1{font-size:23px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}

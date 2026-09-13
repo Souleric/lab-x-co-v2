@@ -72,7 +72,7 @@ class HeroOrbit extends HTMLElement {
 
     const resize = () => {
       const w = this.clientWidth, h = this.clientHeight; if (!w || !h) return;
-      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.z = 9 * Math.min(1.6, Math.max(1, 0.8 / camera.aspect)); camera.updateProjectionMatrix();
     };
     new ResizeObserver(resize).observe(this); resize();
 

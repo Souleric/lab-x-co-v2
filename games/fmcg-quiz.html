@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superfan Quiz — FMCG Demo | LabX Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#16324F;--coral:#FF6B5E;--mist:#F7F9FB;--slate:#5B6B7B;--line:#e7ecf1;--green:#25a06b;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:radial-gradient(circle at 50% 0%,#1f4266,#16324F);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.game{width:100%;max-width:460px;background:#fff;border-radius:26px;padding:30px 28px 34px;box-shadow:0 24px 60px rgba(0,0,0,.35);color:var(--navy)}
+.brandrow{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Poppins';font-weight:800;font-size:18px;margin-bottom:4px}
+.brandrow i{width:8px;height:8px;border-radius:50%;background:var(--coral);display:inline-block}
+.eyebrow{text-align:center;font-family:'Poppins';font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--coral);margin-bottom:16px}
+.progress{height:8px;background:var(--mist);border-radius:999px;overflow:hidden;margin-bottom:22px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),#ff9086);width:0;transition:width .4s}
+.qcount{font-family:'Poppins';font-weight:600;font-size:12px;color:var(--slate);text-align:center;margin-bottom:8px;letter-spacing:.05em}
+h1{font-family:'Poppins';font-weight:800;font-size:26px;text-align:center;margin-bottom:6px}
+.tag{text-align:center;color:var(--slate);font-size:14px;margin-bottom:24px}
+.q{font-family:'Poppins';font-weight:700;font-size:20px;margin-bottom:20px;min-height:56px}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{font-family:'Inter';font-weight:500;font-size:16px;text-align:left;color:var(--navy);background:var(--mist);border:2px solid var(--line);border-radius:14px;padding:15px 18px;cursor:pointer;transition:.15s}
+.opt:hover{border-color:var(--coral)}
+.opt.correct{background:#e7f7ef;border-color:var(--green);color:var(--green)}
+.opt.wrong{background:#fdeceb;border-color:var(--coral);color:var(--coral)}
+.opt:disabled{cursor:default}
+.btn{font-family:'Poppins';font-weight:700;font-size:16px;color:#fff;background:var(--navy);border:none;border-radius:999px;padding:14px 40px;cursor:pointer;margin-top:22px;width:100%;transition:.2s}
+.btn:hover{background:#1f4266}
+.hidden{display:none}
+.center{text-align:center}
+.score{font-family:'Poppins';font-weight:800;font-size:44px;color:var(--coral);margin:8px 0}
+.result-title{font-family:'Poppins';font-weight:800;font-size:24px;margin-bottom:8px}
+.result-msg{color:var(--slate);font-size:15px;margin-bottom:20px}
+.code{display:inline-block;background:var(--mist);border:2px dashed var(--coral);border-radius:12px;padding:12px 22px;font-family:'Poppins';font-weight:700;letter-spacing:.12em;color:var(--coral);font-size:18px}
+.sub{font-size:13px;color:var(--slate);margin-top:12px}
+.foot{margin-top:24px;font-size:11px;color:#9aa5b1;text-align:center}
+</style>
+</head>
+<body class="bb-demo bb-standard">
+<div class="game">
+  <div class="brandrow">LabX Co<i></i></div>
+  <div class="eyebrow">FMCG demo</div>
+
+  <div id="startScreen" class="center">
+    <h1>🛒 Superfan Quiz</h1>
+    <p class="tag">Answer 5 quick questions and unlock a reward. How well do you know your snacks?</p>
+    <button class="btn" id="startBtn">Start the quiz</button>
+  </div>
+
+  <div id="quizScreen" class="hidden">
+    <div class="qcount" id="qcount">Question 1 of 5</div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="q" id="question"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+
+  <div id="endScreen" class="hidden center" role="status" aria-live="polite">
+    <div class="result-title" id="endTitle"></div>
+    <div class="score" id="scoreLine"></div>
+    <div class="result-msg" id="endMsg"></div>
+    <div class="code" id="coupon"></div>
+    <div class="sub">Use this code at checkout or in-store.</div>
+    <button class="btn" id="againBtn">Play again</button>
+  </div>
+
+  <div class="foot">Demo game by LabX Co · questions &amp; rewards are client-editable</div>
+</div>
+<script>
+const QUESTIONS = [
+  { q:"What does 'FMCG' stand for?", a:["Fast-Moving Consumer Goods","Fresh Market Corner Grocery","Family Meal Combo Group","Frozen Meat &amp; Cold Goods"], c:0 },
+  { q:"Which is the best way to keep chips crispy after opening?", a:["Leave the bag open","Seal with a clip &amp; store cool","Put them in the fridge door","Add water"], c:1 },
+  { q:"'Limited edition' flavours are mainly used to…", a:["Use up old stock","Create buzz &amp; urgency","Raise prices quietly","Slow down sales"], c:1 },
+  { q:"Which channel drives the most FMCG impulse buys today?", a:["Newspaper ads","Short-form video &amp; creators","Fax","Radio jingles only"], c:1 },
+  { q:"A good loyalty reward should feel…", a:["Hard to earn","Instant &amp; worth it","Hidden","Expired"], c:1 }
+];
+let idx=0, score=0;
+const $=id=>document.getElementById(id);
+$('startBtn').onclick=()=>{ $('startScreen').classList.add('hidden'); $('quizScreen').classList.remove('hidden'); render(); };
+$('againBtn').onclick=()=>{ idx=0;score=0; $('endScreen').classList.add('hidden'); $('quizScreen').classList.remove('hidden'); render(); };
+function render(){
+  const item=QUESTIONS[idx];
+  $('qcount').textContent=`Question ${idx+1} of ${QUESTIONS.length}`;
+  $('bar').style.width=((idx)/QUESTIONS.length*100)+'%';
+  $('question').innerHTML=item.q;
+  const box=$('opts'); box.innerHTML="";
+  item.a.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.innerHTML=opt;
+    b.onclick=()=>choose(i,b);
+    box.appendChild(b);
+  });
+}
+function choose(i,btn){
+  const item=QUESTIONS[idx];
+  const all=[...document.querySelectorAll('.opt')];
+  all.forEach((b,j)=>{ b.disabled=true; if(j===item.c)b.classList.add('correct'); });
+  if(i===item.c){ score++; } else { btn.classList.add('wrong'); }
+  $('bar').style.width=((idx+1)/QUESTIONS.length*100)+'%';
+  setTimeout(()=>{ idx++; if(idx<QUESTIONS.length){ render(); } else { end(); } }, 900);
+}
+function end(){
+  $('quizScreen').classList.add('hidden'); $('endScreen').classList.remove('hidden');
+  $('scoreLine').textContent=`${score} / ${QUESTIONS.length}`;
+  let title,msg,code;
+  if(score>=4){ title="🏆 Superfan!"; msg="You really know your stuff. Here's your top reward:"; code="SUPER20"; }
+  else if(score>=2){ title="😄 Nice one!"; msg="Solid effort — enjoy a little something:"; code="TREAT10"; }
+  else { title="🙂 Thanks for playing!"; msg="Everyone's a winner here — grab this:"; code="HELLO5"; }
+  $('endTitle').textContent=title; $('endMsg').textContent=msg; $('coupon').textContent=code;
+}
+</script>
+</body>
+</html>

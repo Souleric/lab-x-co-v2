@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chef's Catch</title>
+<style>
+  :root{
+    --cream:#F7F9FB; --cream2:#E8EEF3; --gold:#FF6B5E; --gold-dk:#E04B3E;
+    --red:#16324F; --red-dk:#0F2438; --ink:#1B2A38; --shadow:0 10px 30px rgba(22,50,79,.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  body{
+    font-family:"Avenir Next","Nunito",ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+    background:var(--cream); color:var(--ink); touch-action:none;
+    -webkit-user-select:none;user-select:none;
+  }
+  #stage{position:fixed;inset:0;display:flex;flex-direction:column}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  /* ---------- HUD ---------- */
+  #hud{
+    position:absolute;top:0;left:0;right:0;z-index:5;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    pointer-events:none;opacity:0;transition:opacity .3s;
+  }
+  .pill{
+    background:rgba(255,255,255,.92);border:2px solid var(--gold);
+    border-radius:999px;padding:7px 16px;box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:8px;min-width:96px;justify-content:center;
+  }
+  .pill .lbl{font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--gold-dk);text-transform:uppercase}
+  .pill .val{font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--red)}
+  #timePill.low{border-color:var(--red);animation:pulse .5s infinite alternate}
+  #timePill.low .val{color:var(--red-dk)}
+  @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.07)}}
+
+  /* ---------- Overlays ---------- */
+  .overlay{
+    position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255,107,94,.14), transparent 55%),
+      linear-gradient(180deg, #FFFFFF 0%, #E9F0F5 100%);
+    transition:opacity .35s, visibility .35s;
+  }
+  .overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+  .card{
+    background:#fff;border-radius:28px;box-shadow:0 24px 60px rgba(22,50,79,.20);
+    padding:30px 26px 26px;max-width:400px;width:100%;text-align:center;
+    border:1px solid rgba(255,107,94,.32);
+    max-height:calc(100% - 8px);overflow:auto;
+  }
+  .logo{font-size:56px;line-height:1;filter:drop-shadow(0 6px 12px rgba(22,50,79,.25))}
+  h1{
+    font-size:clamp(30px,9vw,40px);font-weight:900;color:var(--red);
+    letter-spacing:-.02em;margin:8px 0 2px;
+  }
+  .resto{font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:16px}
+  .howto{
+    background:var(--cream2);border-radius:18px;padding:14px 16px;margin-bottom:14px;
+    font-size:14.5px;line-height:1.5;font-weight:600;color:#5b3b1e;text-wrap:pretty;
+  }
+  .legend{display:flex;gap:10px;margin-bottom:20px}
+  .legend .item{
+    flex:1;background:#fff;border:2px solid var(--cream2);border-radius:16px;padding:10px 6px 9px;
+    display:flex;flex-direction:column;gap:3px;align-items:center;
+  }
+  .legend .em{font-size:22px;line-height:1.2}
+  .legend .pts{font-size:13px;font-weight:900}
+  .pts.plus{color:#1F7A3D}.pts.minus{color:var(--red)}
+  .legend .sub{font-size:10px;font-weight:700;color:#a08055;letter-spacing:.05em;text-transform:uppercase}
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;
+    background:linear-gradient(180deg,#21496B 0%, var(--red) 55%, var(--red-dk) 100%);
+    color:#F7F9FB;font-family:inherit;font-size:20px;font-weight:900;letter-spacing:.01em;
+    padding:17px 20px;border-radius:999px;
+    box-shadow:0 8px 0 #0A1B2A, 0 18px 30px rgba(22,50,79,.35);
+    transition:transform .08s, box-shadow .08s;
+  }
+  .btn:active{transform:translateY(5px);box-shadow:0 3px 0 #0A1B2A, 0 8px 16px rgba(22,50,79,.3)}
+  .powered{margin-top:16px;font-size:11px;font-weight:700;color:#B99B6B;letter-spacing:.08em}
+
+  /* ---------- End screen ---------- */
+  #finalScore{
+    font-size:clamp(64px,22vw,96px);font-weight:900;line-height:1;color:var(--red);
+    font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:6px 0 0;
+  }
+  .scoreLbl{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dk)}
+  #rank{
+    display:inline-block;margin:14px 0 22px;background:var(--cream2);
+    border:2px solid var(--gold);border-radius:999px;padding:10px 22px;
+    font-size:19px;font-weight:900;color:#5b3b1e;
+  }
+  .pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body class="bb-demo bb-arcade bb-chef">
+<div id="stage">
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <div class="pill"><span class="lbl">Score</span><span class="val" id="scoreVal">0</span></div>
+    <div class="pill" id="timePill"><span class="lbl">Time</span><span class="val" id="timeVal">45</span></div>
+  </div>
+
+  <!-- Start screen -->
+  <div class="overlay" id="startScreen">
+    <div class="card">
+      <div class="logo" id="logoEmoji">👨‍🍳</div>
+      <h1 id="gameTitle">Chef's Catch</h1>
+      <div class="resto" id="restoName">LabX Co Bistro</div>
+      <div class="howto">Slide the bowl left &amp; right to <b>catch falling ingredients</b>. Drag anywhere, or use ◀︎ ▶︎ arrow keys. <b>Catch a bomb and it's game over!</b></div>
+      <div class="legend">
+        <div class="item"><span class="em">🍤 🦐 🥩</span><span class="pts plus">+20</span><span class="sub">Premium</span></div>
+        <div class="item"><span class="em">🥕 🧀 🍅</span><span class="pts plus">+10</span><span class="sub">Fresh</span></div>
+        <div class="item"><span class="em">💣</span><span class="pts minus">GAME OVER</span><span class="sub">Bomb!</span></div>
+      </div>
+      <button class="btn" id="startBtn">Start Cooking 🔥</button>
+      <div class="powered">Powered by LabX Co</div>
+    </div>
+  </div>
+
+  <!-- End screen -->
+  <div class="overlay hidden" id="endScreen">
+    <div class="card" id="endCard">
+      <div class="logo">🍽️</div>
+      <div class="scoreLbl" style="margin-top:10px">Final Score</div>
+      <div id="finalScore">0</div>
+      <div id="rank">🔥 Master Chef!</div>
+      <button class="btn" id="againBtn">Play Again 🍜</button>
+      <div class="powered">Powered by LabX Co</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ⚙️  CONFIG — rebrand the game here
+   ============================================================ */
+const CONFIG = {
+  restaurantName : "LabX Co Bistro",   // shown under the title
+  gameTitle      : "Chef's Catch",
+  logoEmoji      : "🍜",               // bowl mascot + start-screen logo
+
+  // Falling ingredients and their point values
+  ingredients : [
+    { emoji:"🍤", points:20 }, { emoji:"🦐", points:20 }, { emoji:"🥩", points:20 },
+    { emoji:"🍅", points:10 }, { emoji:"🥬", points:10 }, { emoji:"🍄", points:10 },
+    { emoji:"🧄", points:10 }, { emoji:"🥕", points:10 }, { emoji:"🧅", points:10 },
+    { emoji:"🥚", points:10 }, { emoji:"🌽", points:10 }, { emoji:"🧀", points:10 },
+  ],
+  bombEmoji      : "💣",
+  bombPenalty    : 15,      // (unused when bombs end the game — kept for rebrands)
+  bombChance     : 0.20,    // fraction of drops that are bombs
+  gameDuration   : 30,      // seconds
+  frenzy : {                // last-seconds panic mode
+    lastSeconds : 10,       // window before the end
+    speedBoost  : 1.5,      // fall speed ×1.5 in that window
+    nearBomb    : 0.5,      // fraction of frenzy food that spawns right beside a bomb
+  },
+
+  // Difficulty ramp (start → end of round)
+  fallSpeed      : { start: 0.30, end: 0.72 },  // screen-heights per second
+  spawnEvery     : { start: 0.85, end: 0.34 },  // seconds between drops
+
+  // Score ranks (checked top-down)
+  ranks : [
+    { min: 400, label: "🔥 Master Chef!" },
+    { min: 250, label: "👏 Great catch!" },
+    { min: 120, label: "😋 Nice cooking!" },
+    { min:   0, label: "🍳 Keep practising!" },
+  ],
+
+  // Theme colours
+  theme : {
+    cream:"#F7F9FB", gold:"#FF6B5E", red:"#16324F", ink:"#1B2A38",
+    plus:"#1F7A3D", minus:"#FF6B5E",
+  },
+};
+/* ============================================================ */
+
+// --- Apply branding ---
+document.getElementById("gameTitle").textContent = CONFIG.gameTitle;
+document.getElementById("restoName").textContent = CONFIG.restaurantName;
+document.getElementById("logoEmoji").textContent = CONFIG.logoEmoji;
+document.title = CONFIG.gameTitle;
+
+// --- DOM refs ---
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const hud = document.getElementById("hud");
+const scoreVal = document.getElementById("scoreVal");
+const timeVal = document.getElementById("timeVal");
+const timePill = document.getElementById("timePill");
+const startScreen = document.getElementById("startScreen");
+const endScreen = document.getElementById("endScreen");
+
+// --- Canvas sizing (crisp on retina, capped DPR for perf) ---
+let W = 0, H = 0, DPR = 1;
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  chef.y = H - Math.max(H * 0.055, 34) - chef.size * 0.5;
+  chef.x = Math.min(Math.max(chef.x, chef.half()), W - chef.half());
+}
+window.addEventListener("resize", resize);
+if (window.visualViewport) window.visualViewport.addEventListener("resize", resize);
+window.addEventListener("orientationchange", () => setTimeout(resize, 300));
+
+// --- Game state ---
+const state = { playing:false, score:0, timeLeft:CONFIG.gameDuration, elapsed:0, spawnTimer:0, shake:0 };
+const chef = {
+  x: window.innerWidth/2, y:0, targetX: window.innerWidth/2,
+  size: 0, squash: 0,
+  half(){ return this.size * 0.62; },
+};
+let items = [];    // falling things {x,y,vy,emoji,points,isBomb,spin,spinV,size}
+let pops = [];     // floating score texts {x,y,txt,color,age}
+let bursts = [];   // particles {x,y,vx,vy,age,emoji|color,size}
+const keys = { left:false, right:false };
+
+function itemSize(){ return Math.min(W, H) * 0.085 + 14; }
+function chefSize(){ return Math.min(W, H) * 0.13 + 22; }
+
+// --- Tiny synth sounds (no files) ---
+let AC = null;
+function initAudio(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state==="suspended") AC.resume(); }
+function beep(freq, dur, type, vol, slide){
+  if(!AC) return;
+  const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(slide, t+dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur);
+}
+const sfx = {
+  catch(premium){ beep(premium?740:560, .12, "sine", .18, premium?1180:880); },
+  bomb(){ beep(160, .28, "sawtooth", .22, 60); },
+  start(){ beep(440,.1,"sine",.15,660); setTimeout(()=>beep(660,.14,"sine",.15,880),90); },
+  end(){ beep(520,.15,"sine",.16); setTimeout(()=>beep(660,.15,"sine",.16),140); setTimeout(()=>beep(784,.3,"sine",.18),280); },
+};
+
+// --- Controls: drag anywhere (relative), arrows on desktop ---
+let dragging = false, dragStartX = 0, chefStartX = 0;
+function onDown(e){
+  if(!state.playing) return;
+  dragging = true;
+  dragStartX = (e.touches ? e.touches[0].clientX : e.clientX);
+  chefStartX = chef.targetX;
+}
+function onMove(e){
+  if(!dragging || !state.playing) return;
+  const x = (e.touches ? e.touches[0].clientX : e.clientX);
+  chef.targetX = chefStartX + (x - dragStartX) * 1.15; // slight amplification
+  e.preventDefault();
+}
+function onUp(){ dragging = false; }
+window.addEventListener("mousedown", onDown);
+window.addEventListener("mousemove", onMove);
+window.addEventListener("mouseup", onUp);
+window.addEventListener("touchstart", onDown, {passive:true});
+window.addEventListener("touchmove", onMove, {passive:false});
+window.addEventListener("touchend", onUp);
+window.addEventListener("keydown", e=>{
+  if(e.key==="ArrowLeft"){ keys.left = true; e.preventDefault(); }
+  if(e.key==="ArrowRight"){ keys.right = true; e.preventDefault(); }
+});
+window.addEventListener("keyup", e=>{
+  if(e.key==="ArrowLeft") keys.left = false;
+  if(e.key==="ArrowRight") keys.right = false;
+});
+
+// --- Spawning ---
+function lerp(a,b,t){ return a+(b-a)*t; }
+function difficulty(){ return Math.min(state.elapsed / CONFIG.gameDuration, 1); }
+function inFrenzy(){ return state.timeLeft <= CONFIG.frenzy.lastSeconds; }
+function makeItem(x, isBomb, vy){
+  const ing = CONFIG.ingredients[(Math.random()*CONFIG.ingredients.length)|0];
+  const size = itemSize() * (0.9 + Math.random()*0.25);
+  return {
+    x: Math.min(Math.max(x, size), W - size),
+    y: -size,
+    vy,
+    emoji: isBomb ? CONFIG.bombEmoji : ing.emoji,
+    points: isBomb ? 0 : ing.points,
+    isBomb, size,
+    spin: Math.random()*Math.PI*2, spinV: (Math.random()-.5)*3,
+  };
+}
+function spawnItem(){
+  let vy = lerp(CONFIG.fallSpeed.start, CONFIG.fallSpeed.end, difficulty()) * H * (0.9 + Math.random()*0.3);
+  if(inFrenzy()) vy *= CONFIG.frenzy.speedBoost;
+  const isBomb = Math.random() < CONFIG.bombChance;
+  const sz = itemSize();
+  // In the final seconds, some food drops right beside a bomb — tempting but risky
+  if(inFrenzy() && !isBomb && Math.random() < CONFIG.frenzy.nearBomb){
+    const x = sz*1.5 + Math.random() * (W - sz*3);
+    const side = Math.random() < .5 ? -1 : 1;
+    items.push(makeItem(x, false, vy));
+    items.push(makeItem(x + side * sz * 1.15, true, vy));
+    return;
+  }
+  items.push(makeItem(sz + Math.random() * (W - sz*2), isBomb, vy));
+}
+
+// --- Effects ---
+function addPop(x, y, txt, color){ pops.push({x, y, txt, color, age:0}); }
+function addBurst(x, y, isBomb){
+  const n = isBomb ? 10 : 7;
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, sp = (isBomb?260:180)*(0.4+Math.random()*0.8);
+    bursts.push({ x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-120, age:0,
+      isBomb, size:(isBomb?7:5)+Math.random()*5 });
+  }
+  if(isBomb){ bursts.push({x, y, vx:0, vy:-40, age:0, boom:true, size:itemSize()}); state.shake = 1; }
+}
+
+// --- Round flow ---
+function startGame(){
+  initAudio(); sfx.start();
+  state.playing = true; state.score = 0; state.elapsed = 0;
+  state.timeLeft = CONFIG.gameDuration; state.spawnTimer = 0.4; state.shake = 0;
+  items = []; pops = []; bursts = [];
+  chef.size = chefSize(); chef.x = chef.targetX = W/2;
+  resize();
+  scoreVal.textContent = "0"; timeVal.textContent = CONFIG.gameDuration;
+  timePill.classList.remove("low");
+  startScreen.classList.add("hidden");
+  endScreen.classList.add("hidden");
+  hud.style.opacity = 1;
+  last = performance.now();
+}
+function endGame(byBomb){
+  state.playing = false; dragging = false;
+  hud.style.opacity = 0;
+  if(byBomb) sfx.bomb(); else sfx.end();
+  document.querySelector("#endScreen .logo").textContent = byBomb ? "💥" : "🍽️";
+  document.querySelector("#endScreen .scoreLbl").textContent = byBomb ? "Boom! Final Score" : "Final Score";
+  document.getElementById("finalScore").textContent = state.score;
+  const rank = CONFIG.ranks.find(r => state.score >= r.min) || CONFIG.ranks[CONFIG.ranks.length-1];
+  document.getElementById("rank").textContent = rank.label;
+  const card = document.getElementById("endCard");
+  card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop");
+  endScreen.classList.remove("hidden");
+}
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("againBtn").addEventListener("click", startGame);
+
+// --- Main loop ---
+let last = performance.now();
+function frame(now){
+  requestAnimationFrame(frame);
+  let dt = (now - last) / 1000; last = now;
+  if(dt > 0.05) dt = 0.05; // clamp tab-switch spikes
+
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();
+
+  if(state.playing) update(dt);
+  drawItems(dt);
+  drawBursts(dt);
+  if(state.playing || items.length) drawChef(dt);
+  drawPops(dt);
+}
+
+function update(dt){
+  // timer
+  state.elapsed += dt;
+  state.timeLeft = Math.max(CONFIG.gameDuration - state.elapsed, 0);
+  const shown = Math.ceil(state.timeLeft);
+  if(timeVal.textContent != shown) timeVal.textContent = shown;
+  if(shown <= 10) timePill.classList.add("low");
+  if(state.timeLeft <= 0){ endGame(); return; }
+
+  // spawn
+  state.spawnTimer -= dt;
+  if(state.spawnTimer <= 0){
+    spawnItem();
+    state.spawnTimer = lerp(CONFIG.spawnEvery.start, CONFIG.spawnEvery.end, difficulty()) * (0.75 + Math.random()*0.5);
+  }
+
+  // chef movement
+  const keySpeed = W * 1.1;
+  if(keys.left)  chef.targetX -= keySpeed * dt;
+  if(keys.right) chef.targetX += keySpeed * dt;
+  chef.targetX = Math.min(Math.max(chef.targetX, chef.half()), W - chef.half());
+  chef.x += (chef.targetX - chef.x) * Math.min(dt * 18, 1); // smooth follow
+  chef.squash = Math.max(chef.squash - dt * 4, 0);
+  state.shake = Math.max(state.shake - dt * 3, 0);
+
+  // items + catching
+  const catchY = chef.y - chef.size * 0.15;
+  for(let i = items.length - 1; i >= 0; i--){
+    const it = items[i];
+    it.y += it.vy * dt;
+    it.spin += it.spinV * dt;
+    const caught = Math.abs(it.y - catchY) < chef.size * 0.42 &&
+                   Math.abs(it.x - chef.x) < chef.half() + it.size * 0.25;
+    if(caught){
+      items.splice(i, 1);
+      if(it.isBomb){
+        addBurst(it.x, catchY, true);
+        endGame(true);
+        return;
+      }else{
+        state.score += it.points;
+        addPop(it.x, catchY - 10, "+" + it.points, CONFIG.theme.plus);
+        addBurst(it.x, catchY, false);
+        sfx.catch(it.points >= 20);
+      }
+      chef.squash = 1;
+      scoreVal.textContent = state.score;
+    } else if(it.y > H + it.size){
+      items.splice(i, 1);
+    }
+  }
+}
+
+// --- Drawing ---
+function drawBackground(){
+  // warm gradient + subtle "steam" dots
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "#FFFFFF"); g.addColorStop(0.7, CONFIG.theme.cream); g.addColorStop(1, "#E4EBF2");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // counter / floor
+  const floorH = Math.max(H * 0.055, 34);
+  ctx.fillStyle = CONFIG.theme.red;
+  ctx.fillRect(0, H - floorH, W, floorH);
+  ctx.fillStyle = "rgba(255,255,255,.20)";
+  ctx.fillRect(0, H - floorH, W, 5);
+  // coral checker trim on the counter
+  ctx.fillStyle = "rgba(255,107,94,.60)";
+  const s = 14;
+  for(let x = 0; x < W; x += s * 2) ctx.fillRect(x, H - floorH + 12, s, s * 0.5);
+}
+
+function drawChef(dt){
+  if(!chef.size) { chef.size = chefSize(); resize(); }
+  const sq = chef.squash;
+  const sx = 1 + sq * 0.18, sy = 1 - sq * 0.18;
+  const shakeX = (Math.random()-.5) * state.shake * 10;
+  const shakeY = (Math.random()-.5) * state.shake * 10;
+  ctx.save();
+  ctx.translate(chef.x + shakeX, chef.y + shakeY);
+  // shadow
+  ctx.fillStyle = "rgba(59,36,18,.18)";
+  ctx.beginPath();
+  ctx.ellipse(0, chef.size * 0.52, chef.half() * 0.9, chef.size * 0.12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // plate under the chef
+  ctx.fillStyle = "#fff";
+  ctx.strokeStyle = CONFIG.theme.gold; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.ellipse(0, chef.size * 0.42, chef.half() * 1.08, chef.size * 0.14, 0, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  // chef emoji
+  ctx.scale(sx, sy);
+  ctx.font = chef.size + "px system-ui, sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(CONFIG.logoEmoji, 0, 0);
+  ctx.restore();
+}
+
+function drawItems(dt){
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for(const it of items){
+    ctx.save();
+    ctx.translate(it.x, it.y);
+    ctx.rotate(Math.sin(it.spin) * 0.35);
+    ctx.font = it.size + "px system-ui, sans-serif";
+    if(it.isBomb){
+      // warning glow
+      ctx.shadowColor = "rgba(192,57,43,.85)"; ctx.shadowBlur = 16;
+    }
+    ctx.fillText(it.emoji, 0, 0);
+    ctx.restore();
+  }
+}
+
+function drawPops(dt){
+  for(let i = pops.length - 1; i >= 0; i--){
+    const p = pops[i];
+    p.age += dt;
+    if(p.age > 0.9){ pops.splice(i, 1); continue; }
+    const t = p.age / 0.9;
+    const scale = t < 0.15 ? 0.5 + t/0.15*0.6 : 1.1 - (t-0.15)*0.15;
+    ctx.save();
+    ctx.globalAlpha = 1 - Math.max(t - 0.5, 0) * 2;
+    ctx.translate(p.x, p.y - t * 70);
+    ctx.scale(scale, scale);
+    ctx.font = "900 26px " + getComputedStyle(document.body).fontFamily;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.lineWidth = 5; ctx.strokeStyle = "rgba(255,255,255,.9)";
+    ctx.strokeText(p.txt, 0, 0);
+    ctx.fillStyle = p.color;
+    ctx.fillText(p.txt, 0, 0);
+    ctx.restore();
+  }
+}
+
+function drawBursts(dt){
+  for(let i = bursts.length - 1; i >= 0; i--){
+    const b = bursts[i];
+    b.age += dt;
+    const life = b.boom ? 0.35 : 0.55;
+    if(b.age > life){ bursts.splice(i, 1); continue; }
+    const t = b.age / life;
+    b.x += b.vx * dt; b.y += b.vy * dt; b.vy += 700 * dt;
+    ctx.save();
+    ctx.globalAlpha = 1 - t;
+    if(b.boom){
+      ctx.translate(b.x, b.y);
+      const s = b.size * (1 + t * 1.6);
+      ctx.font = s + "px system-ui, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("💥", 0, 0);
+    }else{
+      ctx.fillStyle = b.isBomb ? (Math.random() < .5 ? "#FF6B5E" : "#5B6B7B") : (Math.random() < .5 ? CONFIG.theme.gold : "#FF9E95");
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.size * (1 - t * 0.6), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+// --- Boot ---
+chef.size = chefSize();
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scratch &amp; Win — Event Demo | LabX Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#16324F;--coral:#FF6B5E;--mist:#F7F9FB;--slate:#5B6B7B;--gold:#F5B301;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:radial-gradient(circle at 50% 0%,#1f4266,#16324F);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;color:#fff}
+.game{width:100%;max-width:440px;background:#fff;border-radius:26px;padding:30px 26px 34px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);color:var(--navy)}
+.brandrow{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Poppins';font-weight:800;font-size:18px;margin-bottom:4px}
+.brandrow i{width:8px;height:8px;border-radius:50%;background:var(--coral);display:inline-block}
+.eyebrow{font-family:'Poppins';font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--coral);margin-bottom:14px}
+h1{font-family:'Poppins';font-weight:800;font-size:26px;margin-bottom:6px}
+.tag{color:var(--slate);font-size:14px;margin-bottom:22px}
+.card-wrap{position:relative;width:320px;height:200px;margin:0 auto 22px;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(22,50,79,.25)}
+.prize-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--mist),#fff);padding:16px}
+.prize-emoji{font-size:44px;margin-bottom:6px}
+.prize-label{font-family:'Poppins';font-weight:800;font-size:24px;color:var(--navy)}
+.prize-sub{font-size:13px;color:var(--slate);margin-top:4px}
+canvas{position:absolute;inset:0;width:320px;height:200px;touch-action:none;cursor:grab}
+.hint{font-family:'Poppins';font-weight:600;font-size:13px;color:var(--slate);margin-bottom:8px;min-height:18px}
+.code{display:inline-block;margin-top:6px;background:var(--mist);border:2px dashed var(--coral);border-radius:12px;padding:10px 20px;font-family:'Poppins';font-weight:700;letter-spacing:.12em;color:var(--coral)}
+.btn{font-family:'Poppins';font-weight:700;font-size:15px;color:#fff;background:var(--navy);border:none;border-radius:999px;padding:12px 32px;cursor:pointer;margin-top:16px;transition:.2s}
+.btn:hover{background:#1f4266}
+.hidden{display:none}
+.reveal{animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.foot{margin-top:22px;font-size:11px;color:#9aa5b1}
+</style>
+</head>
+<body class="bb-demo bb-standard">
+<div class="game">
+  <div class="brandrow">LabX Co<i></i></div>
+  <div class="eyebrow">Event demo</div>
+  <h1>🎪 Scratch &amp; Win</h1>
+  <p class="tag">Scratch the card to reveal your booth prize!</p>
+  <div class="hint" id="hint" role="status" aria-live="polite">👆 Scratch with your finger or mouse</div>
+  <div class="card-wrap">
+    <div class="prize-layer" id="prizeLayer">
+      <div class="prize-emoji" id="pEmoji">🎁</div>
+      <div class="prize-label" id="pLabel"></div>
+      <div class="prize-sub" id="pSub"></div>
+    </div>
+    <canvas id="scratch" width="640" height="400"></canvas>
+  </div>
+  <button class="bb-reveal" type="button" onclick="doReveal()">Reveal reward without scratching</button>
+  <div id="codeWrap" class="hidden"><span class="code" id="code"></span></div>
+  <button class="btn hidden" id="againBtn">New card</button>
+  <div class="foot">Demo game by LabX Co · prizes are client-configurable</div>
+</div>
+<script>
+const PRIZES=[
+  {emoji:"🎧",label:"Free Merch",sub:"Claim at the booth",code:"MERCH1"},
+  {emoji:"☕",label:"Free Coffee",sub:"Redeem today only",code:"BREW"},
+  {emoji:"🎟️",label:"VIP Upgrade",sub:"Show staff to redeem",code:"VIPUP"},
+  {emoji:"💯",label:"20% Voucher",sub:"For our online store",code:"EVENT20"},
+  {emoji:"🎁",label:"Mystery Gift",sub:"Collect at counter",code:"MYSTERY"}
+];
+const canvas=document.getElementById('scratch'), ctx=canvas.getContext('2d');
+let drawing=false, revealed=false, prize;
+function setPrize(){
+  prize=PRIZES[Math.floor(Math.random()*PRIZES.length)];
+  document.getElementById('pEmoji').textContent=prize.emoji;
+  document.getElementById('pLabel').textContent=prize.label;
+  document.getElementById('pSub').textContent=prize.sub;
+}
+function foil(){
+  ctx.globalCompositeOperation='source-over';
+  const g=ctx.createLinearGradient(0,0,640,400);
+  g.addColorStop(0,'#5B6B7B'); g.addColorStop(.5,'#8ea0b3'); g.addColorStop(1,'#5B6B7B');
+  ctx.fillStyle=g; ctx.fillRect(0,0,640,400);
+  ctx.fillStyle='rgba(255,255,255,.85)'; ctx.font="700 34px Poppins, sans-serif";
+  ctx.textAlign='center'; ctx.fillText("SCRATCH HERE", 320, 210);
+  ctx.font="600 22px Poppins, sans-serif"; ctx.fillText("✨ ✨ ✨", 320, 160);
+  ctx.globalCompositeOperation='destination-out';
+}
+function pos(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return { x:(t.clientX-r.left)*(canvas.width/r.width), y:(t.clientY-r.top)*(canvas.height/r.height) };
+}
+function scratch(e){
+  if(!drawing||revealed)return; e.preventDefault();
+  const p=pos(e);
+  ctx.beginPath(); ctx.arc(p.x,p.y,34,0,Math.PI*2); ctx.fill();
+  checkProgress();
+}
+function checkProgress(){
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  let clear=0; for(let i=3;i<img.length;i+=4*40){ if(img[i]===0)clear++; }
+  const total=img.length/(4*40);
+  if(clear/total>0.5){ doReveal(); }
+}
+function doReveal(){
+  revealed=true;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  canvas.classList.add('hidden');
+  document.getElementById('hint').textContent="🎉 You won!";
+  document.getElementById('prizeLayer').classList.add('reveal');
+  const cw=document.getElementById('codeWrap'); cw.classList.remove('hidden');
+  document.getElementById('code').textContent=prize.code;
+  document.getElementById('againBtn').classList.remove('hidden');
+}
+['mousedown','touchstart'].forEach(ev=>canvas.addEventListener(ev,e=>{drawing=true;scratch(e);}));
+['mousemove','touchmove'].forEach(ev=>canvas.addEventListener(ev,scratch,{passive:false}));
+['mouseup','mouseleave','touchend'].forEach(ev=>canvas.addEventListener(ev,()=>drawing=false));
+document.getElementById('againBtn').onclick=()=>{
+  revealed=false; canvas.classList.remove('hidden');
+  document.getElementById('codeWrap').classList.add('hidden');
+  document.getElementById('againBtn').classList.add('hidden');
+  document.getElementById('hint').textContent="👆 Scratch with your finger or mouse";
+  document.getElementById('prizeLayer').classList.remove('reveal');
+  setPrize(); foil();
+};
+setPrize(); foil();
+</script>
+</body>
+</html>

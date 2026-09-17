@@ -98,7 +98,7 @@
   .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 18px 8px}
   .card{background:linear-gradient(180deg,rgba(106,16,24,.9),rgba(74,10,17,.8));border:1px solid var(--line);border-radius:16px;padding:0;cursor:pointer;display:flex;flex-direction:column;position:relative;overflow:hidden}
   .card:active{border-color:var(--line2)}
-  .card .cimg{width:100%;height:116px;object-fit:cover;display:block;background:#2a1012}
+  .card .cimg{width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;object-position:50% 45%;display:block;background:#2a1012}
   .card .cimg-wrap{position:relative}
   .card .cimg-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(74,10,17,0) 55%,rgba(74,10,17,.85))}
   .card .cbody{padding:12px 15px 15px;display:flex;flex-direction:column;gap:3px;flex:1}
@@ -125,7 +125,7 @@
   .pkgrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 18px 6px}
   .pkgcard{background:linear-gradient(180deg,rgba(106,16,24,.92),rgba(74,10,17,.82));border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;position:relative}
   .pkgcard:active{border-color:var(--line2)}
-  .pkgcard .pimg{width:100%;height:112px;object-fit:cover;display:block}
+  .pkgcard .pimg{width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;object-position:50% 45%;display:block}
   .pkgcard .pb{padding:11px 13px 13px}
   .pkgcard .pcn{font-size:16px;font-weight:700;color:var(--gold2)}
   .pkgcard .pen{font-family:var(--cor);font-size:11px;color:var(--muted2);letter-spacing:.5px}
@@ -244,7 +244,7 @@
   .acat-h img{width:24px;height:24px;object-fit:contain}
   .agrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 18px}
   .acard{background:linear-gradient(180deg,rgba(106,16,24,.8),rgba(74,10,17,.6));border:1px solid var(--line);border-radius:15px;padding:12px;display:flex;flex-direction:column;gap:4px;position:relative}
-  .acard .ai{width:100%;height:78px;border-radius:10px;object-fit:cover;background:rgba(0,0,0,.3)}
+  .acard .ai{width:100%;aspect-ratio:1/1;height:auto;border-radius:10px;object-fit:cover;object-position:50% 45%;background:rgba(0,0,0,.3)}
   .acard .aemoji{width:100%;height:78px;border-radius:10px;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:34px}
   .acard .an{font-size:14px;font-weight:700;color:var(--cream);margin-top:4px;line-height:1.2}
   .acard .ae{font-family:var(--cor);font-size:11px;color:var(--muted2)}

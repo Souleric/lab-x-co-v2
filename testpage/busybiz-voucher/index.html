@@ -12,15 +12,14 @@
 <style>
   :root{ --navy:#16324F; --coral:#FF6B5E; --mist:#F7F9FB; --slate:#5B6B7B; --coral-soft:#FFEFED; }
   *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body{ height:100%; }
   body{
     font-family:'Inter',sans-serif; color:var(--navy);
     background:radial-gradient(circle at 50% 0%, #1f4266, #16324F);
-    min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:18px 12px;
+    min-height:100dvh; display:flex; justify-content:center; padding:18px 12px 28px;
   }
   .card{
     background:#fff; border-radius:26px; box-shadow:0 24px 60px rgba(0,0,0,.35);
-    width:100%; max-width:460px; padding:22px 20px 18px;
+    width:100%; max-width:460px; padding:22px 20px 18px; align-self:flex-start;
   }
   .brandrow{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
   .brand{ font-family:'Poppins',sans-serif; font-weight:800; font-size:17px; letter-spacing:-.02em; }
@@ -31,18 +30,41 @@
   }
   h1{ font-family:'Poppins',sans-serif; font-weight:800; font-size:24px; letter-spacing:-.02em; margin:10px 0 2px; }
   .sub{ color:var(--slate); font-size:13.5px; line-height:1.5; margin-bottom:16px; }
-  .games{ display:grid; gap:10px; margin-bottom:14px; }
+
+  .games{ display:grid; gap:12px; margin-bottom:14px; }
   .game{
-    display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;
-    background:var(--mist); border-radius:16px; padding:14px 14px;
-    border:2px solid transparent; transition:border-color .12s ease, transform .12s ease;
+    display:block; text-decoration:none; color:inherit;
+    background:var(--mist); border-radius:18px; overflow:hidden;
+    border:2px solid transparent;
+    transition:border-color .12s ease, transform .12s ease, box-shadow .12s ease;
   }
-  .game:hover{ border-color:var(--coral); }
-  .game:active{ transform:scale(.98); }
-  .game .ic{ font-size:30px; line-height:1; width:38px; text-align:center; }
-  .game b{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; display:block; }
-  .game span{ font-size:12px; color:var(--slate); }
-  .game .go{ margin-left:auto; color:var(--coral); font-weight:700; font-size:18px; }
+  .game:hover{ border-color:var(--coral); box-shadow:0 10px 24px rgba(22,50,79,.12); }
+  .game:active{ transform:scale(.985); }
+  .thumb{
+    position:relative; aspect-ratio:16/9; overflow:hidden;
+    background:#eef2f6;
+  }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(22,50,79,0) 55%, rgba(22,50,79,.22) 100%);
+    pointer-events:none;
+  }
+  .tag{
+    position:absolute; top:10px; left:10px; z-index:1;
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+    color:#fff; background:rgba(22,50,79,.78); padding:5px 9px; border-radius:999px;
+  }
+  .meta{ display:flex; align-items:center; gap:12px; padding:12px 14px 13px; }
+  .meta .ic{ font-size:26px; line-height:1; width:32px; text-align:center; }
+  .meta b{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; display:block; }
+  .meta span{ font-size:12px; color:var(--slate); }
+  .play{
+    margin-left:auto; flex:none;
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:12px;
+    color:#fff; background:var(--coral); padding:8px 14px; border-radius:999px;
+    box-shadow:0 6px 14px rgba(255,107,94,.35);
+  }
   .footer{ text-align:center; font-size:11px; color:var(--slate); margin-top:4px; }
 </style>
 </head>
@@ -50,34 +72,30 @@
 <div class="card">
   <div class="brandrow">
     <div class="brand">busy biz<span class="dot">.</span></div>
-    <div class="eyebrow" id="eyebrow">Play &amp; Win</div>
+    <div class="eyebrow">Play &amp; Win</div>
   </div>
 
-  <h1 id="title">Pick a game</h1>
+  <h1>Pick a game</h1>
   <p class="sub" id="sub">Play for 30 seconds and we'll email you a voucher to use on your next visit.</p>
 
   <div class="games">
     <a class="game" href="kitchen-rush.html">
-      <span class="ic">⏱️</span>
-      <div><b>Kitchen Rush</b><span>Tap the right ingredients before time runs out</span></div>
-      <span class="go">→</span>
+      <div class="thumb"><span class="tag">⏱ 30 sec · Tap</span><img src="thumbs/kitchen-rush.jpg" alt="Kitchen Rush: an order ticket and a tray of ingredients" style="object-position:50% 58%"></div>
+      <div class="meta"><span class="ic">🧾</span><div><b>Kitchen Rush</b><span>Tap the right ingredients before time runs out</span></div><span class="play">Play</span></div>
     </a>
     <a class="game" href="build-your-dish.html">
-      <span class="ic">🍔</span>
-      <div><b>Build Your Dish</b><span>Drag ingredients onto the plate</span></div>
-      <span class="go">→</span>
+      <div class="thumb"><span class="tag">No timer · Drag</span><img src="thumbs/build-your-dish.jpg" alt="Build Your Dish: ingredients stacked on a plate" style="object-position:50% 80%"></div>
+      <div class="meta"><span class="ic">🍔</span><div><b>Build Your Dish</b><span>Drag ingredients onto the plate</span></div><span class="play">Play</span></div>
     </a>
     <a class="game" href="catch-the-food.html">
-      <span class="ic">🍽️</span>
-      <div><b>Catch the Falling Food</b><span>Slide the plate, dodge the burnt bits</span></div>
-      <span class="go">→</span>
+      <div class="thumb"><span class="tag">⏱ 30 sec · Slide</span><img src="thumbs/catch-the-food.jpg" alt="Catch the Falling Food: food falling towards a plate" style="object-position:50% 100%"></div>
+      <div class="meta"><span class="ic">🍽️</span><div><b>Catch the Falling Food</b><span>Slide the plate, dodge the burnt bits</span></div><span class="play">Play</span></div>
     </a>
   </div>
 
   <div class="footer">One voucher per customer · Demo by Busy Biz Solution</div>
 </div>
 <script>
-  // Optional: name the restaurant on the player page via CLIENT_NAME in leads-config.js
   (function(){
     var cfg = window.LEAD_DEMO || {};
     if (cfg.CLIENT_NAME && cfg.CLIENT_NAME !== "Your Restaurant"){

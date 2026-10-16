@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>How the Voucher Demo Works — Busy Biz Solution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="leads-config.js"></script>
+<style>
+  :root{
+    --navy:#16324F; --coral:#FF6B5E; --mist:#F7F9FB; --slate:#5B6B7B;
+    --coral-soft:#FFEFED; --green:#2FA36B; --amber:#B45309; --amber-soft:#FFF4E5;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:'Inter',sans-serif; color:var(--navy);
+    background:radial-gradient(circle at 50% 0%, #1f4266, #16324F);
+    min-height:100dvh; padding:24px 16px 40px;
+    display:flex; justify-content:center;
+  }
+  .wrap{ width:100%; max-width:520px; }
+  .card{
+    background:#fff; border-radius:26px; box-shadow:0 24px 60px rgba(0,0,0,.35);
+    padding:22px 20px; margin-bottom:16px;
+  }
+  .brandrow{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .brand{ font-family:'Poppins',sans-serif; font-weight:800; font-size:17px; letter-spacing:-.02em; }
+  .brand .dot{ color:var(--coral); }
+  .eyebrow{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--coral); background:var(--coral-soft);
+    padding:5px 10px; border-radius:999px;
+  }
+  h1{ font-family:'Poppins',sans-serif; font-weight:800; font-size:24px; letter-spacing:-.02em; margin:10px 0 4px; }
+  h2{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:10px; }
+  p.sub{ color:var(--slate); font-size:13.5px; line-height:1.5; margin-bottom:14px; }
+  .private{
+    background:var(--amber-soft); color:var(--amber); font-size:12px; font-weight:600;
+    border-radius:12px; padding:9px 12px; margin-bottom:14px; line-height:1.4;
+  }
+  .status{
+    display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600;
+    border-radius:12px; padding:10px 12px; margin-bottom:14px;
+  }
+  .status .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .status.ok{ background:#EAF7F0; color:var(--green); }   .status.ok .dot{ background:var(--green); }
+  .status.warn{ background:var(--amber-soft); color:var(--amber); } .status.warn .dot{ background:var(--amber); }
+  .status small{ font-weight:500; color:inherit; opacity:.85; }
+
+  .games{ display:grid; gap:10px; }
+  .game{
+    display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;
+    background:var(--mist); border-radius:16px; padding:12px 14px;
+    border:2px solid transparent; transition:border-color .12s ease, transform .12s ease;
+  }
+  .game:hover{ border-color:var(--coral); }
+  .game:active{ transform:scale(.98); }
+  .game .ic{ font-size:28px; line-height:1; }
+  .game b{ font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; display:block; }
+  .game span{ font-size:12px; color:var(--slate); }
+  .game .go{ margin-left:auto; color:var(--coral); font-weight:700; }
+
+  .steps{ counter-reset:s; display:grid; gap:10px; }
+  .rule{ font-size:13px; color:var(--slate); line-height:1.45; }
+  .rule b{ color:var(--navy); }
+  .step{ display:flex; gap:10px; font-size:13px; color:var(--slate); line-height:1.45; }
+  .step::before{
+    counter-increment:s; content:counter(s);
+    width:22px; height:22px; border-radius:50%; flex:none;
+    background:var(--coral); color:#fff; font-family:'Poppins',sans-serif; font-weight:700;
+    font-size:12px; display:flex; align-items:center; justify-content:center;
+  }
+  .step b{ color:var(--navy); }
+
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td{ text-align:left; padding:8px 6px; border-bottom:1px solid #eef1f4; vertical-align:top; }
+  th{ font-family:'Poppins',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); }
+  td code{ font-family:ui-monospace,Menlo,monospace; font-size:11.5px; background:var(--mist); padding:2px 5px; border-radius:6px; }
+
+  .btn{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; border:none;
+    border-radius:999px; padding:13px 20px; width:100%; cursor:pointer; text-decoration:none;
+    display:block; text-align:center; transition:transform .12s ease;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-coral{ background:var(--coral); color:#fff; box-shadow:0 10px 22px rgba(255,107,94,.35); }
+  .btn-ghost{ background:var(--mist); color:var(--navy); margin-top:10px; }
+  .btn:disabled{ opacity:.55; cursor:wait; }
+  .btn.disabledLink{ opacity:.45; pointer-events:none; }
+  .note{ font-size:12px; color:var(--slate); text-align:center; margin-top:10px; min-height:16px; line-height:1.4; }
+  .footer{ text-align:center; font-size:11px; color:rgba(255,255,255,.6); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <div class="brandrow">
+      <div class="brand">busy biz<span class="dot">.</span></div>
+      <div class="eyebrow">Voucher Demo · Info</div>
+    </div>
+    <h1>Play. Enter your email. Get a numbered voucher.</h1>
+    <p class="sub" id="intro">Each game asks the player for a name and email. A voucher with a running number is emailed to them straight away, and every voucher is logged in a Google Sheet.</p>
+
+    <div class="private">🔒 Private demo page. It is not linked from anywhere and is marked no-index, so search engines will not list it.</div>
+
+    <div class="status warn" id="status"><span class="dot"></span><span>Checking the Google Sheet connection…</span></div>
+
+    <div class="games">
+      <a class="game" href="kitchen-rush.html">
+        <span class="ic">⏱️</span>
+        <div><b>Kitchen Rush</b><span>Tap the right ingredients before time runs out</span></div>
+        <span class="go">→</span>
+      </a>
+      <a class="game" href="build-your-dish.html">
+        <span class="ic">🍔</span>
+        <div><b>Build Your Dish</b><span>Drag ingredients onto the plate</span></div>
+        <span class="go">→</span>
+      </a>
+      <a class="game" href="catch-the-food.html">
+        <span class="ic">🍽️</span>
+        <div><b>Catch the Falling Food</b><span>Slide the plate, dodge the burnt bits</span></div>
+        <span class="go">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step"><span>The customer plays a 30-second game on their phone, from a QR code on the table, a receipt or a social post.</span></div>
+      <div class="step"><span>At the end they enter <b>name + email</b> and tick a consent box.</span></div>
+      <div class="step"><span>The system checks the email hasn't claimed before, gives the next <b>running number</b> (BB-0001, BB-0002 …) and <b>emails the voucher</b> from the restaurant's Gmail.</span></div>
+      <div class="step"><span>At the counter, staff type the code into the <b>redemption page</b>. It shows who it belongs to and marks it used, so a voucher can't be used twice.</span></div>
+      <div class="step"><span>Every voucher is a row in <b>your Google Sheet</b>: who, when, which game, sent, redeemed.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Rules built in</h2>
+    <div class="steps" style="counter-reset:none">
+      <div class="rule">✅ <b>One voucher per email.</b> Gmail tricks like dots and “+tags” count as the same address. A repeat player gets their original voucher re-sent instead.</div>
+      <div class="rule">✅ <b>Running number</b> on every voucher, never reused, even if rows are deleted.</div>
+      <div class="rule">✅ <b>Expiry</b> 30 days after issue, printed in the email and enforced at redemption.</div>
+      <div class="rule">✅ <b>Single use.</b> Redeeming marks the row, and a second attempt is refused.</div>
+      <div class="rule">✅ <b>Optional cap</b> on the total number of vouchers for a campaign.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What gets collected</h2>
+    <table>
+      <tr><th>Column</th><th>Example</th></tr>
+      <tr><td>Voucher no / Code</td><td>42 · <code>BB-0042</code></td></tr>
+      <tr><td>Tier / Reward</td><td><code>RUSH15</code> · Sous chef! 15% off your next order</td></tr>
+      <tr><td>Name / Email</td><td>Aisyah Rahman · aisyah@example.com</td></tr>
+      <tr><td>Game / Result</td><td>Kitchen Rush · 9 orders served</td></tr>
+      <tr><td>Issued / Expires</td><td>16 Oct 2026 19:42 · 15 Nov 2026</td></tr>
+      <tr><td>Email sent</td><td>Sent</td></tr>
+      <tr><td>Redeemed / at</td><td>☑ · 18 Oct 2026 12:30</td></tr>
+      <tr><td>Device / Page</td><td>iPhone · Safari · which game link they used</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Try it live</h2>
+    <p class="sub">Send yourself a voucher without playing. It goes through exactly the same path as the games: dedupe, running number, email, sheet row.</p>
+    <input type="email" id="testEmail" placeholder="your@email.com" autocomplete="email"
+           style="width:100%;font-family:'Inter',sans-serif;font-size:15px;border:1.5px solid #d5dde5;border-radius:12px;padding:12px 14px;margin-bottom:10px;outline:none;color:var(--navy);">
+    <button class="btn btn-coral" id="testBtn">Send me a test voucher</button>
+    <div class="note" id="testNote"></div>
+    <a class="btn btn-ghost disabledLink" id="sheetLink" href="#" target="_blank" rel="noopener">Open the Google Sheet ↗</a>
+    <a class="btn btn-ghost" href="redeem.html">Staff redemption page →</a>
+    <a class="btn btn-ghost" href="./">Player page (games only) →</a>
+  </div>
+
+  <div class="footer">Demo by Busy Biz Solution</div>
+</div>
+
+<script>
+(function(){
+  var cfg = window.LEAD_DEMO || {};
+  var status = document.getElementById("status");
+  var sheetLink = document.getElementById("sheetLink");
+  var testBtn = document.getElementById("testBtn");
+  var testEmail = document.getElementById("testEmail");
+  var note = document.getElementById("testNote");
+
+  if (cfg.CLIENT_NAME){
+    document.getElementById("intro").textContent =
+      "Each game asks the player for a name and email. A voucher with a running number is emailed to them " +
+      "straight away from " + cfg.CLIENT_NAME + "'s Gmail, and every voucher is logged in a Google Sheet.";
+  }
+  if (cfg.SHEET_VIEW_URL){ sheetLink.href = cfg.SHEET_VIEW_URL; sheetLink.classList.remove("disabledLink"); }
+
+  function setStatus(cls, html){
+    status.className = "status " + cls;
+    status.innerHTML = '<span class="dot"></span><span>' + html + '</span>';
+  }
+
+  if (!cfg.SHEET_ENDPOINT){
+    setStatus("warn", "Voucher service not connected yet <small>— paste the Apps Script URL into leads-config.js (see README.md)</small>");
+    testBtn.disabled = true;
+  } else {
+    fetch(cfg.SHEET_ENDPOINT, { redirect: "follow" })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (!(j && j.ok)) throw new Error("bad reply");
+        var extra = [];
+        if (typeof j.issued === "number") extra.push(j.issued + " voucher" + (j.issued === 1 ? "" : "s") + " issued");
+        if (typeof j.emailQuotaLeft === "number") extra.push(j.emailQuotaLeft + " emails left today");
+        if (j.sender) extra.push("sending as " + j.sender);
+        setStatus("ok", "Connected to the voucher service" + (extra.length ? " <small>— " + extra.join(" · ") + "</small>" : ""));
+      })
+      .catch(function(){
+        setStatus("warn", "Endpoint set but not responding <small>— check the deployment is a Web app with access set to Anyone</small>");
+      });
+  }
+
+  testBtn.addEventListener("click", function(){
+    var email = testEmail.value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)){ note.textContent = "Enter a valid email address first."; return; }
+    testBtn.disabled = true;
+    note.textContent = "Issuing…";
+    var lead = {
+      action: "issue", game: "Test (hub page)", name: "Test Voucher", email: email,
+      result: "sent from index.html", reward: "Demo reward — free soft drink", tierCode: "TEST",
+      timestamp: new Date().toISOString(), device: navigator.userAgent, page: location.href
+    };
+    fetch(cfg.SHEET_ENDPOINT, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(lead), redirect: "follow"
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (j.ok) note.textContent = "✓ Voucher " + j.code + " issued and " + (j.emailSent ? "emailed to " + j.maskedEmail : "logged, but the email failed: " + j.emailError) + ". Refresh the sheet to see the row.";
+      else if (j.reason === "duplicate") note.textContent = "That email already has voucher " + j.code + (j.resent ? " — we re-sent it." : ".") + " One per email, as designed.";
+      else if (j.reason === "cap_reached") note.textContent = "Campaign cap reached — no more vouchers.";
+      else note.textContent = "⚠ The service replied with an error: " + (j.error || j.reason);
+    })
+    .catch(function(){ note.textContent = "⚠ Could not reach the endpoint."; })
+    .then(function(){ testBtn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>

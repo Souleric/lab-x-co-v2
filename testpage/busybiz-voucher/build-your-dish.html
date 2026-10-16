@@ -25,6 +25,7 @@
   *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
   html,body{ height:100%; }
+  html{ touch-action:manipulation; overscroll-behavior:none; -webkit-text-size-adjust:100%; }
   body{
     font-family:'Inter',sans-serif;
     color:var(--navy);
@@ -48,6 +49,7 @@
     overflow:hidden;
     user-select:none;
     -webkit-user-select:none;
+    -webkit-touch-callout:none;
   }
 
   /* ---------- Header ---------- */
@@ -106,7 +108,7 @@
   }
   .ing:active{ cursor:grabbing; }
   .ing.dragging{ opacity:.35; }
-  .ing:hover{ border-color:var(--coral); background:#fff; }
+  @media (hover:hover){ .ing:hover{ border-color:var(--coral); background:#fff; } }
   .ing .emoji{ font-size:26px; line-height:1.15; display:block; pointer-events:none; }
   .ing .name{
     font-size:10px; font-weight:600; color:var(--slate); display:block;
@@ -132,6 +134,7 @@
     overflow:hidden;
     transition:border-color .15s ease, background .15s ease;
   }
+  .plateZone{ touch-action:none; }
   .plateZone.hot{ border-color:var(--coral); background:var(--coral-soft); }
   .plateZone .hint{
     position:absolute; top:10px; left:0; right:0; text-align:center;
@@ -198,11 +201,12 @@
   /* ---------- Optional lead capture (hidden until enabled) ---------- */
   .lead{ display:none; text-align:center; animation:fadeUp .4s ease both; }
   .lead input{
-    width:100%; font-family:'Inter',sans-serif; font-size:14px;
+    width:100%; font-family:'Inter',sans-serif; font-size:16px;
     border:1.5px solid #d5dde5; border-radius:12px; padding:12px 14px;
     margin-bottom:10px; outline:none; color:var(--navy);
   }
   .lead input:focus{ border-color:var(--coral); }
+  input{ user-select:text; -webkit-user-select:text; }
 
   /* small screens */
   @media (max-width:380px){
@@ -262,8 +266,8 @@
   <div class="lead" id="leadScreen">
     <h2 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;margin:8px 0 4px;">Almost there! 🎉</h2>
     <p class="sub">Enter your details and we'll email your voucher to you.</p>
-    <input type="text" id="leadName" placeholder="Your name" autocomplete="name">
-    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email">
+    <input type="text" id="leadName" placeholder="Your name" autocomplete="name" autocapitalize="words" enterkeyhint="next">
+    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
     <label class="consent"><input type="checkbox" id="leadConsent"><span>I agree to receive offers and updates from this restaurant by email.</span></label>
     <button class="btn btn-coral" id="leadBtn">Email my voucher →</button>
     <div class="leadStatus" id="leadStatus"></div>

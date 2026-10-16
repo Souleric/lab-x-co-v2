@@ -26,6 +26,7 @@
   *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
   html,body{ height:100%; }
+  html{ touch-action:manipulation; overscroll-behavior:none; -webkit-text-size-adjust:100%; }
   body{
     font-family:'Inter',sans-serif;
     color:var(--navy);
@@ -49,6 +50,7 @@
     overflow:hidden;
     user-select:none;
     -webkit-user-select:none;
+    -webkit-touch-callout:none;
   }
   .card.shake{ animation:cardShake .3s ease both; }
   @keyframes cardShake{
@@ -185,11 +187,12 @@
   /* ---------- Optional lead capture ---------- */
   #leadScreen{ text-align:center; }
   #leadScreen input{
-    width:100%; font-family:'Inter',sans-serif; font-size:14px;
+    width:100%; font-family:'Inter',sans-serif; font-size:16px;
     border:1.5px solid #d5dde5; border-radius:12px; padding:12px 14px;
     margin-bottom:10px; outline:none; color:var(--navy);
   }
   #leadScreen input:focus{ border-color:var(--coral); }
+  input{ user-select:text; -webkit-user-select:text; }
 
   @media (max-width:380px){
     h1{ font-size:21px; }
@@ -255,8 +258,8 @@
   <div id="leadScreen" class="fadeUp">
     <h2 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;margin:8px 0 4px;">Almost there! 🎉</h2>
     <p class="sub">Enter your details and we'll email your voucher to you.</p>
-    <input type="text" id="leadName" placeholder="Your name" autocomplete="name">
-    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email">
+    <input type="text" id="leadName" placeholder="Your name" autocomplete="name" autocapitalize="words" enterkeyhint="next">
+    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
     <label class="consent"><input type="checkbox" id="leadConsent"><span>I agree to receive offers and updates from this restaurant by email.</span></label>
     <button class="btn btn-coral" id="leadBtn">Email my voucher →</button>
     <div class="leadStatus" id="leadStatus"></div>
@@ -413,14 +416,20 @@ var CONFIG = {
     plateX = Math.min(Math.max(pointerToX(e), PLATE_HALF), W - PLATE_HALF);
     fieldHint.style.opacity = "0";
   }
+  var dragging = false;
   canvas.addEventListener("pointerdown", function(e){
     e.preventDefault();
+    dragging = true;
     movePlate(e);
-    canvas.setPointerCapture(e.pointerId);
+    try{ canvas.setPointerCapture(e.pointerId); }catch(_){}
   });
   canvas.addEventListener("pointermove", function(e){
-    // follow the finger while dragging, or the mouse while hovering
-    if (e.pressure > 0 || e.pointerType === "mouse") movePlate(e);
+    // follow the finger while it is down (iOS Safari reports pressure 0 for touch),
+    // or the mouse while hovering
+    if (dragging || e.pointerType === "mouse") movePlate(e);
+  });
+  ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){
+    canvas.addEventListener(ev, function(){ dragging = false; });
   });
 
   /* ---------- spawning ---------- */

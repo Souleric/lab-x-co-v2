@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kitchen Rush — Busy Biz Solution</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="leads-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     BRAND COLOURS — edit these to rebrand the whole game
+     ============================================================ */
+  :root{
+    --navy:  #16324F;
+    --coral: #FF6B5E;
+    --mist:  #F7F9FB;
+    --slate: #5B6B7B;
+    --coral-soft: #FFEFED;   /* light coral tint for pills/highlights */
+    --green: #2FA36B;        /* success accent */
+    --danger:#E5484D;        /* low-time / wrong-tap accent */
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{ height:100%; }
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--navy);
+    background: radial-gradient(circle at 50% 0%, #1f4266, #16324F);
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px 12px;
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:#fff;
+    border-radius:26px;
+    box-shadow:0 24px 60px rgba(0,0,0,.35);
+    width:100%;
+    max-width:460px;
+    padding:22px 20px 18px;
+    position:relative;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  /* ---------- Header ---------- */
+  .brandrow{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:4px;
+  }
+  .brand{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:17px;
+    letter-spacing:-.02em; color:var(--navy);
+  }
+  .brand .dot{ color:var(--coral); }
+  .eyebrow{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:10px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--coral);
+    background:var(--coral-soft); padding:5px 10px; border-radius:999px;
+  }
+
+  h1{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:24px;
+    letter-spacing:-.02em; margin:10px 0 2px;
+  }
+  .sub{ color:var(--slate); font-size:13.5px; line-height:1.5; margin-bottom:16px; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
+    border:none; border-radius:999px; padding:14px 20px; width:100%;
+    cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, opacity .12s;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-coral{
+    background:var(--coral); color:#fff;
+    box-shadow:0 10px 22px rgba(255,107,94,.35);
+  }
+
+  .footer{ text-align:center; font-size:11px; color:var(--slate); margin-top:14px; }
+
+  /* ---------- Intro screen ---------- */
+  .howto{
+    background:var(--mist); border-radius:16px; padding:14px 16px;
+    margin-bottom:16px;
+  }
+  .howto .row{
+    display:flex; align-items:flex-start; gap:10px;
+    font-size:13px; color:var(--slate); line-height:1.45;
+  }
+  .howto .row + .row{ margin-top:8px; }
+  .howto .row .ic{ font-size:16px; line-height:1.3; }
+  .best{
+    text-align:center; font-size:12px; color:var(--slate);
+    margin-bottom:12px; font-weight:500; min-height:16px;
+  }
+  .best b{ color:var(--coral); }
+
+  /* ---------- Game screen ---------- */
+  #gameScreen, #resultScreen, #leadScreen{ display:none; }
+
+  .hud{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:12px 0 8px; gap:10px;
+  }
+  .hud .stat{
+    font-size:12px; color:var(--slate); font-weight:500; white-space:nowrap;
+  }
+  .hud .stat b{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:17px;
+    color:var(--navy); margin-left:4px;
+  }
+  .hud .stat.time b{ color:var(--coral); min-width:34px; display:inline-block; }
+  .hud .stat.time.low b{ color:var(--danger); animation:pulse .5s ease infinite alternate; display:inline-block; }
+  @keyframes pulse{ from{ transform:scale(1);} to{ transform:scale(1.18);} }
+
+  .timerTrack{
+    height:8px; background:var(--mist); border-radius:999px; overflow:hidden;
+    margin-bottom:14px;
+  }
+  .timerFill{
+    height:100%; background:var(--coral); border-radius:999px;
+    width:100%; transition:width .1s linear;
+  }
+  .timerFill.low{ background:var(--danger); }
+
+  /* ---------- Order ticket ---------- */
+  .ticket{
+    background:var(--mist);
+    border-radius:18px;
+    padding:14px 14px 16px;
+    text-align:center;
+    margin-bottom:14px;
+    position:relative;
+    min-height:112px;
+  }
+  .ticket .tlabel{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:10px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--slate);
+    margin-bottom:8px;
+  }
+  .ticket.newOrder{ animation:slideIn .3s cubic-bezier(.34,1.4,.64,1) both; }
+  @keyframes slideIn{ from{ transform:translateX(60px); opacity:0;} to{ transform:none; opacity:1;} }
+  .ticket.shake{ animation:shake .35s ease both; }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-8px); } 40%{ transform:translateX(8px); }
+    60%{ transform:translateX(-5px); } 80%{ transform:translateX(5px); }
+  }
+  .slots{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+  .slot{
+    width:52px; height:52px; border-radius:14px;
+    background:#fff; border:2px solid #e3e9ef;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; position:relative;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .slot.done{
+    border-color:var(--green); background:#EAF7F0;
+  }
+  .slot.done::after{
+    content:"✓"; position:absolute; top:-7px; right:-7px;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--green); color:#fff; font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .slot.done .em{ animation:slotPop .3s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes slotPop{ 0%{ transform:scale(.5);} 60%{ transform:scale(1.25);} 100%{ transform:scale(1);} }
+
+  /* floating +1 when an order completes */
+  .plusOne{
+    position:absolute; left:50%; top:38%;
+    transform:translate(-50%,-50%);
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:26px;
+    color:var(--green); pointer-events:none;
+    animation:floatUp .7s ease both;
+  }
+  @keyframes floatUp{
+    from{ opacity:1; transform:translate(-50%,-50%); }
+    to  { opacity:0; transform:translate(-50%,-160%); }
+  }
+
+  /* ---------- Ingredient buttons ---------- */
+  .tray{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    margin-bottom:4px;
+  }
+  .ing{
+    background:var(--mist);
+    border:2px solid transparent;
+    border-radius:16px;
+    padding:9px 4px 7px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .1s ease, border-color .1s ease, background .1s ease;
+  }
+  .ing:active{ transform:scale(.92); }
+  .ing .emoji{ font-size:27px; line-height:1.15; display:block; pointer-events:none; }
+  .ing .name{
+    font-size:10px; font-weight:600; color:var(--slate); display:block;
+    margin-top:2px; pointer-events:none; white-space:nowrap; overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .ing.good{ border-color:var(--green); background:#EAF7F0; }
+  .ing.bad{ border-color:var(--danger); background:#FDECEC; animation:shake .3s ease both; }
+
+  /* ---------- Result screen ---------- */
+  #resultScreen{ text-align:center; }
+  .fadeUp{ animation:fadeUp .4s ease both; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none;} }
+  .bigEmoji{ font-size:44px; margin:8px 0 2px; }
+  #resultScreen h2{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:22px; margin-bottom:2px;
+  }
+  .tierLabel{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
+    color:var(--coral); margin-bottom:6px;
+  }
+  .statline{ font-size:12.5px; color:var(--slate); margin-bottom:14px; }
+  .statline b{ color:var(--navy); }
+  .codePill{
+    display:inline-block;
+    border:2px dashed var(--coral);
+    background:var(--coral-soft);
+    color:var(--coral);
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:22px;
+    letter-spacing:.08em;
+    padding:12px 26px; border-radius:16px; margin-bottom:10px;
+  }
+  .redeem{ font-size:12.5px; color:var(--slate); line-height:1.5; margin-bottom:16px; }
+
+  /* ---------- Optional lead capture ---------- */
+  #leadScreen{ text-align:center; }
+  #leadScreen input{
+    width:100%; font-family:'Inter',sans-serif; font-size:14px;
+    border:1.5px solid #d5dde5; border-radius:12px; padding:12px 14px;
+    margin-bottom:10px; outline:none; color:var(--navy);
+  }
+  #leadScreen input:focus{ border-color:var(--coral); }
+
+  @media (max-width:380px){
+    h1{ font-size:21px; }
+    .slot{ width:46px; height:46px; font-size:24px; }
+    .ing .emoji{ font-size:23px; }
+  }
+
+  /* ---------- Lead-capture demo additions ---------- */
+  .consent{
+    display:flex; align-items:flex-start; gap:8px; text-align:left;
+    font-size:12px; color:var(--slate); line-height:1.4; margin:2px 0 12px; cursor:pointer;
+  }
+  #leadScreen .consent input{ width:16px; height:16px; margin:1px 0 0; padding:0; flex:none; accent-color:var(--coral); }
+  .leadStatus{ font-size:12px; min-height:16px; margin-top:8px; color:var(--slate); }
+  .leadStatus.err{ color:#E5484D; font-weight:600; }
+  #leadBtn:disabled{ opacity:.55; cursor:wait; }
+  .sentBadge{ display:none; font-size:12px; font-weight:600; border-radius:999px; padding:6px 12px; margin-bottom:14px; }
+  .sentBadge.ok{ display:inline-block; background:#EAF7F0; color:var(--green); }
+  .sentBadge.warn{ display:inline-block; background:#FFF4E5; color:#B45309; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <!-- Header -->
+  <div class="brandrow">
+    <div class="brand">busy biz<span class="dot">.</span></div>
+    <div class="eyebrow" id="eyebrow">Voucher Demo</div>
+  </div>
+
+  <!-- ================= INTRO SCREEN ================= -->
+  <div id="introScreen">
+    <h1 id="gameTitle">Kitchen Rush</h1>
+    <p class="sub" id="gameSub">Orders are flying in! Tap the right ingredients to complete as many orders as you can before the clock runs out.</p>
+
+    <div class="howto">
+      <div class="row"><span class="ic">🧾</span><span>An order ticket shows the ingredients a customer wants.</span></div>
+      <div class="row"><span class="ic">👆</span><span>Tap those ingredients — in any order — to complete it.</span></div>
+      <div class="row"><span class="ic">⚠️</span><span>Wrong taps cost you <b>1 second</b>. More orders = better reward!</span></div>
+    </div>
+
+    <div class="best" id="bestLine"></div>
+    <button class="btn btn-coral" id="startBtn">Start the rush! ⏱️</button>
+  </div>
+
+  <!-- ================= GAME SCREEN ================= -->
+  <div id="gameScreen">
+    <div class="hud">
+      <div class="stat">Orders served<b id="ordersVal">0</b></div>
+      <div class="stat time" id="timeStat">Time<b id="timeVal">30</b></div>
+    </div>
+    <div class="timerTrack"><div class="timerFill" id="timerFill"></div></div>
+
+    <div class="ticket" id="ticket">
+      <div class="tlabel" id="ticketLabel">Order #1</div>
+      <div class="slots" id="slots"></div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+  </div>
+
+  <!-- ================= OPTIONAL LEAD CAPTURE =================
+       To enable: set ENABLE_LEAD_CAPTURE = true in CONFIG below.
+       Leads are stored in localStorage under 'bbs_rush_leads'
+       (swap the saveLead() body for a fetch() to your endpoint). -->
+  <div id="leadScreen" class="fadeUp">
+    <h2 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;margin:8px 0 4px;">Almost there! 🎉</h2>
+    <p class="sub">Enter your details and we'll email your voucher to you.</p>
+    <input type="text" id="leadName" placeholder="Your name" autocomplete="name">
+    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email">
+    <label class="consent"><input type="checkbox" id="leadConsent"><span>I agree to receive offers and updates from this restaurant by email.</span></label>
+    <button class="btn btn-coral" id="leadBtn">Email my voucher →</button>
+    <div class="leadStatus" id="leadStatus"></div>
+  </div>
+
+  <!-- ================= RESULT SCREEN ================= -->
+  <div id="resultScreen" class="fadeUp">
+    <div class="bigEmoji" id="resultEmoji">🧑‍🍳</div>
+    <h2 id="resultTitle">Time's up!</h2>
+    <div class="tierLabel" id="tierLabel"></div>
+    <div class="statline" id="statLine"></div>
+    <div class="codePill" id="codePill"></div>
+    <p class="redeem" id="redeemLine"></p>
+    <div class="sentBadge" id="sentBadge"></div>
+    <button class="btn btn-coral" id="againBtn">Play again 🔄</button>
+  </div>
+
+  <div class="footer">Demo game by Busy Biz Solution</div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — everything editable lives here.
+   A non-coder can change the copy, ingredients, rewards,
+   timing and difficulty below without touching the game code.
+   ============================================================ */
+
+var CONFIG = {
+
+  // Top-of-card copy
+  EYEBROW:  "Voucher Demo",
+  TITLE:    "Kitchen Rush",
+  SUBTITLE: "Orders are flying in! Tap the right ingredients to complete as many orders as you can before the clock runs out.",
+
+  // Round length in seconds
+  GAME_SECONDS: 30,
+
+  // Seconds lost when the player taps a wrong ingredient
+  WRONG_TAP_PENALTY: 1,
+
+  // Tappable ingredients (8 works best for the 4-column grid)
+  INGREDIENTS: [
+    { name: "Patty",   emoji: "🥩" },
+    { name: "Cheese",  emoji: "🧀" },
+    { name: "Lettuce", emoji: "🥬" },
+    { name: "Tomato",  emoji: "🍅" },
+    { name: "Egg",     emoji: "🍳" },
+    { name: "Bacon",   emoji: "🥓" },
+    { name: "Onion",   emoji: "🧅" },
+    { name: "Chilli",  emoji: "🌶️" }
+  ],
+
+  // Difficulty ramp: once the player has served `fromOrder` orders,
+  // new tickets contain between `min` and `max` ingredients.
+  ORDER_RAMP: [
+    { fromOrder: 0, min: 2, max: 2 },
+    { fromOrder: 2, min: 2, max: 3 },
+    { fromOrder: 5, min: 3, max: 4 },
+    { fromOrder: 8, min: 4, max: 5 }
+  ],
+
+  // Reward tiers — the HIGHEST tier whose minOrders the player reaches
+  // wins. Keep sorted from lowest to highest minOrders.
+  REWARD_TIERS: [
+    { minOrders: 0, label: "Nice try! Free soft drink with any meal",   code: "RUSH-SIP"  },
+    { minOrders: 4, label: "Line cook! 10% off your next order",        code: "RUSH10"    },
+    { minOrders: 8, label: "Sous chef! 15% off your next order",        code: "RUSH15"    },
+    { minOrders: 12, label: "Head chef! 20% off your next order",       code: "RUSH20"    }
+  ],
+
+  // Line shown under the reward code
+  REDEEM_LINE: "Show this code at the counter or enter it at checkout. One redemption per customer.",
+
+  // Lead capture is ON in this demo: name + email are required, then the
+  // Google Apps Script (endpoint in leads-config.js) issues a numbered voucher,
+  // emails it to the player and logs a row in the Google Sheet.
+  ENABLE_LEAD_CAPTURE: true
+};
+
+/* ============================================================
+   GAME LOGIC — no need to edit below this line
+   ============================================================ */
+
+(function(){
+  "use strict";
+
+  var introScreen  = document.getElementById("introScreen");
+  var gameScreen   = document.getElementById("gameScreen");
+  var leadScreen   = document.getElementById("leadScreen");
+  var resultScreen = document.getElementById("resultScreen");
+
+  var tray        = document.getElementById("tray");
+  var slotsWrap   = document.getElementById("slots");
+  var ticket      = document.getElementById("ticket");
+  var ticketLabel = document.getElementById("ticketLabel");
+  var ordersVal   = document.getElementById("ordersVal");
+  var timeVal     = document.getElementById("timeVal");
+  var timeStat    = document.getElementById("timeStat");
+  var timerFill   = document.getElementById("timerFill");
+  var bestLine    = document.getElementById("bestLine");
+
+  var timeLeft = 0, ordersServed = 0, running = false;
+  var order = [];          // array of ingredient indices for current ticket
+  var slotEls = [];        // DOM slots for current ticket
+  var tickHandle = null;
+
+  /* ---------- initial copy from CONFIG ---------- */
+  document.getElementById("eyebrow").textContent   = CONFIG.EYEBROW;
+  document.getElementById("gameTitle").textContent = CONFIG.TITLE;
+  document.getElementById("gameSub").textContent   = CONFIG.SUBTITLE;
+  document.getElementById("timeVal").textContent   = CONFIG.GAME_SECONDS;
+
+  function showBest(){
+    var best = 0;
+    try{ best = parseInt(localStorage.getItem("bbs_rush_best") || "0", 10); }catch(e){}
+    bestLine.innerHTML = best > 0 ? "Your best: <b>" + best + " orders</b> — can you beat it?" : "";
+  }
+  showBest();
+
+  /* ---------- build the ingredient tray ---------- */
+  CONFIG.INGREDIENTS.forEach(function(ing, i){
+    var el = document.createElement("div");
+    el.className = "ing";
+    el.dataset.index = i;
+    el.innerHTML = '<span class="emoji">' + ing.emoji + '</span>' +
+                   '<span class="name">'  + ing.name  + '</span>';
+    el.addEventListener("pointerdown", function(){ tapIngredient(i, el); });
+    tray.appendChild(el);
+  });
+
+  /* ---------- orders ---------- */
+  function rampFor(){
+    var r = CONFIG.ORDER_RAMP[0];
+    CONFIG.ORDER_RAMP.forEach(function(step){
+      if (ordersServed >= step.fromOrder) r = step;
+    });
+    return r;
+  }
+
+  function newOrder(){
+    var r = rampFor();
+    var len = r.min + Math.floor(Math.random() * (r.max - r.min + 1));
+    order = [];
+    // pick `len` distinct ingredients so the ticket is easy to read
+    var pool = CONFIG.INGREDIENTS.map(function(_, i){ return i; });
+    for (var k = 0; k < len && pool.length; k++){
+      var pick = Math.floor(Math.random() * pool.length);
+      order.push(pool.splice(pick, 1)[0]);
+    }
+
+    slotsWrap.innerHTML = "";
+    slotEls = order.map(function(idx){
+      var s = document.createElement("div");
+      s.className = "slot";
+      s.dataset.index = idx;
+      s.innerHTML = '<span class="em">' + CONFIG.INGREDIENTS[idx].emoji + '</span>';
+      slotsWrap.appendChild(s);
+      return s;
+    });
+
+    ticketLabel.textContent = "Order #" + (ordersServed + 1);
+    ticket.classList.remove("newOrder");
+    void ticket.offsetWidth;               // restart the slide-in animation
+    ticket.classList.add("newOrder");
+  }
+
+  function tapIngredient(idx, el){
+    if (!running) return;
+
+    // find the first unfilled slot asking for this ingredient
+    var slot = null;
+    for (var i = 0; i < slotEls.length; i++){
+      if (!slotEls[i].classList.contains("done") &&
+          parseInt(slotEls[i].dataset.index, 10) === idx){ slot = slotEls[i]; break; }
+    }
+
+    if (slot){
+      slot.classList.add("done");
+      feedback(el, "good");
+      if (slotEls.every(function(s){ return s.classList.contains("done"); })){
+        completeOrder();
+      }
+    } else {
+      // wrong ingredient: shake + time penalty
+      feedback(el, "bad");
+      ticket.classList.remove("shake");
+      void ticket.offsetWidth;
+      ticket.classList.add("shake");
+      timeLeft = Math.max(0, timeLeft - CONFIG.WRONG_TAP_PENALTY);
+      renderTime();
+      if (timeLeft <= 0) endGame();
+    }
+  }
+
+  function feedback(el, cls){
+    el.classList.remove("good","bad");
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(function(){ el.classList.remove(cls); }, 350);
+  }
+
+  function completeOrder(){
+    ordersServed++;
+    ordersVal.textContent = ordersServed;
+
+    var plus = document.createElement("div");
+    plus.className = "plusOne";
+    plus.textContent = "+1 🧾";
+    ticket.appendChild(plus);
+    setTimeout(function(){ plus.remove(); }, 700);
+
+    setTimeout(newOrder, 180);   // tiny beat before the next ticket slides in
+  }
+
+  /* ---------- timer ---------- */
+  function renderTime(){
+    var secs = Math.ceil(timeLeft);
+    timeVal.textContent = secs;
+    timerFill.style.width = (timeLeft / CONFIG.GAME_SECONDS * 100) + "%";
+    var low = timeLeft <= 5;
+    timerFill.classList.toggle("low", low);
+    timeStat.classList.toggle("low", low);
+  }
+
+  function startGame(){
+    ordersServed = 0;
+    timeLeft = CONFIG.GAME_SECONDS;
+    ordersVal.textContent = "0";
+    renderTime();
+
+    introScreen.style.display  = "none";
+    resultScreen.style.display = "none";
+    leadScreen.style.display   = "none";
+    gameScreen.style.display   = "block";
+
+    running = true;
+    newOrder();
+
+    var last = performance.now();
+    tickHandle = setInterval(function(){
+      var now = performance.now();
+      timeLeft -= (now - last) / 1000;
+      last = now;
+      if (timeLeft <= 0){ timeLeft = 0; renderTime(); endGame(); return; }
+      renderTime();
+    }, 100);
+  }
+
+  function endGame(){
+    if (!running) return;
+    running = false;
+    clearInterval(tickHandle);
+
+    try{
+      var best = parseInt(localStorage.getItem("bbs_rush_best") || "0", 10);
+      if (ordersServed > best) localStorage.setItem("bbs_rush_best", String(ordersServed));
+    }catch(e){}
+
+    gameScreen.style.display = "none";
+    if (CONFIG.ENABLE_LEAD_CAPTURE){
+      leadScreen.style.display = "block";
+    } else {
+      showResult();
+    }
+  }
+
+  /* ---------- rewards ---------- */
+  function currentTier(){
+    var tier = CONFIG.REWARD_TIERS[0];
+    CONFIG.REWARD_TIERS.forEach(function(t){
+      if (ordersServed >= t.minOrders) tier = t;
+    });
+    return tier;
+  }
+
+  function showResult(){
+    var tier = currentTier();
+    var best = 0;
+    try{ best = parseInt(localStorage.getItem("bbs_rush_best") || "0", 10); }catch(e){}
+
+    document.getElementById("resultEmoji").textContent =
+      ordersServed >= 12 ? "👨‍🍳🔥" : ordersServed >= 8 ? "🧑‍🍳" : ordersServed >= 4 ? "🍳" : "🫠";
+    document.getElementById("resultTitle").textContent =
+      ordersServed > 0 ? "Time's up — " + ordersServed + " orders served!" : "Time's up!";
+    document.getElementById("tierLabel").textContent = tier.label;
+    document.getElementById("statLine").innerHTML =
+      "Your best: <b>" + Math.max(best, ordersServed) + " orders</b>";
+    document.getElementById("codePill").textContent = tier.code;
+    document.getElementById("redeemLine").textContent = CONFIG.REDEEM_LINE;
+
+    leadScreen.style.display   = "none";
+    resultScreen.style.display = "block";
+  }
+
+  /* ---------- lead capture → voucher issued by Google Apps Script ---------- */
+  var leadBtn    = document.getElementById("leadBtn");
+  var leadStatus = document.getElementById("leadStatus");
+  var sentBadge  = document.getElementById("sentBadge");
+  var codePill   = document.getElementById("codePill");
+  var redeemLine = document.getElementById("redeemLine");
+  var tierLabelEl = document.getElementById("tierLabel");
+
+  function setStatus(msg, isError){
+    leadStatus.textContent = msg;
+    leadStatus.className = "leadStatus" + (isError ? " err" : "");
+  }
+  function setBadge(cls, text){
+    sentBadge.className = "sentBadge" + (cls ? " " + cls : "");
+    sentBadge.textContent = text || "";
+  }
+
+  function resetLeadForm(){
+    document.getElementById("leadName").value = "";
+    document.getElementById("leadEmail").value = "";
+    document.getElementById("leadConsent").checked = false;
+    setStatus("", false);
+    setBadge("", "");
+  }
+  document.getElementById("againBtn").addEventListener("click", resetLeadForm);
+
+  leadBtn.addEventListener("click", function(){
+    var name  = document.getElementById("leadName").value.trim();
+    var email = document.getElementById("leadEmail").value.trim();
+    if (!name){ setStatus("Please enter your name.", true); return; }
+    if (!/^\S+@\S+\.\S+$/.test(email)){ setStatus("Please enter a valid email address.", true); return; }
+    if (!document.getElementById("leadConsent").checked){ setStatus("Please tick the box to continue.", true); return; }
+
+    var tier = currentTier();
+    leadBtn.disabled = true;
+    setStatus("Issuing your voucher…", false);
+
+    sendLead({
+      action:   "issue",
+      game:     "Kitchen Rush",
+      name:     name,
+      email:    email,
+      result:   ordersServed + " orders served",
+      reward:   tier.label,
+      tierCode: tier.code
+    }).then(function(resp){
+      leadBtn.disabled = false;
+      if (resp.ok){
+        showResult();
+        codePill.textContent = resp.code;
+        redeemLine.textContent = "We've emailed voucher " + resp.code + " to " + resp.maskedEmail +
+          ". Show the email at the counter. Valid until " + resp.expires + ".";
+        if (resp.emailSent){
+          setBadge("ok", "✓ Voucher no. " + String(resp.voucherNo).padStart(4, "0") + " sent by email");
+        } else {
+          setBadge("warn", "⚠ Voucher saved, but the email couldn't be sent — show this screen at the counter");
+        }
+      } else if (resp.reason === "duplicate"){
+        showResult();
+        tierLabelEl.textContent = "You've already claimed a voucher";
+        codePill.textContent = resp.code;
+        redeemLine.textContent = resp.resent
+          ? "We've re-sent voucher " + resp.code + " to " + resp.maskedEmail + ". One voucher per customer."
+          : "Voucher " + resp.code + " was already sent to " + resp.maskedEmail + ". One voucher per customer.";
+        setBadge("warn", resp.redeemed ? "This voucher has already been redeemed" : "Already claimed with this email");
+      } else if (resp.reason === "invalid"){
+        setStatus("Please check your name and email address.", true);
+      } else if (resp.reason === "cap_reached"){
+        setStatus("Sorry — all vouchers for this campaign have been claimed.", true);
+      } else {
+        setStatus("Couldn't reach the voucher service. Check your connection and try again.", true);
+      }
+    });
+  });
+
+  // Posts to the Apps Script endpoint set in leads-config.js and returns its JSON reply.
+  // A copy of every attempt is kept in localStorage ('bbs_demo_leads') for reference.
+  function sendLead(lead){
+    lead.timestamp = new Date().toISOString();
+    lead.device    = navigator.userAgent;
+    lead.page      = location.href;
+    try{
+      var leads = JSON.parse(localStorage.getItem("bbs_demo_leads") || "[]");
+      leads.push(lead);
+      localStorage.setItem("bbs_demo_leads", JSON.stringify(leads));
+    }catch(e){ /* localStorage unavailable (private mode) — ignore */ }
+
+    var url = (window.LEAD_DEMO && window.LEAD_DEMO.SHEET_ENDPOINT) || "";
+    if (!url) return Promise.resolve({ ok:false, reason:"no_endpoint" });
+
+    // text/plain avoids a CORS preflight, which Apps Script web apps don't answer.
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(lead),
+      redirect: "follow"
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(j){ return j && typeof j === "object" ? j : { ok:false, reason:"bad_reply" }; })
+    .catch(function(){ return { ok:false, reason:"network" }; });
+  }
+
+  /* ---------- buttons ---------- */
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("againBtn").addEventListener("click", function(){
+    resultScreen.style.display = "none";
+    showBest();
+    startGame();
+  });
+})();
+</script>
+</body>
+</html>

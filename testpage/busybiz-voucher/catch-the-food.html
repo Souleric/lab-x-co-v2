@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Catch the Falling Food — Busy Biz Solution</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="leads-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     BRAND COLOURS — edit these to rebrand the whole game
+     ============================================================ */
+  :root{
+    --navy:  #16324F;
+    --coral: #FF6B5E;
+    --mist:  #F7F9FB;
+    --slate: #5B6B7B;
+    --coral-soft: #FFEFED;   /* light coral tint for pills/highlights */
+    --green: #2FA36B;        /* success accent */
+    --danger:#E5484D;        /* burnt-item / low-time accent */
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{ height:100%; }
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--navy);
+    background: radial-gradient(circle at 50% 0%, #1f4266, #16324F);
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px 12px;
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:#fff;
+    border-radius:26px;
+    box-shadow:0 24px 60px rgba(0,0,0,.35);
+    width:100%;
+    max-width:460px;
+    padding:22px 20px 18px;
+    position:relative;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .card.shake{ animation:cardShake .3s ease both; }
+  @keyframes cardShake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-7px); } 50%{ transform:translateX(7px); }
+    75%{ transform:translateX(-4px); }
+  }
+
+  /* ---------- Header ---------- */
+  .brandrow{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:4px;
+  }
+  .brand{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:17px;
+    letter-spacing:-.02em; color:var(--navy);
+  }
+  .brand .dot{ color:var(--coral); }
+  .eyebrow{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:10px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--coral);
+    background:var(--coral-soft); padding:5px 10px; border-radius:999px;
+  }
+
+  h1{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:24px;
+    letter-spacing:-.02em; margin:10px 0 2px;
+  }
+  .sub{ color:var(--slate); font-size:13.5px; line-height:1.5; margin-bottom:16px; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
+    border:none; border-radius:999px; padding:14px 20px; width:100%;
+    cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, opacity .12s;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-coral{
+    background:var(--coral); color:#fff;
+    box-shadow:0 10px 22px rgba(255,107,94,.35);
+  }
+
+  .footer{ text-align:center; font-size:11px; color:var(--slate); margin-top:14px; }
+
+  /* ---------- Intro screen ---------- */
+  #gameScreen, #resultScreen, #leadScreen{ display:none; }
+  .howto{
+    background:var(--mist); border-radius:16px; padding:14px 16px;
+    margin-bottom:16px;
+  }
+  .howto .row{
+    display:flex; align-items:flex-start; gap:10px;
+    font-size:13px; color:var(--slate); line-height:1.45;
+  }
+  .howto .row + .row{ margin-top:8px; }
+  .howto .row .ic{ font-size:16px; line-height:1.3; }
+  .best{
+    text-align:center; font-size:12px; color:var(--slate);
+    margin-bottom:12px; font-weight:500; min-height:16px;
+  }
+  .best b{ color:var(--coral); }
+
+  /* ---------- Game screen ---------- */
+  .hud{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:12px 0 8px; gap:10px;
+  }
+  .hud .stat{
+    font-size:12px; color:var(--slate); font-weight:500; white-space:nowrap;
+  }
+  .hud .stat b{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:17px;
+    color:var(--navy); margin-left:4px;
+  }
+  .hud .stat.combo b{ color:var(--green); }
+  .hud .stat.time b{ color:var(--coral); min-width:34px; display:inline-block; }
+  .hud .stat.time.low b{ color:var(--danger); animation:pulse .5s ease infinite alternate; }
+  @keyframes pulse{ from{ transform:scale(1);} to{ transform:scale(1.18);} }
+
+  .timerTrack{
+    height:8px; background:var(--mist); border-radius:999px; overflow:hidden;
+    margin-bottom:12px;
+  }
+  .timerFill{
+    height:100%; background:var(--coral); border-radius:999px;
+    width:100%; transition:width .1s linear;
+  }
+  .timerFill.low{ background:var(--danger); }
+
+  /* ---------- Canvas playfield ---------- */
+  .fieldWrap{
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    background:linear-gradient(180deg, #FDF9F3 0%, var(--mist) 100%);
+    margin-bottom:6px;
+  }
+  canvas{
+    display:block; width:100%;
+    touch-action:none;          /* critical: canvas drag works on touch */
+    cursor:grab;
+  }
+  .fieldHint{
+    position:absolute; left:0; right:0; bottom:54px;
+    text-align:center; font-size:11.5px; color:var(--slate);
+    font-weight:500; pointer-events:none; transition:opacity .4s ease;
+  }
+
+  /* ---------- Result screen ---------- */
+  #resultScreen{ text-align:center; }
+  .fadeUp{ animation:fadeUp .4s ease both; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none;} }
+  .bigEmoji{ font-size:44px; margin:8px 0 2px; }
+  #resultScreen h2{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:22px; margin-bottom:2px;
+  }
+  .tierLabel{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
+    color:var(--coral); margin-bottom:6px;
+  }
+  .statline{ font-size:12.5px; color:var(--slate); margin-bottom:14px; }
+  .statline b{ color:var(--navy); }
+  .codePill{
+    display:inline-block;
+    border:2px dashed var(--coral);
+    background:var(--coral-soft);
+    color:var(--coral);
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:22px;
+    letter-spacing:.08em;
+    padding:12px 26px; border-radius:16px; margin-bottom:10px;
+  }
+  .redeem{ font-size:12.5px; color:var(--slate); line-height:1.5; margin-bottom:16px; }
+
+  /* ---------- Optional lead capture ---------- */
+  #leadScreen{ text-align:center; }
+  #leadScreen input{
+    width:100%; font-family:'Inter',sans-serif; font-size:14px;
+    border:1.5px solid #d5dde5; border-radius:12px; padding:12px 14px;
+    margin-bottom:10px; outline:none; color:var(--navy);
+  }
+  #leadScreen input:focus{ border-color:var(--coral); }
+
+  @media (max-width:380px){
+    h1{ font-size:21px; }
+  }
+
+  /* ---------- Lead-capture demo additions ---------- */
+  .consent{
+    display:flex; align-items:flex-start; gap:8px; text-align:left;
+    font-size:12px; color:var(--slate); line-height:1.4; margin:2px 0 12px; cursor:pointer;
+  }
+  #leadScreen .consent input{ width:16px; height:16px; margin:1px 0 0; padding:0; flex:none; accent-color:var(--coral); }
+  .leadStatus{ font-size:12px; min-height:16px; margin-top:8px; color:var(--slate); }
+  .leadStatus.err{ color:#E5484D; font-weight:600; }
+  #leadBtn:disabled{ opacity:.55; cursor:wait; }
+  .sentBadge{ display:none; font-size:12px; font-weight:600; border-radius:999px; padding:6px 12px; margin-bottom:14px; }
+  .sentBadge.ok{ display:inline-block; background:#EAF7F0; color:var(--green); }
+  .sentBadge.warn{ display:inline-block; background:#FFF4E5; color:#B45309; }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <!-- Header -->
+  <div class="brandrow">
+    <div class="brand">busy biz<span class="dot">.</span></div>
+    <div class="eyebrow" id="eyebrow">Voucher Demo</div>
+  </div>
+
+  <!-- ================= INTRO SCREEN ================= -->
+  <div id="introScreen">
+    <h1 id="gameTitle">Catch the Falling Food</h1>
+    <p class="sub" id="gameSub">The kitchen's gone wild! Slide your plate to catch the good stuff — and dodge anything burnt.</p>
+
+    <div class="howto">
+      <div class="row"><span class="ic">🍽️</span><span>Drag anywhere on the play area to move your plate.</span></div>
+      <div class="row"><span class="ic">🍔</span><span>Catch fresh food for points — chain catches for a <b>combo bonus</b>.</span></div>
+      <div class="row"><span class="ic">🦴</span><span>Burnt food costs points and breaks your combo. Dodge it!</span></div>
+    </div>
+
+    <div class="best" id="bestLine"></div>
+    <button class="btn btn-coral" id="startBtn">Start catching! 🍽️</button>
+  </div>
+
+  <!-- ================= GAME SCREEN ================= -->
+  <div id="gameScreen">
+    <div class="hud">
+      <div class="stat">Score<b id="scoreVal">0</b></div>
+      <div class="stat combo">Combo<b id="comboVal">×0</b></div>
+      <div class="stat time" id="timeStat">Time<b id="timeVal">30</b></div>
+    </div>
+    <div class="timerTrack"><div class="timerFill" id="timerFill"></div></div>
+
+    <div class="fieldWrap">
+      <canvas id="field"></canvas>
+      <div class="fieldHint" id="fieldHint">Drag to move the plate 👈👉</div>
+    </div>
+  </div>
+
+  <!-- ================= OPTIONAL LEAD CAPTURE =================
+       To enable: set ENABLE_LEAD_CAPTURE = true in CONFIG below.
+       Leads are stored in localStorage under 'bbs_catch_leads'
+       (swap the saveLead() body for a fetch() to your endpoint). -->
+  <div id="leadScreen" class="fadeUp">
+    <h2 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;margin:8px 0 4px;">Almost there! 🎉</h2>
+    <p class="sub">Enter your details and we'll email your voucher to you.</p>
+    <input type="text" id="leadName" placeholder="Your name" autocomplete="name">
+    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email">
+    <label class="consent"><input type="checkbox" id="leadConsent"><span>I agree to receive offers and updates from this restaurant by email.</span></label>
+    <button class="btn btn-coral" id="leadBtn">Email my voucher →</button>
+    <div class="leadStatus" id="leadStatus"></div>
+  </div>
+
+  <!-- ================= RESULT SCREEN ================= -->
+  <div id="resultScreen" class="fadeUp">
+    <div class="bigEmoji" id="resultEmoji">🍽️</div>
+    <h2 id="resultTitle">Time's up!</h2>
+    <div class="tierLabel" id="tierLabel"></div>
+    <div class="statline" id="statLine"></div>
+    <div class="codePill" id="codePill"></div>
+    <p class="redeem" id="redeemLine"></p>
+    <div class="sentBadge" id="sentBadge"></div>
+    <button class="btn btn-coral" id="againBtn">Play again 🔄</button>
+  </div>
+
+  <div class="footer">Demo game by Busy Biz Solution</div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — everything editable lives here.
+   A non-coder can change the copy, food items, rewards,
+   timing and difficulty below without touching the game code.
+   ============================================================ */
+
+var CONFIG = {
+
+  // Top-of-card copy
+  EYEBROW:  "Voucher Demo",
+  TITLE:    "Catch the Falling Food",
+  SUBTITLE: "The kitchen's gone wild! Slide your plate to catch the good stuff — and dodge anything burnt.",
+
+  // Round length in seconds
+  GAME_SECONDS: 30,
+
+  // Fresh food — catch these for points
+  GOOD_ITEMS: [
+    { emoji: "🍔", points: 10 },
+    { emoji: "🍕", points: 10 },
+    { emoji: "🍟", points: 8  },
+    { emoji: "🌮", points: 12 },
+    { emoji: "🍣", points: 15 },
+    { emoji: "🍩", points: 8  },
+    { emoji: "🍗", points: 10 },
+    { emoji: "🥞", points: 12 }
+  ],
+
+  // Burnt / bad items — catching one costs points and breaks the combo
+  BAD_ITEMS: [
+    { emoji: "🦴",  penalty: 20 },
+    { emoji: "🥀",  penalty: 20 },
+    { emoji: "🧨",  penalty: 30 }
+  ],
+
+  // Roughly 1 in BAD_RATIO items is a bad one (e.g. 4 = 25% bad)
+  BAD_RATIO: 4,
+
+  // Bonus points added per combo step (score = points + combo * COMBO_BONUS)
+  COMBO_BONUS: 2,
+
+  // Difficulty ramp over the round: spawn gap (ms) and fall speed (px/s)
+  // interpolate from START to END as the timer runs down.
+  SPAWN_MS_START: 750,
+  SPAWN_MS_END:   360,
+  FALL_SPEED_START: 130,
+  FALL_SPEED_END:   290,
+
+  // Reward tiers — the HIGHEST tier whose minScore the player reaches wins.
+  // Keep sorted from lowest to highest minScore.
+  REWARD_TIERS: [
+    { minScore: 0,   label: "Nice try! Free soft drink with any meal", code: "CATCH-SIP" },
+    { minScore: 100, label: "Quick hands! 10% off your next order",    code: "CATCH10"   },
+    { minScore: 250, label: "Plate wizard! 15% off your next order",   code: "CATCH15"   },
+    { minScore: 420, label: "Legendary! 20% off your next order",      code: "CATCH20"   }
+  ],
+
+  // Line shown under the reward code
+  REDEEM_LINE: "Show this code at the counter or enter it at checkout. One redemption per customer.",
+
+  // Lead capture is ON in this demo: name + email are required, then the
+  // Google Apps Script (endpoint in leads-config.js) issues a numbered voucher,
+  // emails it to the player and logs a row in the Google Sheet.
+  ENABLE_LEAD_CAPTURE: true
+};
+
+/* ============================================================
+   GAME LOGIC — no need to edit below this line
+   ============================================================ */
+
+(function(){
+  "use strict";
+
+  var card         = document.getElementById("card");
+  var introScreen  = document.getElementById("introScreen");
+  var gameScreen   = document.getElementById("gameScreen");
+  var leadScreen   = document.getElementById("leadScreen");
+  var resultScreen = document.getElementById("resultScreen");
+
+  var canvas    = document.getElementById("field");
+  var ctx       = canvas.getContext("2d");
+  var fieldHint = document.getElementById("fieldHint");
+  var scoreVal  = document.getElementById("scoreVal");
+  var comboVal  = document.getElementById("comboVal");
+  var timeVal   = document.getElementById("timeVal");
+  var timeStat  = document.getElementById("timeStat");
+  var timerFill = document.getElementById("timerFill");
+  var bestLine  = document.getElementById("bestLine");
+
+  var W = 0, H = 0, DPR = 1;
+  var running = false;
+  var score = 0, combo = 0, timeLeft = 0;
+  var caught = 0, dodgedBad = 0;
+  var plateX = 0;
+  var PLATE_HALF = 34;                 // half-width of the catch zone (css px)
+  var items = [], floaters = [];
+  var spawnTimer = 0, flashUntil = 0;
+  var rafHandle = null, lastFrame = 0;
+
+  /* ---------- initial copy from CONFIG ---------- */
+  document.getElementById("eyebrow").textContent   = CONFIG.EYEBROW;
+  document.getElementById("gameTitle").textContent = CONFIG.TITLE;
+  document.getElementById("gameSub").textContent   = CONFIG.SUBTITLE;
+  timeVal.textContent = CONFIG.GAME_SECONDS;
+
+  function showBest(){
+    var best = 0;
+    try{ best = parseInt(localStorage.getItem("bbs_catch_best") || "0", 10); }catch(e){}
+    bestLine.innerHTML = best > 0 ? "Your best: <b>" + best + " points</b> — can you beat it?" : "";
+  }
+  showBest();
+
+  /* ---------- canvas sizing (responsive + retina) ---------- */
+  function sizeCanvas(){
+    var w = canvas.parentElement.clientWidth || 300;
+    var h = Math.min(340, Math.max(260, Math.round(window.innerHeight * 0.38)));
+    DPR = window.devicePixelRatio || 1;
+    W = w; H = h;
+    canvas.width  = Math.round(w * DPR);
+    canvas.height = Math.round(h * DPR);
+    canvas.style.height = h + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    plateX = Math.min(Math.max(plateX || w / 2, PLATE_HALF), w - PLATE_HALF);
+  }
+  window.addEventListener("resize", function(){ if (running) sizeCanvas(); });
+
+  /* ---------- plate control: drag anywhere on the canvas ---------- */
+  function pointerToX(e){
+    var r = canvas.getBoundingClientRect();
+    return (e.clientX - r.left);
+  }
+  function movePlate(e){
+    plateX = Math.min(Math.max(pointerToX(e), PLATE_HALF), W - PLATE_HALF);
+    fieldHint.style.opacity = "0";
+  }
+  canvas.addEventListener("pointerdown", function(e){
+    e.preventDefault();
+    movePlate(e);
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", function(e){
+    // follow the finger while dragging, or the mouse while hovering
+    if (e.pressure > 0 || e.pointerType === "mouse") movePlate(e);
+  });
+
+  /* ---------- spawning ---------- */
+  function progress(){ return 1 - (timeLeft / CONFIG.GAME_SECONDS); }  // 0 → 1
+  function lerp(a, b, t){ return a + (b - a) * t; }
+
+  function spawnItem(){
+    var bad = Math.random() < (1 / CONFIG.BAD_RATIO);
+    var def = bad
+      ? CONFIG.BAD_ITEMS[Math.floor(Math.random() * CONFIG.BAD_ITEMS.length)]
+      : CONFIG.GOOD_ITEMS[Math.floor(Math.random() * CONFIG.GOOD_ITEMS.length)];
+    items.push({
+      x: 24 + Math.random() * (W - 48),
+      y: -24,
+      vy: lerp(CONFIG.FALL_SPEED_START, CONFIG.FALL_SPEED_END, progress()) * (0.85 + Math.random() * 0.3),
+      drift: (Math.random() - 0.5) * 30,      // gentle sideways drift
+      bad: bad,
+      emoji: def.emoji,
+      points: bad ? -def.penalty : def.points
+    });
+  }
+
+  /* ---------- catching ---------- */
+  function catchItem(it){
+    if (it.bad){
+      score = Math.max(0, score + it.points);   // points is negative for bad
+      combo = 0;
+      flashUntil = performance.now() + 180;
+      card.classList.remove("shake");
+      void card.offsetWidth;
+      card.classList.add("shake");
+      addFloater(it.x, H - 60, String(it.points), "#E5484D");
+    } else {
+      var gained = it.points + combo * CONFIG.COMBO_BONUS;
+      score += gained;
+      combo++;
+      caught++;
+      addFloater(it.x, H - 60, "+" + gained, "#2FA36B");
+    }
+    scoreVal.textContent = score;
+    comboVal.textContent = "×" + combo;
+  }
+
+  function addFloater(x, y, text, color){
+    floaters.push({ x: x, y: y, text: text, color: color, life: 0.7 });
+  }
+
+  /* ---------- main loop ---------- */
+  function frame(now){
+    if (!running) return;
+    var dt = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+
+    // timer
+    timeLeft -= dt;
+    if (timeLeft <= 0){ timeLeft = 0; renderHudTime(); endGame(); return; }
+    renderHudTime();
+
+    // spawn
+    spawnTimer -= dt * 1000;
+    if (spawnTimer <= 0){
+      spawnItem();
+      spawnTimer = lerp(CONFIG.SPAWN_MS_START, CONFIG.SPAWN_MS_END, progress());
+    }
+
+    // physics + catch/miss
+    var plateY = H - 26;
+    for (var i = items.length - 1; i >= 0; i--){
+      var it = items[i];
+      it.y += it.vy * dt;
+      it.x += it.drift * dt;
+      if (it.x < 16) it.x = 16;
+      if (it.x > W - 16) it.x = W - 16;
+
+      if (it.y >= plateY - 16 && it.y <= plateY + 14 &&
+          Math.abs(it.x - plateX) <= PLATE_HALF){
+        catchItem(it);
+        items.splice(i, 1);
+      } else if (it.y > H + 26){
+        if (!it.bad){ combo = 0; comboVal.textContent = "×0"; } // dropped good food breaks combo
+        else dodgedBad++;
+        items.splice(i, 1);
+      }
+    }
+
+    // floaters
+    for (var f = floaters.length - 1; f >= 0; f--){
+      floaters[f].life -= dt;
+      floaters[f].y -= 46 * dt;
+      if (floaters[f].life <= 0) floaters.splice(f, 1);
+    }
+
+    draw(now);
+    rafHandle = requestAnimationFrame(frame);
+  }
+
+  function draw(now){
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // falling items — Chrome applies fillStyle's ALPHA to colour emoji
+    // glyphs, so this must be fully opaque or the food looks transparent
+    ctx.fillStyle = "#16324F";
+    ctx.font = "28px sans-serif";
+    items.forEach(function(it){
+      ctx.fillText(it.emoji, it.x, it.y);
+    });
+
+    // plate — drawn with shapes (the 🍽️ emoji is too pale on this bg)
+    var plateY = H - 26;
+    ctx.fillStyle = "rgba(22,50,79,.10)";
+    ctx.beginPath();
+    ctx.ellipse(plateX, plateY + 16, PLATE_HALF, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(plateX, plateY + 4, PLATE_HALF, 12, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = "#16324F";
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(plateX, plateY + 4, PLATE_HALF - 11, 6, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#FFEFED";
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#FF6B5E";
+    ctx.stroke();
+
+    // score floaters
+    ctx.font = "700 15px Poppins, sans-serif";
+    floaters.forEach(function(f){
+      ctx.globalAlpha = Math.max(0, f.life / 0.7);
+      ctx.fillStyle = f.color;
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.globalAlpha = 1;
+    });
+
+    // red flash when a burnt item is caught
+    if (now < flashUntil){
+      ctx.fillStyle = "rgba(229,72,77,.16)";
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function renderHudTime(){
+    timeVal.textContent = Math.ceil(timeLeft);
+    timerFill.style.width = (timeLeft / CONFIG.GAME_SECONDS * 100) + "%";
+    var low = timeLeft <= 5;
+    timerFill.classList.toggle("low", low);
+    timeStat.classList.toggle("low", low);
+  }
+
+  /* ---------- start / end ---------- */
+  function startGame(){
+    score = 0; combo = 0; caught = 0; dodgedBad = 0;
+    timeLeft = CONFIG.GAME_SECONDS;
+    items = []; floaters = [];
+    spawnTimer = 300;
+    scoreVal.textContent = "0";
+    comboVal.textContent = "×0";
+
+    introScreen.style.display  = "none";
+    resultScreen.style.display = "none";
+    leadScreen.style.display   = "none";
+    gameScreen.style.display   = "block";
+    fieldHint.style.opacity = "1";
+
+    sizeCanvas();
+    plateX = W / 2;
+    renderHudTime();
+
+    running = true;
+    lastFrame = performance.now();
+    rafHandle = requestAnimationFrame(frame);
+  }
+
+  function endGame(){
+    if (!running) return;
+    running = false;
+    cancelAnimationFrame(rafHandle);
+
+    try{
+      var best = parseInt(localStorage.getItem("bbs_catch_best") || "0", 10);
+      if (score > best) localStorage.setItem("bbs_catch_best", String(score));
+    }catch(e){}
+
+    gameScreen.style.display = "none";
+    if (CONFIG.ENABLE_LEAD_CAPTURE){
+      leadScreen.style.display = "block";
+    } else {
+      showResult();
+    }
+  }
+
+  /* ---------- rewards ---------- */
+  function currentTier(){
+    var tier = CONFIG.REWARD_TIERS[0];
+    CONFIG.REWARD_TIERS.forEach(function(t){
+      if (score >= t.minScore) tier = t;
+    });
+    return tier;
+  }
+
+  function showResult(){
+    var tier = currentTier();
+    var best = 0;
+    try{ best = parseInt(localStorage.getItem("bbs_catch_best") || "0", 10); }catch(e){}
+
+    document.getElementById("resultEmoji").textContent =
+      score >= 420 ? "🏆" : score >= 250 ? "🍽️✨" : score >= 100 ? "🍽️" : "🫠";
+    document.getElementById("resultTitle").textContent =
+      score > 0 ? "Time's up — " + score + " points!" : "Time's up!";
+    document.getElementById("tierLabel").textContent = tier.label;
+    document.getElementById("statLine").innerHTML =
+      "Caught <b>" + caught + "</b> dishes · Best: <b>" + Math.max(best, score) + "</b>";
+    document.getElementById("codePill").textContent = tier.code;
+    document.getElementById("redeemLine").textContent = CONFIG.REDEEM_LINE;
+
+    leadScreen.style.display   = "none";
+    resultScreen.style.display = "block";
+  }
+
+  /* ---------- lead capture → voucher issued by Google Apps Script ---------- */
+  var leadBtn    = document.getElementById("leadBtn");
+  var leadStatus = document.getElementById("leadStatus");
+  var sentBadge  = document.getElementById("sentBadge");
+  var codePill   = document.getElementById("codePill");
+  var redeemLine = document.getElementById("redeemLine");
+  var tierLabelEl = document.getElementById("tierLabel");
+
+  function setStatus(msg, isError){
+    leadStatus.textContent = msg;
+    leadStatus.className = "leadStatus" + (isError ? " err" : "");
+  }
+  function setBadge(cls, text){
+    sentBadge.className = "sentBadge" + (cls ? " " + cls : "");
+    sentBadge.textContent = text || "";
+  }
+
+  function resetLeadForm(){
+    document.getElementById("leadName").value = "";
+    document.getElementById("leadEmail").value = "";
+    document.getElementById("leadConsent").checked = false;
+    setStatus("", false);
+    setBadge("", "");
+  }
+  document.getElementById("againBtn").addEventListener("click", resetLeadForm);
+
+  leadBtn.addEventListener("click", function(){
+    var name  = document.getElementById("leadName").value.trim();
+    var email = document.getElementById("leadEmail").value.trim();
+    if (!name){ setStatus("Please enter your name.", true); return; }
+    if (!/^\S+@\S+\.\S+$/.test(email)){ setStatus("Please enter a valid email address.", true); return; }
+    if (!document.getElementById("leadConsent").checked){ setStatus("Please tick the box to continue.", true); return; }
+
+    var tier = currentTier();
+    leadBtn.disabled = true;
+    setStatus("Issuing your voucher…", false);
+
+    sendLead({
+      action:   "issue",
+      game:     "Catch the Falling Food",
+      name:     name,
+      email:    email,
+      result:   score + " points",
+      reward:   tier.label,
+      tierCode: tier.code
+    }).then(function(resp){
+      leadBtn.disabled = false;
+      if (resp.ok){
+        showResult();
+        codePill.textContent = resp.code;
+        redeemLine.textContent = "We've emailed voucher " + resp.code + " to " + resp.maskedEmail +
+          ". Show the email at the counter. Valid until " + resp.expires + ".";
+        if (resp.emailSent){
+          setBadge("ok", "✓ Voucher no. " + String(resp.voucherNo).padStart(4, "0") + " sent by email");
+        } else {
+          setBadge("warn", "⚠ Voucher saved, but the email couldn't be sent — show this screen at the counter");
+        }
+      } else if (resp.reason === "duplicate"){
+        showResult();
+        tierLabelEl.textContent = "You've already claimed a voucher";
+        codePill.textContent = resp.code;
+        redeemLine.textContent = resp.resent
+          ? "We've re-sent voucher " + resp.code + " to " + resp.maskedEmail + ". One voucher per customer."
+          : "Voucher " + resp.code + " was already sent to " + resp.maskedEmail + ". One voucher per customer.";
+        setBadge("warn", resp.redeemed ? "This voucher has already been redeemed" : "Already claimed with this email");
+      } else if (resp.reason === "invalid"){
+        setStatus("Please check your name and email address.", true);
+      } else if (resp.reason === "cap_reached"){
+        setStatus("Sorry — all vouchers for this campaign have been claimed.", true);
+      } else {
+        setStatus("Couldn't reach the voucher service. Check your connection and try again.", true);
+      }
+    });
+  });
+
+  // Posts to the Apps Script endpoint set in leads-config.js and returns its JSON reply.
+  // A copy of every attempt is kept in localStorage ('bbs_demo_leads') for reference.
+  function sendLead(lead){
+    lead.timestamp = new Date().toISOString();
+    lead.device    = navigator.userAgent;
+    lead.page      = location.href;
+    try{
+      var leads = JSON.parse(localStorage.getItem("bbs_demo_leads") || "[]");
+      leads.push(lead);
+      localStorage.setItem("bbs_demo_leads", JSON.stringify(leads));
+    }catch(e){ /* localStorage unavailable (private mode) — ignore */ }
+
+    var url = (window.LEAD_DEMO && window.LEAD_DEMO.SHEET_ENDPOINT) || "";
+    if (!url) return Promise.resolve({ ok:false, reason:"no_endpoint" });
+
+    // text/plain avoids a CORS preflight, which Apps Script web apps don't answer.
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(lead),
+      redirect: "follow"
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(j){ return j && typeof j === "object" ? j : { ok:false, reason:"bad_reply" }; })
+    .catch(function(){ return { ok:false, reason:"network" }; });
+  }
+
+  /* ---------- buttons ---------- */
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("againBtn").addEventListener("click", function(){
+    resultScreen.style.display = "none";
+    showBest();
+    startGame();
+  });
+})();
+</script>
+</body>
+</html>

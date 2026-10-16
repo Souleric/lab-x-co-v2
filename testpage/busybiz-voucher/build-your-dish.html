@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Build Your Dish — Busy Biz Solution</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="leads-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     BRAND COLOURS — edit these to rebrand the whole game
+     ============================================================ */
+  :root{
+    --navy:  #16324F;
+    --coral: #FF6B5E;
+    --mist:  #F7F9FB;
+    --slate: #5B6B7B;
+    --coral-soft: #FFEFED;   /* light coral tint used for pills/hovers */
+    --green: #2FA36B;        /* success accent for score */
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{ height:100%; }
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--navy);
+    background: radial-gradient(circle at 50% 0%, #1f4266, #16324F);
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px 12px;
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:#fff;
+    border-radius:26px;
+    box-shadow:0 24px 60px rgba(0,0,0,.35);
+    width:100%;
+    max-width:460px;
+    padding:22px 20px 18px;
+    position:relative;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  /* ---------- Header ---------- */
+  .brandrow{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:4px;
+  }
+  .brand{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:17px;
+    letter-spacing:-.02em; color:var(--navy);
+  }
+  .brand .dot{ color:var(--coral); }
+  .eyebrow{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:10px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--coral);
+    background:var(--coral-soft); padding:5px 10px; border-radius:999px;
+  }
+
+  h1{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:24px;
+    letter-spacing:-.02em; margin:10px 0 2px;
+  }
+  .sub{ color:var(--slate); font-size:13.5px; line-height:1.45; margin-bottom:14px; }
+
+  /* ---------- Score bar ---------- */
+  .scorebar{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--mist); border-radius:14px; padding:10px 14px;
+    margin-bottom:14px; font-size:13px; font-weight:600;
+  }
+  .scorebar .label{ color:var(--slate); font-weight:500; }
+  .scorebar .val{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; }
+  .scorebar .flavour{ color:var(--coral); }
+  #tierHint{
+    font-size:11.5px; color:var(--slate); text-align:center; margin:-6px 0 12px;
+    min-height:16px; font-weight:500;
+  }
+  #tierHint b{ color:var(--coral); }
+
+  /* ---------- Ingredient tray ---------- */
+  .tray{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .ing{
+    background:var(--mist);
+    border:2px solid transparent;
+    border-radius:16px;
+    padding:8px 4px 6px;
+    text-align:center;
+    cursor:grab;
+    touch-action:none;           /* critical: lets pointer events drive touch drag */
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .ing:active{ cursor:grabbing; }
+  .ing.dragging{ opacity:.35; }
+  .ing:hover{ border-color:var(--coral); background:#fff; }
+  .ing .emoji{ font-size:26px; line-height:1.15; display:block; pointer-events:none; }
+  .ing .name{
+    font-size:10px; font-weight:600; color:var(--slate); display:block;
+    margin-top:2px; pointer-events:none; white-space:nowrap; overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* floating clone that follows the finger/cursor */
+  .ghost{
+    position:fixed; z-index:999; pointer-events:none;
+    font-size:34px; transform:translate(-50%,-50%) scale(1.2);
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));
+  }
+
+  /* ---------- Plate / drop zone ---------- */
+  .plateZone{
+    position:relative;
+    background:var(--mist);
+    border:2px dashed #d5dde5;
+    border-radius:20px;
+    height:180px;
+    margin-bottom:14px;
+    overflow:hidden;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .plateZone.hot{ border-color:var(--coral); background:var(--coral-soft); }
+  .plateZone .hint{
+    position:absolute; top:10px; left:0; right:0; text-align:center;
+    font-size:11.5px; color:var(--slate); font-weight:500; pointer-events:none;
+  }
+  .baseEmoji{
+    position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+    font-size:56px; pointer-events:none;
+  }
+  .stackItem{
+    position:absolute; left:50%; font-size:34px; pointer-events:none;
+    animation:pop .35s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pop{
+    0%{ transform:translateX(-50%) scale(.2); opacity:0; }
+    100%{ transform:translateX(-50%) scale(1) var(--wob,rotate(0deg)); opacity:1; }
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
+    border:none; border-radius:999px; padding:14px 20px; width:100%;
+    cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, opacity .12s;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-coral{
+    background:var(--coral); color:#fff;
+    box-shadow:0 10px 22px rgba(255,107,94,.35);
+  }
+  .btn-coral:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .btn-ghost{
+    background:var(--mist); color:var(--navy); margin-top:10px;
+  }
+
+  .footer{
+    text-align:center; font-size:11px; color:var(--slate);
+    margin-top:14px;
+  }
+
+  /* ---------- Result screen ---------- */
+  .result{ display:none; text-align:center; animation:fadeUp .4s ease both; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none;} }
+  .result .dishEmojis{ font-size:38px; margin:10px 0 4px; line-height:1.3; word-break:break-all; }
+  .result h2{
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:22px; margin-bottom:2px;
+  }
+  .result .tierLabel{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
+    color:var(--coral); margin-bottom:14px;
+  }
+  .codePill{
+    display:inline-block;
+    border:2px dashed var(--coral);
+    background:var(--coral-soft);
+    color:var(--coral);
+    font-family:'Poppins',sans-serif; font-weight:800; font-size:22px;
+    letter-spacing:.08em;
+    padding:12px 26px; border-radius:16px; margin-bottom:10px;
+  }
+  .redeem{
+    font-size:12.5px; color:var(--slate); line-height:1.5; margin-bottom:16px;
+  }
+
+  /* ---------- Optional lead capture (hidden until enabled) ---------- */
+  .lead{ display:none; text-align:center; animation:fadeUp .4s ease both; }
+  .lead input{
+    width:100%; font-family:'Inter',sans-serif; font-size:14px;
+    border:1.5px solid #d5dde5; border-radius:12px; padding:12px 14px;
+    margin-bottom:10px; outline:none; color:var(--navy);
+  }
+  .lead input:focus{ border-color:var(--coral); }
+
+  /* small screens */
+  @media (max-width:380px){
+    .tray{ grid-template-columns:repeat(4,1fr); gap:6px; }
+    .ing .emoji{ font-size:22px; }
+    h1{ font-size:21px; }
+  }
+
+  /* ---------- Lead-capture demo additions ---------- */
+  .consent{
+    display:flex; align-items:flex-start; gap:8px; text-align:left;
+    font-size:12px; color:var(--slate); line-height:1.4; margin:2px 0 12px; cursor:pointer;
+  }
+  #leadScreen .consent input{ width:16px; height:16px; margin:1px 0 0; padding:0; flex:none; accent-color:var(--coral); }
+  .leadStatus{ font-size:12px; min-height:16px; margin-top:8px; color:var(--slate); }
+  .leadStatus.err{ color:#E5484D; font-weight:600; }
+  #leadBtn:disabled{ opacity:.55; cursor:wait; }
+  .sentBadge{ display:none; font-size:12px; font-weight:600; border-radius:999px; padding:6px 12px; margin-bottom:14px; }
+  .sentBadge.ok{ display:inline-block; background:#EAF7F0; color:var(--green); }
+  .sentBadge.warn{ display:inline-block; background:#FFF4E5; color:#B45309; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <!-- Header -->
+  <div class="brandrow">
+    <div class="brand">busy biz<span class="dot">.</span></div>
+    <div class="eyebrow" id="eyebrow">Voucher Demo</div>
+  </div>
+
+  <!-- ================= GAME SCREEN ================= -->
+  <div id="gameScreen">
+    <h1 id="gameTitle">Build Your Dish</h1>
+    <p class="sub" id="gameSub">Drag ingredients onto the plate to create your own dish — the bigger the build, the better the reward!</p>
+
+    <div class="scorebar">
+      <div><span class="label">Ingredients</span>&nbsp; <span class="val" id="countVal">0</span></div>
+      <div><span class="label">Flavour score</span>&nbsp; <span class="val flavour" id="scoreVal">0</span></div>
+    </div>
+    <div id="tierHint"></div>
+
+    <div class="tray" id="tray"></div>
+
+    <div class="plateZone" id="plateZone">
+      <div class="hint" id="dropHint">Drop ingredients here 👇</div>
+      <div class="baseEmoji" id="baseEmoji"></div>
+    </div>
+
+    <button class="btn btn-coral" id="serveBtn" disabled>Serve it! 🍽️</button>
+  </div>
+
+  <!-- ================= OPTIONAL LEAD CAPTURE =================
+       To enable: set ENABLE_LEAD_CAPTURE = true in CONFIG below.
+       Collected leads are stored in localStorage under 'bbs_dish_leads'
+       (swap the saveLead() body for a fetch() to your endpoint later). -->
+  <div class="lead" id="leadScreen">
+    <h2 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;margin:8px 0 4px;">Almost there! 🎉</h2>
+    <p class="sub">Enter your details and we'll email your voucher to you.</p>
+    <input type="text" id="leadName" placeholder="Your name" autocomplete="name">
+    <input type="email" id="leadEmail" placeholder="Your email" autocomplete="email">
+    <label class="consent"><input type="checkbox" id="leadConsent"><span>I agree to receive offers and updates from this restaurant by email.</span></label>
+    <button class="btn btn-coral" id="leadBtn">Email my voucher →</button>
+    <div class="leadStatus" id="leadStatus"></div>
+  </div>
+
+  <!-- ================= RESULT SCREEN ================= -->
+  <div class="result" id="resultScreen">
+    <div class="dishEmojis" id="dishEmojis"></div>
+    <h2>Your creation!</h2>
+    <div class="tierLabel" id="tierLabel"></div>
+    <div class="codePill" id="codePill"></div>
+    <p class="redeem" id="redeemLine"></p>
+    <div class="sentBadge" id="sentBadge"></div>
+    <button class="btn btn-coral" id="againBtn">Play again 🔄</button>
+  </div>
+
+  <div class="footer">Demo game by Busy Biz Solution</div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — everything editable lives here.
+   A non-coder can change the copy, ingredients, rewards and
+   base dish below without touching the rest of the code.
+   ============================================================ */
+
+var CONFIG = {
+
+  // Top-of-card copy
+  EYEBROW:  "Voucher Demo",
+  TITLE:    "Build Your Dish",
+  SUBTITLE: "Drag ingredients onto the plate to create your own dish — the bigger the build, the better the reward!",
+
+  // The base the player builds on (e.g. burger bun / poke bowl / pizza base)
+  BASE: { label: "Burger bun", emoji: "🍞" },
+
+  // Draggable ingredients: name, emoji, and flavour points each adds
+  INGREDIENTS: [
+    { name: "Patty",    emoji: "🥩", points: 20 },
+    { name: "Cheese",   emoji: "🧀", points: 15 },
+    { name: "Lettuce",  emoji: "🥬", points: 10 },
+    { name: "Tomato",   emoji: "🍅", points: 10 },
+    { name: "Egg",      emoji: "🍳", points: 15 },
+    { name: "Bacon",    emoji: "🥓", points: 20 },
+    { name: "Onion",    emoji: "🧅", points: 8  },
+    { name: "Sauce",    emoji: "🥫", points: 12 },
+    { name: "Pickles",  emoji: "🥒", points: 8  },
+    { name: "Mushroom", emoji: "🍄", points: 12 },
+    { name: "Chilli",   emoji: "🌶️", points: 10 },
+    { name: "Avocado",  emoji: "🥑", points: 15 }
+  ],
+
+  // Reward tiers — the HIGHEST tier whose minItems the player reaches wins.
+  // Keep sorted from lowest to highest minItems.
+  REWARD_TIERS: [
+    { minItems: 1, label: "Nice start! 10% off your custom dish",       code: "BUILD10" },
+    { minItems: 4, label: "Tasty build! 15% off your custom dish",      code: "BUILD15" },
+    { minItems: 7, label: "Master chef! 20% off your custom dish",      code: "BUILD20" }
+  ],
+
+  // Line shown under the reward code
+  REDEEM_LINE: "Show this code at the counter or enter it at checkout. One redemption per customer.",
+
+  // Max ingredients allowed on the plate (keeps the stack tidy)
+  MAX_ITEMS: 10,
+
+  // Lead capture is ON in this demo: name + email are required, then the
+  // Google Apps Script (endpoint in leads-config.js) issues a numbered voucher,
+  // emails it to the player and logs a row in the Google Sheet.
+  ENABLE_LEAD_CAPTURE: true
+};
+
+/* ============================================================
+   GAME LOGIC — no need to edit below this line
+   ============================================================ */
+
+(function(){
+  "use strict";
+
+  var tray       = document.getElementById("tray");
+  var plateZone  = document.getElementById("plateZone");
+  var baseEmoji  = document.getElementById("baseEmoji");
+  var dropHint   = document.getElementById("dropHint");
+  var countVal   = document.getElementById("countVal");
+  var scoreVal   = document.getElementById("scoreVal");
+  var tierHint   = document.getElementById("tierHint");
+  var serveBtn   = document.getElementById("serveBtn");
+  var gameScreen   = document.getElementById("gameScreen");
+  var leadScreen   = document.getElementById("leadScreen");
+  var resultScreen = document.getElementById("resultScreen");
+
+  var plateItems = [];   // ingredients added, in order
+  var score = 0;
+
+  /* ---------- initial copy from CONFIG ---------- */
+  document.getElementById("eyebrow").textContent  = CONFIG.EYEBROW;
+  document.getElementById("gameTitle").textContent = CONFIG.TITLE;
+  document.getElementById("gameSub").textContent   = CONFIG.SUBTITLE;
+  baseEmoji.textContent = CONFIG.BASE.emoji;
+  baseEmoji.title = CONFIG.BASE.label;
+
+  /* ---------- build the ingredient tray ---------- */
+  CONFIG.INGREDIENTS.forEach(function(ing, i){
+    var el = document.createElement("div");
+    el.className = "ing";
+    el.dataset.index = i;
+    el.innerHTML = '<span class="emoji">' + ing.emoji + '</span>' +
+                   '<span class="name">'  + ing.name  + '</span>';
+    el.addEventListener("pointerdown", startDrag);
+    tray.appendChild(el);
+  });
+
+  /* ---------- drag & drop (pointer events = mouse + touch) ---------- */
+  var ghost = null, dragIng = null, dragEl = null;
+
+  function startDrag(e){
+    if (plateItems.length >= CONFIG.MAX_ITEMS) {
+      flashHint("Plate is full — serve it!");
+      return;
+    }
+    e.preventDefault();
+    dragEl  = e.currentTarget;
+    dragIng = CONFIG.INGREDIENTS[dragEl.dataset.index];
+    dragEl.classList.add("dragging");
+
+    ghost = document.createElement("div");
+    ghost.className = "ghost";
+    ghost.textContent = dragIng.emoji;
+    document.body.appendChild(ghost);
+    moveGhost(e.clientX, e.clientY);
+
+    window.addEventListener("pointermove", onDragMove);
+    window.addEventListener("pointerup", onDragEnd);
+    window.addEventListener("pointercancel", onDragEnd);
+  }
+
+  function moveGhost(x, y){
+    ghost.style.left = x + "px";
+    ghost.style.top  = y + "px";
+    var r = plateZone.getBoundingClientRect();
+    var over = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    plateZone.classList.toggle("hot", over);
+  }
+
+  function onDragMove(e){ if (ghost) moveGhost(e.clientX, e.clientY); }
+
+  function onDragEnd(e){
+    window.removeEventListener("pointermove", onDragMove);
+    window.removeEventListener("pointerup", onDragEnd);
+    window.removeEventListener("pointercancel", onDragEnd);
+
+    var r = plateZone.getBoundingClientRect();
+    var dropped = e.clientX >= r.left && e.clientX <= r.right &&
+                  e.clientY >= r.top  && e.clientY <= r.bottom;
+
+    if (ghost) { ghost.remove(); ghost = null; }
+    if (dragEl) { dragEl.classList.remove("dragging"); }
+    plateZone.classList.remove("hot");
+
+    if (dropped && dragIng) addToPlate(dragIng);
+    dragIng = null; dragEl = null;
+  }
+
+  /* ---------- plate stacking ---------- */
+  function addToPlate(ing){
+    plateItems.push(ing);
+    score += ing.points;
+
+    var item = document.createElement("div");
+    item.className = "stackItem";
+    item.textContent = ing.emoji;
+    // stack upward from just above the base, with a little wobble
+    var layer = plateItems.length - 1;
+    var bottom = 52 + layer * 16;                       // px above card bottom of zone
+    var wobble = ((layer % 2 === 0) ? 1 : -1) * (3 + (layer % 3) * 2);
+    item.style.bottom = Math.min(bottom, 132) + "px";
+    item.style.setProperty("--wob", "rotate(" + wobble + "deg)");
+    plateZone.appendChild(item);
+
+    dropHint.style.display = "none";
+    updateHud();
+  }
+
+  function updateHud(){
+    countVal.textContent = plateItems.length;
+    scoreVal.textContent = score;
+    serveBtn.disabled = plateItems.length === 0;
+
+    // hint about the next reward tier
+    var next = null;
+    for (var i = 0; i < CONFIG.REWARD_TIERS.length; i++){
+      if (plateItems.length < CONFIG.REWARD_TIERS[i].minItems) { next = CONFIG.REWARD_TIERS[i]; break; }
+    }
+    if (plateItems.length === 0){
+      tierHint.innerHTML = "";
+    } else if (next){
+      var need = next.minItems - plateItems.length;
+      tierHint.innerHTML = "Add <b>" + need + " more</b> to unlock: " + next.label.split("!")[0] + "!";
+    } else {
+      tierHint.innerHTML = "🔥 <b>Top tier unlocked!</b> Serve it when you're ready.";
+    }
+  }
+
+  var hintTimer = null;
+  function flashHint(msg){
+    tierHint.innerHTML = "<b>" + msg + "</b>";
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(updateHud, 1600);
+  }
+
+  /* ---------- serving & rewards ---------- */
+  function currentTier(){
+    var tier = CONFIG.REWARD_TIERS[0];
+    CONFIG.REWARD_TIERS.forEach(function(t){
+      if (plateItems.length >= t.minItems) tier = t;
+    });
+    return tier;
+  }
+
+  serveBtn.addEventListener("click", function(){
+    if (plateItems.length === 0) return;
+    gameScreen.style.display = "none";
+    if (CONFIG.ENABLE_LEAD_CAPTURE){
+      leadScreen.style.display = "block";
+    } else {
+      showResult();
+    }
+  });
+
+  function showResult(){
+    var tier = currentTier();
+    document.getElementById("dishEmojis").textContent =
+      CONFIG.BASE.emoji + plateItems.map(function(i){ return i.emoji; }).join("") + CONFIG.BASE.emoji;
+    document.getElementById("tierLabel").textContent =
+      tier.label + " · Flavour score " + score;
+    document.getElementById("codePill").textContent = tier.code;
+    document.getElementById("redeemLine").textContent = CONFIG.REDEEM_LINE;
+    leadScreen.style.display = "none";
+    resultScreen.style.display = "block";
+  }
+
+  /* ---------- lead capture → voucher issued by Google Apps Script ---------- */
+  var leadBtn    = document.getElementById("leadBtn");
+  var leadStatus = document.getElementById("leadStatus");
+  var sentBadge  = document.getElementById("sentBadge");
+  var codePill   = document.getElementById("codePill");
+  var redeemLine = document.getElementById("redeemLine");
+  var tierLabelEl = document.getElementById("tierLabel");
+
+  function setStatus(msg, isError){
+    leadStatus.textContent = msg;
+    leadStatus.className = "leadStatus" + (isError ? " err" : "");
+  }
+  function setBadge(cls, text){
+    sentBadge.className = "sentBadge" + (cls ? " " + cls : "");
+    sentBadge.textContent = text || "";
+  }
+
+  function resetLeadForm(){
+    document.getElementById("leadName").value = "";
+    document.getElementById("leadEmail").value = "";
+    document.getElementById("leadConsent").checked = false;
+    setStatus("", false);
+    setBadge("", "");
+  }
+  document.getElementById("againBtn").addEventListener("click", resetLeadForm);
+
+  leadBtn.addEventListener("click", function(){
+    var name  = document.getElementById("leadName").value.trim();
+    var email = document.getElementById("leadEmail").value.trim();
+    if (!name){ setStatus("Please enter your name.", true); return; }
+    if (!/^\S+@\S+\.\S+$/.test(email)){ setStatus("Please enter a valid email address.", true); return; }
+    if (!document.getElementById("leadConsent").checked){ setStatus("Please tick the box to continue.", true); return; }
+
+    var tier = currentTier();
+    leadBtn.disabled = true;
+    setStatus("Issuing your voucher…", false);
+
+    sendLead({
+      action:   "issue",
+      game:     "Build Your Dish",
+      name:     name,
+      email:    email,
+      result:   plateItems.length + " ingredients, flavour " + score,
+      reward:   tier.label,
+      tierCode: tier.code
+    }).then(function(resp){
+      leadBtn.disabled = false;
+      if (resp.ok){
+        showResult();
+        codePill.textContent = resp.code;
+        redeemLine.textContent = "We've emailed voucher " + resp.code + " to " + resp.maskedEmail +
+          ". Show the email at the counter. Valid until " + resp.expires + ".";
+        if (resp.emailSent){
+          setBadge("ok", "✓ Voucher no. " + String(resp.voucherNo).padStart(4, "0") + " sent by email");
+        } else {
+          setBadge("warn", "⚠ Voucher saved, but the email couldn't be sent — show this screen at the counter");
+        }
+      } else if (resp.reason === "duplicate"){
+        showResult();
+        tierLabelEl.textContent = "You've already claimed a voucher";
+        codePill.textContent = resp.code;
+        redeemLine.textContent = resp.resent
+          ? "We've re-sent voucher " + resp.code + " to " + resp.maskedEmail + ". One voucher per customer."
+          : "Voucher " + resp.code + " was already sent to " + resp.maskedEmail + ". One voucher per customer.";
+        setBadge("warn", resp.redeemed ? "This voucher has already been redeemed" : "Already claimed with this email");
+      } else if (resp.reason === "invalid"){
+        setStatus("Please check your name and email address.", true);
+      } else if (resp.reason === "cap_reached"){
+        setStatus("Sorry — all vouchers for this campaign have been claimed.", true);
+      } else {
+        setStatus("Couldn't reach the voucher service. Check your connection and try again.", true);
+      }
+    });
+  });
+
+  // Posts to the Apps Script endpoint set in leads-config.js and returns its JSON reply.
+  // A copy of every attempt is kept in localStorage ('bbs_demo_leads') for reference.
+  function sendLead(lead){
+    lead.timestamp = new Date().toISOString();
+    lead.device    = navigator.userAgent;
+    lead.page      = location.href;
+    try{
+      var leads = JSON.parse(localStorage.getItem("bbs_demo_leads") || "[]");
+      leads.push(lead);
+      localStorage.setItem("bbs_demo_leads", JSON.stringify(leads));
+    }catch(e){ /* localStorage unavailable (private mode) — ignore */ }
+
+    var url = (window.LEAD_DEMO && window.LEAD_DEMO.SHEET_ENDPOINT) || "";
+    if (!url) return Promise.resolve({ ok:false, reason:"no_endpoint" });
+
+    // text/plain avoids a CORS preflight, which Apps Script web apps don't answer.
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(lead),
+      redirect: "follow"
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(j){ return j && typeof j === "object" ? j : { ok:false, reason:"bad_reply" }; })
+    .catch(function(){ return { ok:false, reason:"network" }; });
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("againBtn").addEventListener("click", function(){
+    plateItems = [];
+    score = 0;
+    plateZone.querySelectorAll(".stackItem").forEach(function(n){ n.remove(); });
+    dropHint.style.display = "";
+    updateHud();
+    tierHint.innerHTML = "";
+    resultScreen.style.display = "none";
+    leadScreen.style.display = "none";
+    gameScreen.style.display = "block";
+  });
+
+  updateHud();
+})();
+</script>
+</body>
+</html>
